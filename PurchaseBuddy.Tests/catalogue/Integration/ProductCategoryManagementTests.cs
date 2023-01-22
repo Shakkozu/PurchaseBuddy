@@ -2,7 +2,7 @@
 using PurchaseBuddy.src.catalogue.Model;
 using PurchaseBuddy.src.catalogue.Persistance;
 
-namespace PurchaseBuddy.Tests.catalogue;
+namespace PurchaseBuddy.Tests.catalogue.Integration;
 
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
 {
@@ -20,7 +20,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var productCategory = AUserProductCategory();
 
 		userProductsManagementService.AddNewProductCategory(productCategory);
-		List<UserProductCategory> productCategories = userProductsManagementService.GetUserProductCategories(UserId);
+		var productCategories = userProductsManagementService.GetUserProductCategories(UserId);
 
 		Assert.Contains(productCategory, productCategories);
 	}

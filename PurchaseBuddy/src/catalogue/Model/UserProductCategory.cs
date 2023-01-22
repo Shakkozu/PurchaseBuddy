@@ -17,7 +17,7 @@ public class UserProductCategory
 	}
 	public static UserProductCategory CreateNewWithParent(string name, Guid userId, UserProductCategory parent, string? desc = null)
 	{
-		return new UserProductCategory(Guid.NewGuid(), userId, name, desc, null, new List<UserProductCategory>(), new List<Guid>());
+		return new UserProductCategory(Guid.NewGuid(), userId, name, desc, parent, new List<UserProductCategory>(), new List<Guid>());
 	}
 	
 	public void AddChild(UserProductCategory child)

@@ -7,12 +7,10 @@ namespace PurchaseBuddy.src.catalogue.App;
 public class UserProductsManagementService
 {
 	private readonly IUserProductsRepository userProductsManagementRepository;
-	private readonly IUserProductCategoriesRepository userProductCategoriesRepository;
 
-	public UserProductsManagementService(IUserProductsRepository userProductsManagementRepository, IUserProductCategoriesRepository userProductCategoriesRepository)
+	public UserProductsManagementService(IUserProductsRepository userProductsManagementRepositoryy)
 	{
-		this.userProductsManagementRepository = userProductsManagementRepository;
-		this.userProductCategoriesRepository = userProductCategoriesRepository;
+		this.userProductsManagementRepository = userProductsManagementRepositoryy;
 	}
 
 

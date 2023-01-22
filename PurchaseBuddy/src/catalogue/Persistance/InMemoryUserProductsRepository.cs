@@ -4,7 +4,7 @@ namespace PurchaseBuddy.src.catalogue.Persistance;
 
 public class InMemoryUserProductsRepository : IUserProductsRepository
 {
-	private Dictionary<Guid, List<UserProduct>> usersProducts = new Dictionary<Guid, List<UserProduct>>();
+	private readonly Dictionary<Guid, List<UserProduct>> usersProducts = new();
 
 	public UserProduct? GetUserProduct(Guid userId, Guid productGuid)
 	{
