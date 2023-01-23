@@ -8,6 +8,29 @@ public class ShoppingListItem
 		Quantity = quantity;
 	}
 
+	public void ChangeQuantityTo(int quantity)
+	{
+		Quantity = quantity;
+	}
+
+	public void MarkAsPurchased()
+	{
+		if (Purchased)
+			return;
+
+		Purchased = true;
+		Unavailable = false;
+	}
+	public void MarkAsUnavailable()
+	{
+		if (Unavailable)
+			return;
+		Unavailable = true;
+		Purchased = false;
+	}
+
 	public Guid ProductId { get; }
-	public int Quantity { get; }
+	public int Quantity { get; private set; }
+	public bool Purchased  { get; private set; }
+	public bool Unavailable { get; private set; }
 }

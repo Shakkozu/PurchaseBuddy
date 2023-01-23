@@ -8,20 +8,23 @@ public class ShoppingList
 
 	public IReadOnlyCollection<ShoppingListItem> Items => new ReadOnlyCollection<ShoppingListItem>(shoppingListItems);
 	public Guid UserId { get; }
+	public Guid Guid { get; }
 	public bool IsClosed => closedAt.HasValue;
 	private DateTime? closedAt;
 	private DateTime createdAt;
 
-	private ShoppingList(Guid userId, List<ShoppingListItem> shoppingListEntries, DateTime createdAt, DateTime? closedAt)
+	private ShoppingList(Guid userId, Guid guid, List<ShoppingListItem> shoppingListEntries, DateTime createdAt, DateTime? closedAt)
 	{
 		UserId = userId;
 		shoppingListItems = shoppingListEntries;
 		this.createdAt = createdAt;
 		this.closedAt = closedAt;
+		Guid = guid;
+
 	}
 	public static ShoppingList CreateNew(Guid userId)
 	{
-		return new ShoppingList(userId, new List<ShoppingListItem>(), DateTime.UtcNow, null);
+		return new ShoppingList(userId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
 	}
 
 	public void Close()
@@ -30,6 +33,24 @@ public class ShoppingList
 			return;
 
 		closedAt = DateTime.UtcNow;
+	}
+
+	public void MarkProductAsPurchased(Guid productId)
+	{
+		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == productId);
+		if (toUpdate is null)
+			return;
+
+		toUpdate.MarkAsPurchased();
+	}
+
+	public void MarkProductAsUnavailable(Guid productId)
+	{
+		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == productId);
+		if (toUpdate is null)
+			return;
+
+		toUpdate.MarkAsUnavailable();
 	}
 
 	public void AddNew(ShoppingListItem shoppingListItem)
@@ -41,8 +62,7 @@ public class ShoppingList
 			return;
 		}
 
-		shoppingListItems.Remove(toUpdate);
-		shoppingListItems.Add(new ShoppingListItem(shoppingListItem.ProductId, toUpdate.Quantity + shoppingListItem.Quantity));
+		toUpdate.ChangeQuantityTo(shoppingListItem.Quantity + toUpdate.Quantity);
 	}
 
 	public void ChangeQuantityOf(Guid productId, int newQuantity)
@@ -51,8 +71,7 @@ public class ShoppingList
 		if (itemToUpdate == null)
 			return;
 
-		shoppingListItems.Remove(itemToUpdate);
-		shoppingListItems.Add(new ShoppingListItem(productId, newQuantity));
+		itemToUpdate.ChangeQuantityTo(newQuantity);
 	}
 
 	public void Remove(Guid productId)

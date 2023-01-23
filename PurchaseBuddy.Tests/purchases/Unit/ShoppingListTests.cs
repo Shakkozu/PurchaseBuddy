@@ -14,6 +14,34 @@ internal class Fixture
 internal class ShoppingListTests : Fixture
 {
 	[Test]
+	public void MarkProductAsPurchased_AssertFlagUpdated()
+	{
+		var productId = Guid.NewGuid();
+		var shoppingList = AShoppingList();
+		var shoppingListItem = new ShoppingListItem(productId);
+		shoppingList.AddNew(shoppingListItem);
+
+		shoppingList.MarkProductAsPurchased(productId);
+
+		Assert.True(shoppingList.Items.First().Purchased);
+		Assert.False(shoppingList.Items.First().Unavailable);
+	}
+
+	[Test]
+	public void MarkProductAsUnavailable_AssertFlagUpdated()
+	{
+		var productId = Guid.NewGuid();
+		var shoppingList = AShoppingList();
+		var shoppingListItem = new ShoppingListItem(productId);
+		shoppingList.AddNew(shoppingListItem);
+
+		shoppingList.MarkProductAsUnavailable(productId);
+
+		Assert.True(shoppingList.Items.First().Unavailable);
+		Assert.False(shoppingList.Items.First().Purchased);
+	}
+	
+	[Test]
 	public void AddItemToShoppingList()
 	{
 		var productId = Guid.NewGuid();

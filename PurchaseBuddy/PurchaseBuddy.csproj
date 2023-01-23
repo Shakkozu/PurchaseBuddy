@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="src\catalogue\Contract\" />
     <Folder Include="src\catalogue\Domain\" />
-    <Folder Include="src\purchases\app\" />
-    <Folder Include="src\purchases\persistance\" />
-    <Folder Include="src\stores\" />
+    <Folder Include="src\stores\app\" />
+    <Folder Include="src\stores\persistance\" />
   </ItemGroup>
 
   <ItemGroup>
