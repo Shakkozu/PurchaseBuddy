@@ -1,6 +1,6 @@
 ﻿using PurchaseBuddy.src.stores.domain;
 
-namespace PurchaseBuddy.src.stores.app;
+namespace PurchaseBuddy.src.stores.persistance;
 
 public interface IUserShopRepository
 {
@@ -37,7 +37,7 @@ public class InMemoryUserShopRepository : IUserShopRepository
 		}
 
 		var modifiedShop = cache[userShop.UserId].FirstOrDefault(shop => shop.Guid == userShop.Guid);
-		if(modifiedShop != null)
+		if (modifiedShop != null)
 		{
 			cache[userShop.UserId].Remove(modifiedShop);
 			cache[userShop.UserId].Add(userShop);

@@ -1,4 +1,5 @@
 ﻿using PurchaseBuddy.src.stores.domain;
+using PurchaseBuddy.src.stores.persistance;
 
 namespace PurchaseBuddy.src.stores.app;
 

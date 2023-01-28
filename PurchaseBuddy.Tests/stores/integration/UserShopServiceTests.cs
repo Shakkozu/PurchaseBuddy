@@ -1,5 +1,6 @@
 ﻿using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
+using PurchaseBuddy.src.stores.persistance;
 
 namespace PurchaseBuddy.Tests.stores.integration;
 internal class UserShopServiceTests
