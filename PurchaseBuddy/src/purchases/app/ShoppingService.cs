@@ -6,10 +6,6 @@ public class ShoppingService
 {
 	private readonly IShoppingListRepository shoppingListRepository;
 
-	public ShoppingService()
-	{
-	}
-
 	public ShoppingService(IShoppingListRepository shoppingListRepository)
 	{
 		this.shoppingListRepository = shoppingListRepository;

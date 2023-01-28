@@ -13,7 +13,6 @@
   <ItemGroup>
     <Folder Include="src\catalogue\Contract\" />
     <Folder Include="src\catalogue\Domain\" />
-    <Folder Include="src\stores\app\" />
     <Folder Include="src\stores\persistance\" />
   </ItemGroup>
 
