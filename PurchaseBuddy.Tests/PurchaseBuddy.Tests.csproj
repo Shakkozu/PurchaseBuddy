@@ -1,12 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="crm\**" />
+    <Compile Remove="purchases\Integration\**" />
+    <EmbeddedResource Remove="crm\**" />
+    <EmbeddedResource Remove="purchases\Integration\**" />
+    <None Remove="crm\**" />
+    <None Remove="purchases\Integration\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
@@ -17,12 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="crm\" />
-    <Folder Include="purchases\Integration\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\PurchaseBuddy\PurchaseBuddy.csproj" />
+    <ProjectReference Include="..\PurchaseBuddyLibrary\PurchaseBuddyLibrary.csproj" />
   </ItemGroup>
 
 </Project>
