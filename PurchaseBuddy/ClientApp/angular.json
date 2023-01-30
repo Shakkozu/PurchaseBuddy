@@ -132,5 +132,8 @@
       }
     }
   },
-  "defaultProject": "PurchaseBuddy"
+  "defaultProject": "PurchaseBuddy",
+  "cli": {
+    "analytics": false
+  }
 }
