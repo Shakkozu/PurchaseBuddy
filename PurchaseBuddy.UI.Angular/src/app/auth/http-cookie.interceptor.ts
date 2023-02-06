@@ -8,7 +8,6 @@ export class HttpCookieInterceptor implements HttpInterceptor {
 	constructor () { }
 
 	intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-		// const val = document.cookie('auth');
 		const cookieValue = this.getCookieValue('auth');
 
 		if (cookieValue) {

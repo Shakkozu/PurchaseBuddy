@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Auth\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PurchaseBuddyLibrary\PurchaseBuddyLibrary.csproj" />
   </ItemGroup>
 

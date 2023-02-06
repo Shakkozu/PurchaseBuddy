@@ -1,25 +1,17 @@
 ﻿namespace PurchaseBuddyLibrary.src.auth.app;
 
-
-public interface IUserSessionCache
-{
-	void Add(Session session);
-	void Delete(Session session);
-	Session? Load(Guid sessionId);
-}
 public static class StaticUserSessionCache
 {
 	public static void Add(Session session)
 	{
 		cache.Add(session.SessionId, session);
 	}
-
-	public static Session? Find(Guid sessionId)
+	
+	public static Session? FindByUserId(Guid userId)
 	{
-		if (cache.ContainsKey(sessionId))
-			return cache[sessionId];
+		cache.TryGetValue(userId, out var value);
 
-		return null;
+		return value;
 	}
 
 	public static Session? Load(Guid sessionId)
@@ -34,44 +26,6 @@ public static class StaticUserSessionCache
 	}
 
 	private static Dictionary<Guid, Session> cache = new();
-}
-public class UserSessionCache : IUserSessionCache
-{
-	// initalize event generated every 2h, that will clear all expired sessions
-	public UserSessionCache()
-	{
-		var timer = new System.Timers.Timer(TimeSpan.FromHours(2).TotalMilliseconds);
-		timer.Elapsed += (sender, args) => cache = cache
-			.Where(x => !x.Value.IsExpired)
-			.ToDictionary(x => x.Key, x => x.Value);
-
-		timer.Start();
-	}
-	public void Add(Session session)
-	{
-		cache.Add(session.SessionId, session);
-	}
-
-	public Session? Find(Guid sessionId)
-	{
-		if (cache.ContainsKey(sessionId))
-			return cache[sessionId];
-
-		return null;
-	}
-
-	public Session? Load(Guid sessionId)
-	{
-		return cache.TryGetValue(sessionId, out var value) ? value : null;
-	}
-
-	public void Delete(Session session)
-	{
-		if (cache.ContainsKey(session.SessionId))
-			cache.Remove(session.SessionId);
-	}
-
-	private Dictionary<Guid, Session> cache = new();
 }
 
 public class SessionExpiredException : Exception

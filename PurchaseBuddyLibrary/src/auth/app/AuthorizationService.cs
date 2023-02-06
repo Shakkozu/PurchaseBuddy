@@ -13,12 +13,10 @@ namespace PurchaseBuddyLibrary.src.auth.app;
 public class AuthorizationService : IAuthorizationService
 {
 	public AuthorizationService(IUserRepository userRepository,
-		IUserSessionCache sessionRepository,
 		IConfiguration configuration
 		)
 	{
 		this.userRepository = userRepository;
-		this.sessionCache = sessionRepository;
 		this.configuration = configuration;
 	}
 
@@ -31,6 +29,7 @@ public class AuthorizationService : IAuthorizationService
 
 		if (!ValidateIfEmailIsCorrect(userDto.Email))
 			throw new ArgumentException("Email is incorrect");
+		
 		//if (!ValidateIfPasswordIsCorrect(userDto.Password))
 		//	throw new ArgumentException("Password is incorrect");
 
@@ -52,24 +51,27 @@ public class AuthorizationService : IAuthorizationService
 		if (user.PasswordHash != GetHash(password + user.Salt))
 			throw new ArgumentException("Invalid user credentials");
 
+		var userSession = StaticUserSessionCache.FindByUserId(user.Guid);
+		if (userSession != null && !userSession.IsExpired)
+			return userSession.SessionId;
+		
 		var ttlInMinutes = Convert.ToInt32(configuration.GetSection("Authentication")["UserSessionLifetimeInMinutes"]);
 		var session = Session.CreateNew(user.Guid, ttlInMinutes);
 		StaticUserSessionCache.Add(session);
-		sessionCache.Add(session);
 
 		return session.SessionId;
 	}
 	
 	public void Logout(Guid sessionId)
 	{
-		var session = sessionCache.Load(sessionId);
+		var session = StaticUserSessionCache.Load(sessionId);
 		if(session != null)
-			sessionCache.Delete(session);
+			StaticUserSessionCache.Delete(session);
 	}
 
 	public User GetUserFromSessionId(Guid sessionId)
 	{
-		var session = sessionCache.Load(sessionId);
+		var session = StaticUserSessionCache.Load(sessionId);
 		
 		if (session == null)
 			throw new SessionExpiredException(sessionId);
@@ -144,6 +146,5 @@ public class AuthorizationService : IAuthorizationService
 	}
 
 	private readonly IUserRepository userRepository;
-	private readonly IUserSessionCache sessionCache;
 	private readonly IConfiguration configuration;
 }

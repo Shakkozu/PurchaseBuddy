@@ -24,8 +24,6 @@ public class CustomHeaderAuthenticationHandler : AuthenticationHandler<CustomHea
 
 		var headerValue = headerValues.FirstOrDefault();
 
-		//if (headerValue != Options.HeaderValue)
-		//if(string.IsNullOrEmpty(headerValue) || userSessionCache.Load(Guid.Parse(headerValue)) == null)
 		if (string.IsNullOrEmpty(headerValue) || StaticUserSessionCache.Load(Guid.Parse(headerValue)) == null)
 		{
 			return Task.FromResult(AuthenticateResult.Fail("Invalid authentication header value."));
@@ -39,7 +37,6 @@ public class CustomHeaderAuthenticationHandler : AuthenticationHandler<CustomHea
 		return Task.FromResult(AuthenticateResult.Success(ticket));
 	}
 }
-
 
 public class CustomHeaderAuthenticationOptions : AuthenticationSchemeOptions
 {

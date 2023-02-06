@@ -8,6 +8,8 @@ using IAuthorizationService = PurchaseBuddyLibrary.src.auth.app.IAuthorizationSe
 using PurchaseBuddyLibrary.src.auth.model;
 using PurchaseBuddyLibrary.src.auth.persistance;
 using static System.Net.Mime.MediaTypeNames;
+using System.Net;
+using PurchaseBuddyLibrary.src.auth.app;
 
 namespace PurchaseBuddy.API.Controllers;
 
@@ -62,7 +64,7 @@ public class AuthorizationController : ControllerBase
 	}
 	
 	[HttpPost("login")]
-	public async Task<dynamic> LoginAsync([FromBody] UserLoginRequest userLoginRequest)
+	public dynamic LoginAsync([FromBody] UserLoginRequest userLoginRequest)
 	{
 		try
 		{
@@ -75,16 +77,12 @@ public class AuthorizationController : ControllerBase
 			
 			var sessionContext = authorizationService.GetUserSessionInfo(sessionId);
 			
-			//await HttpContext.SignInAsync(
-			//	sessionContext.Schema,
-			//	sessionContext.ClaimsPrincipal,
-			//	sessionContext.AuthenticationProperties);
-
 			return Ok(sessionId);
 		}
 		catch (Exception e)
 		{
 			logger.LogError($"[AuthorizationController] Register user request failed with error: {e}");
+
 			return BadRequest(e.Message);
 		}
 	}
@@ -104,4 +102,15 @@ public class AuthorizationController : ControllerBase
 			return BadRequest(e.Message);
 		}
 	}
+}
+
+public record ErrorResponse
+{
+	public ErrorResponse(string error, HttpStatusCode statusCode)
+	{
+		ErrorMessage = error;
+		StatusCode = statusCode;
+	}
+	public string ErrorMessage { get; set; }
+	public HttpStatusCode StatusCode { get; set; }
 }
