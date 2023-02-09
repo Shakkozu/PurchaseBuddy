@@ -7,6 +7,8 @@ import { LoginComponent } from './components/login/login.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RegisterComponent } from './components/register/register.component';
 import { CookieService } from 'ngx-cookie-service';
+import { UserSessionState } from './store/session.state';
+import { NgxsModule } from '@ngxs/store';
 
 
 @NgModule({
@@ -20,6 +22,9 @@ import { CookieService } from 'ngx-cookie-service';
     MaterialModule,
     ReactiveFormsModule,
     FormsModule,
+    NgxsModule.forFeature([
+      UserSessionState,
+    ]),
   ],
   exports: [
     LoginComponent,

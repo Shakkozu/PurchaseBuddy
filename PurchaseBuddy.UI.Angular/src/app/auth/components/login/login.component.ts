@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngxs/store';
+import { CreateUserSession } from '../../store/session.state';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +23,7 @@ export class LoginComponent implements OnInit {
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
+    private store: Store,
     ) {
     
     
@@ -47,7 +50,8 @@ export class LoginComponent implements OnInit {
     this.http.post(url, body)
       .pipe()
       .subscribe(res => {
-        this.cookieService.set('auth', res.toString());
+        console.log(res.toString());
+        this.store.dispatch(new CreateUserSession(this.loginForm.value.login, res.toString()));
         this.redirect();
       });
 

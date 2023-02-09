@@ -12,7 +12,7 @@ import { DepartmentModule } from './department/department.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WeatherComponent } from './weather/weather.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpCookieInterceptor } from './auth/http-cookie.interceptor';
+import { HttpAuthorizationInterceptor } from './auth/http-authorization.interceptor';
 import { ErrorInterceptor } from './http/error.interceptor';
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
 import { NgxsModule } from '@ngxs/store';
@@ -41,7 +41,7 @@ import { NgxsModule } from '@ngxs/store';
     WeatherComponent,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: HttpCookieInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: HttpAuthorizationInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ServerErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]

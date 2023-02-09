@@ -11,6 +11,8 @@
       <div class="grid__cell 1/5">
         <a mat-button routerLink="/login" routerLinkActive="active">Login</a>
         <button mat-button routerLink="/register">Register</button>
+        <p>Is loggedIn: {{isUserLoggedIn$ | async}}</p>
+        <p>SessionId: {{userSessionId$ | async}}</p>
     </div>
   </mat-toolbar-row>
 </mat-toolbar>
