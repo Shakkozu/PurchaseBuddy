@@ -40,7 +40,6 @@ export class RegisterComponent {
 
 
   public onSubmit(): void {
-    console.log(this.form.value);
   }
 
   public save(): void {
@@ -52,7 +51,6 @@ export class RegisterComponent {
 
     this.http.post<string>('http://localhost:5133/authorization/register', body).pipe(
       takeUntil(this.destroy$)).subscribe((data: any) => {
-        console.log('Success!  ' + data)
       },
       (error) => console.log(error));
   }

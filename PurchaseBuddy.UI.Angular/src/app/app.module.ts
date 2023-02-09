@@ -15,6 +15,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpCookieInterceptor } from './auth/http-cookie.interceptor';
 import { ErrorInterceptor } from './http/error.interceptor';
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
+import { NgxsModule } from '@ngxs/store';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { ServerErrorInterceptor } from './shared/error-handling/server-error-int
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
+    NgxsModule.forRoot(),
   ],
   exports: [
     CommonModule,

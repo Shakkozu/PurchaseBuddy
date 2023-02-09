@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { catchError } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { IErrorResponse } from '../shared/error-handling/model';
 
 @Injectable()

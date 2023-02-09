@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Form, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { map, Subject, takeUntil } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -35,11 +35,6 @@ export class LoginComponent implements OnInit {
       login: ["username"],
       password: ["zaq1@WSX"]
     });
-
-  }
-
-  public onSubmit(): void {
-    console.log(this.loginForm.value);
   }
 
   public save(): void {
