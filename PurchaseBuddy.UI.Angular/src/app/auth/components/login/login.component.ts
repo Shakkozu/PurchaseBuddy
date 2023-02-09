@@ -1,11 +1,9 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
-import { CreateUserSession } from '../../store/session.state';
+import { Login } from '../../store/authorization.actions';
 
 @Component({
   selector: 'app-login',
@@ -13,24 +11,23 @@ import { CreateUserSession } from '../../store/session.state';
   styleUrls: ['./login.component.scss'],
   providers: [CookieService],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   public hide: boolean = false;
   public loginForm!: FormGroup;
-  private destroy$: Subject<any> = new Subject<any>();
+  private destroy$ = new Subject();
 
   constructor (private formBuilder: FormBuilder,
-    private cookieService: CookieService,
-    private http: HttpClient,
-    private router: Router,
-    private route: ActivatedRoute,
-    private store: Store,
-    ) {
+    private store: Store) {
     
     
   }
 
   public ngOnInit(): void {
     this.initForm();
+  }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next(0);
   }
 
   private initForm(): void {
@@ -41,31 +38,8 @@ export class LoginComponent implements OnInit {
   }
 
   public save(): void {
-    const body: IUserLoginRequest = {
-      login: this.loginForm.value.login,
-      password: this.loginForm.value.password
-    };
-
-    const url = 'http://localhost:5133/authorization/login';
-    this.http.post(url, body)
-      .pipe()
-      .subscribe(res => {
-        console.log(res.toString());
-        this.store.dispatch(new CreateUserSession(this.loginForm.value.login, res.toString()));
-        this.redirect();
-      });
-
-  }
-
-  private redirect(): void {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-    if (returnUrl) {
-      this.router.navigate([returnUrl]);
-
-      return;
-    }
-    
-    this.router.navigate(['/home']);
+    this.store.dispatch(new Login(this.loginForm.value.login, this.loginForm.value.password))
+      .pipe(takeUntil(this.destroy$));
   }
 }
 

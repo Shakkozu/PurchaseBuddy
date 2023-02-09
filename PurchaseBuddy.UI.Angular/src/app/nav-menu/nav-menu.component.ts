@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
-import { UserSessionState } from '../auth/store/session.state';
+import { AuthorizationState } from '../auth/store/authorization.state';
 
 @Component({
   selector: 'app-nav-menu',
@@ -12,11 +12,13 @@ export class NavMenuComponent {
   isExpanded = false;
   public isUserLoggedIn$: Observable<boolean | undefined>;
   public userSessionId$: Observable<string | undefined>;
+  public username$: Observable<string | undefined>;
 
-  constructor (private userSessionState: UserSessionState,
+  constructor (private userSessionState: AuthorizationState,
   private store: Store) {
-    this.isUserLoggedIn$ = this.store.select(UserSessionState.isAuthenticated);
-    this.userSessionId$ = this.store.select(UserSessionState.userSessionId);
+    this.isUserLoggedIn$ = this.store.select(AuthorizationState.isAuthenticated);
+    this.userSessionId$ = this.store.select(AuthorizationState.userSessionId);
+    this.username$ = this.store.select(AuthorizationState.username);
   }
 
   collapse() {

@@ -12,7 +12,7 @@ import { DepartmentModule } from './department/department.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WeatherComponent } from './weather/weather.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpAuthorizationInterceptor } from './auth/http-authorization.interceptor';
+import { HttpAuthorizationInterceptor } from './auth/http/http-authorization.interceptor';
 import { ErrorInterceptor } from './http/error.interceptor';
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
 import { NgxsModule } from '@ngxs/store';

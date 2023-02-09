@@ -6,13 +6,13 @@
         <a mat-button routerLink="/department" routerLinkActive="active">Department</a>
         <a mat-button routerLink="/weather" routerLinkActive="active">Weather forecast</a>
       </div>
-      <div class="grid__cell 1/5">
+      <div *ngIf="(isUserLoggedIn$ | async)" class="grid__cell 1/5">
+        <p>Hello: {{username$ | async}}</p>
+        <a mat-button routerLink="/logout" routerLinkActive="active">Logout</a>
       </div>
-      <div class="grid__cell 1/5">
+      <div *ngIf="!(isUserLoggedIn$ | async)" class="grid__cell 1/5">
         <a mat-button routerLink="/login" routerLinkActive="active">Login</a>
         <button mat-button routerLink="/register">Register</button>
-        <p>Is loggedIn: {{isUserLoggedIn$ | async}}</p>
-        <p>SessionId: {{userSessionId$ | async}}</p>
     </div>
   </mat-toolbar-row>
 </mat-toolbar>

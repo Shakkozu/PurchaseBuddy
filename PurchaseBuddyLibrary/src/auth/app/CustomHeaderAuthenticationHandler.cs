@@ -22,19 +22,26 @@ public class CustomHeaderAuthenticationHandler : AuthenticationHandler<CustomHea
 			return Task.FromResult(AuthenticateResult.Fail("Missing authentication header."));
 		}
 
-		var headerValue = headerValues.FirstOrDefault();
+		var authorizationHeader = headerValues.FirstOrDefault();
+		if (!IsAuthenticated(authorizationHeader))
+			return Task.FromResult(AuthenticateResult.Fail("Authorization failed"));
 
-		if (string.IsNullOrEmpty(headerValue) || StaticUserSessionCache.Load(Guid.Parse(headerValue)) == null)
-		{
-			return Task.FromResult(AuthenticateResult.Fail("Invalid authentication header value."));
-		}
-
-		var claims = new[] { new Claim(ClaimTypes.Name, headerValue) };
+		var claims = new[] { new Claim(ClaimTypes.Name, authorizationHeader) };
 		var identity = new ClaimsIdentity(claims, Options.HeaderName);
 		var principal = new ClaimsPrincipal(identity);
 		var ticket = new AuthenticationTicket(principal, Options.HeaderName);
 
 		return Task.FromResult(AuthenticateResult.Success(ticket));
+	}
+
+	private static bool IsAuthenticated(string? sessionId)
+	{
+		if (string.IsNullOrEmpty(sessionId))
+			return false;
+
+		var userSession = StaticUserSessionCache.Load(Guid.Parse(sessionId));
+
+		return userSession != null && !userSession.IsExpired;
 	}
 }
 

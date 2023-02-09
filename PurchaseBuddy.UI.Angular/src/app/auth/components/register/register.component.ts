@@ -1,7 +1,9 @@
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Store } from '@ngxs/store';
 import { Subject, takeUntil } from 'rxjs';
+import { IUserDto } from '../..';
+import { Register } from '../../store/authorization.actions';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +16,8 @@ export class RegisterComponent {
   private destroy$: Subject<void> = new Subject();
   passwordMatchValidator: any;
 
-  constructor (private formBuilder: FormBuilder, private http: HttpClient) {
+  constructor (private formBuilder: FormBuilder,
+    private store: Store) {
   }
 
   public ngOnInit(): void {
@@ -35,9 +38,7 @@ export class RegisterComponent {
     }, {
       validator: this.passwordMatchValidator 
     });
-
   }
-
 
   public onSubmit(): void {
   }
@@ -49,16 +50,7 @@ export class RegisterComponent {
       password: this.form.value.password
     };
 
-    this.http.post<string>('http://localhost:5133/authorization/register', body).pipe(
-      takeUntil(this.destroy$)).subscribe((data: any) => {
-      },
-      (error) => console.log(error));
+    this.store.dispatch(new Register(body)).pipe(takeUntil(this.destroy$));
   }
-
 }
 
-export interface IUserDto {
-  login: string;
-  email: string;
-  password: string;
-}
