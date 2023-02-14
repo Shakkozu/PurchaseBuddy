@@ -1,4 +1,4 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
+﻿using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.Tests.catalogue.Unit;
 internal class UserProductCategoryTests : CatalogueTestsFixture

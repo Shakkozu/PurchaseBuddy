@@ -1,4 +1,4 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
+﻿using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.Tests.catalogue;
 
@@ -10,9 +10,9 @@ internal class CatalogueTestsFixture
 		return UserProductCategory.CreateNew(name ?? "dairy", UserId);
 	}
 
-	public ProductCategory ASharedCategory(string name)
+	public SharedProductCategory ASharedCategory(string name)
 	{
-		return ProductCategory.CreateNew(name);
+		return SharedProductCategory.CreateNew(name);
 	}
 
 

@@ -1,4 +1,4 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
+﻿using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.src.catalogue.Persistance;
 

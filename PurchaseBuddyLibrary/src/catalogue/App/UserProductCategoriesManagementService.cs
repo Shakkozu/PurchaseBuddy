@@ -1,15 +1,15 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
-using PurchaseBuddy.src.catalogue.Persistance;
+﻿using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.infra;
+using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.src.catalogue.App;
 
 public class UserProductCategoriesManagementService
 {
 	private readonly IUserProductCategoriesRepository productCategoriesRepository;
-	private readonly IUserProductsRepository userProductsRepository;
+	private readonly IProductsRepository userProductsRepository;
 
-	public UserProductCategoriesManagementService(IUserProductCategoriesRepository productCategoriesRepository, IUserProductsRepository userProductsRepository)
+	public UserProductCategoriesManagementService(IUserProductCategoriesRepository productCategoriesRepository, IProductsRepository userProductsRepository)
 	{
 		this.productCategoriesRepository = productCategoriesRepository;
 		this.userProductsRepository = userProductsRepository;
@@ -26,7 +26,7 @@ public class UserProductCategoriesManagementService
 
 	public void AssignUserProductToCategory(Guid userId, Guid productGuid, Guid categoryGuid)
 	{
-		var userProduct = userProductsRepository.GetUserProduct(userId, productGuid);
+		var userProduct = userProductsRepository.GetProduct(productGuid);
 		if (userProduct == null)
 			throw new ResourceNotFoundException($"user product with categoryId {productGuid} not found for user: {userId}");
 

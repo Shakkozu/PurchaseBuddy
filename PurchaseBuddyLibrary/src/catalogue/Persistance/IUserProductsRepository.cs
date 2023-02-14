@@ -1,10 +1,10 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
+﻿using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.src.catalogue.Persistance;
 
-public interface IUserProductsRepository
+public interface IProductsRepository
 {
-	List<UserProduct> GetUserProducts(Guid userID);
-	UserProduct Save(UserProduct product);
-	UserProduct? GetUserProduct(Guid userId, Guid productGuid);
+	List<IProduct> GetUserProducts(Guid userID);
+	IProduct Save(IProduct product);
+	IProduct? GetProduct(Guid productGuid);
 }

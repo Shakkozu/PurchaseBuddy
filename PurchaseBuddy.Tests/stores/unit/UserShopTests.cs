@@ -1,5 +1,5 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
-using PurchaseBuddy.src.stores.domain;
+﻿using PurchaseBuddy.src.stores.domain;
+using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.Tests.stores.unit;
 internal class UserShopTests

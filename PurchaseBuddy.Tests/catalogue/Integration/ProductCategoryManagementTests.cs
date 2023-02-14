@@ -1,7 +1,7 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
-using PurchaseBuddy.src.catalogue.Model;
 using PurchaseBuddy.src.catalogue.Persistance;
-using PurchaseBuddy.Tests.catalogue;
+using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
@@ -9,7 +9,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	[SetUp]
 	public void SetUp()
 	{
-		userProductsRepo = new InMemoryUserProductsRepository();
+		userProductsRepo = new InMemoryProductsRepository();
 		userCategoriesRepo = new InMemoryUserProductCategoriesRepository();
 		userProductsManagementService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
 	}
@@ -44,14 +44,14 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		return userCategoriesRepo.Save(category);
 	}
 
-	private UserProduct ProductCreated(string name)
+	private IProduct ProductCreated(string name)
 	{
 		var product = UserProduct.Create(name, UserId);
 		return userProductsRepo.Save(product);
 	}
 
 
-	private InMemoryUserProductsRepository userProductsRepo;
+	private InMemoryProductsRepository userProductsRepo;
 	private InMemoryUserProductCategoriesRepository userCategoriesRepo;
 	private UserProductCategoriesManagementService userProductsManagementService;
 }

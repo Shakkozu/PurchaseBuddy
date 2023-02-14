@@ -1,16 +1,16 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
-using PurchaseBuddy.src.catalogue.Persistance;
+﻿using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.purchases.persistance;
+using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.src.purchases.app;
 
 public class ShoppingListProductsManagementService
 {
 	private IShoppingListRepository shoppingListRepository;
-	private IUserProductsRepository userProductsRepository;
+	private IProductsRepository userProductsRepository;
 
-	public ShoppingListProductsManagementService(IShoppingListRepository shoppingListRepository, IUserProductsRepository userProductsRepository)
+	public ShoppingListProductsManagementService(IShoppingListRepository shoppingListRepository, IProductsRepository userProductsRepository)
 	{
 		this.shoppingListRepository = shoppingListRepository;
 		this.userProductsRepository = userProductsRepository;
@@ -30,7 +30,7 @@ public class ShoppingListProductsManagementService
 	public void AddProductToList(Guid userId, Guid shoppingListId, UserProduct userProduct)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		var savedProduct = userProductsRepository.GetUserProduct(userId, userProduct.Guid);
+		var savedProduct = userProductsRepository.GetProduct(userProduct.Guid);
 		if(savedProduct is null)
 			savedProduct = userProductsRepository.Save(userProduct);
 

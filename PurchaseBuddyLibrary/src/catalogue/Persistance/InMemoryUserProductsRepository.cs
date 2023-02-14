@@ -1,33 +1,33 @@
-﻿using PurchaseBuddy.src.catalogue.Model;
+﻿using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.src.catalogue.Persistance;
 
-public class InMemoryUserProductsRepository : IUserProductsRepository
+public class InMemoryProductsRepository : IProductsRepository
 {
-	private readonly Dictionary<Guid, List<UserProduct>> usersProducts = new();
-
-	public UserProduct? GetUserProduct(Guid userId, Guid productGuid)
+	private readonly Dictionary<Guid, IProduct> products = new();
+	public IProduct? GetProduct(Guid productGuid)
 	{
-		if (!usersProducts.ContainsKey(userId))
-			return null;
+		if (products.ContainsKey(productGuid))
+			return products[productGuid];
 
-		return usersProducts[userId].FirstOrDefault(product => product.Guid == productGuid);
+		return null;
 	}
 
-	public List<UserProduct> GetUserProducts(Guid userID)
+	public List<IProduct> GetUserProducts(Guid userID)
 	{
-		if (usersProducts.ContainsKey(userID))
-			return usersProducts[userID];
-
-		return new List<UserProduct>();
+		return products.Where(product => {
+			if (product.Value is UserProduct userProduct)
+				return userProduct.UserID == userID;
+			return true;
+		}).Select(product => product.Value).ToList();
 	}
 
-	public UserProduct Save(UserProduct product)
+	public IProduct Save(IProduct product)
 	{
-		if (usersProducts.ContainsKey(product.UserID))
-			usersProducts[product.UserID].Add(product);
+		if (products.ContainsKey(product.Guid))
+			products[product.Guid] = product;
 		else
-			usersProducts[product.UserID] = new List<UserProduct> { product };
+			products.Add(product.Guid, product);
 
 		return product;
 	}
