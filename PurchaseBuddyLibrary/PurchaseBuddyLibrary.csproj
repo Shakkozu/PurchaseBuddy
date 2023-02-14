@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="src\catalogue\Contract\" />
-    <Folder Include="src\catalogue\Domain\" />
+    <Compile Remove="src\catalogue\Contract\**" />
+    <Compile Remove="src\catalogue\Domain\**" />
+    <EmbeddedResource Remove="src\catalogue\Contract\**" />
+    <EmbeddedResource Remove="src\catalogue\Domain\**" />
+    <None Remove="src\catalogue\Contract\**" />
+    <None Remove="src\catalogue\Domain\**" />
   </ItemGroup>
 
   <ItemGroup>

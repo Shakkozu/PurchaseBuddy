@@ -13,7 +13,6 @@ public class UserProductsManagementService
 		this.userProductsManagementRepository = userProductsManagementRepositoryy;
 	}
 
-
 	public UserProduct DefineNewUserProduct(UserProduct product)
 	{
 		return userProductsManagementRepository.Save(product);

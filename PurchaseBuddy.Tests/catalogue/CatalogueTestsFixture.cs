@@ -10,6 +10,11 @@ internal class CatalogueTestsFixture
 		return UserProductCategory.CreateNew(name ?? "dairy", UserId);
 	}
 
+	public ProductCategory ASharedCategory(string name)
+	{
+		return ProductCategory.CreateNew(name);
+	}
+
 
 	protected UserProductCategory AUserProductCategoryWithParent(UserProductCategory parent, string? name = null)
 	{

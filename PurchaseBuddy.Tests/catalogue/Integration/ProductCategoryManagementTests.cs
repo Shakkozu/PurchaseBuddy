@@ -1,9 +1,9 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Model;
 using PurchaseBuddy.src.catalogue.Persistance;
+using PurchaseBuddy.Tests.catalogue;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
-
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
 {
 	[SetUp]

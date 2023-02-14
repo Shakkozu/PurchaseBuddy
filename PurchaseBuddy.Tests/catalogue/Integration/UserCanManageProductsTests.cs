@@ -4,7 +4,6 @@ using PurchaseBuddy.src.catalogue.Persistance;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 
-
 internal class UserCanManageProductsTests
 {
 	[SetUp]
