@@ -1,4 +1,5 @@
-﻿using PurchaseBuddy.src.stores.domain;
+﻿using PurchaseBuddy.src.infra;
+using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddy.src.stores.persistance;
 
 namespace PurchaseBuddy.src.stores.app;
@@ -28,5 +29,24 @@ public class UserShopService
 	public List<UserShop> GetAllUserShops(Guid userId)
 	{
 		return userShopRepository.GetAllUserShops(userId);
+	}
+
+	public void UpdateShopDescription(UserShopDescription userShopDescription, Guid userGuid, Guid shopId)
+	{
+		var shop = GetUserShopById(userGuid, shopId);
+		if (shop == null)
+			throw new ResourceNotFoundException("Shop not found");
+
+		shop.ChangeDescriptionTo(userShopDescription);
+		userShopRepository.Save(shop);
+	}
+
+	public void DeleteUserShop(Guid userGuid, Guid shopId)
+	{
+		var shop = GetUserShopById(userGuid, shopId);
+		if (shop == null)
+			throw new ResourceNotFoundException("Shop not found");
+
+		userShopRepository.Delete(shop);
 	}
 }

@@ -1,20 +1,17 @@
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.auth.persistance;
-using Swashbuckle.Swagger;
 
-public class Program
+namespace PurchaseBuddy.API;
+
+public class Startup
 {
-	public static void Main(string[] args)
+	public void ConfigureServices(IServiceCollection services)
 	{
-		var builder = WebApplication.CreateBuilder(args);
-
-		// Add services to the container.
-
-		builder.Services.AddControllers();
+		services.AddControllers();
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-		builder.Services.AddEndpointsApiExplorer();
-		builder.Services.AddSwaggerGen(c =>
+		services.AddEndpointsApiExplorer();
+		services.AddSwaggerGen(c =>
 		{
 			c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 			{
@@ -39,10 +36,10 @@ public class Program
 	});
 		});
 
-		builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
-		builder.Services.AddSingleton<IUserAuthorizationService, AuthorizationService>();
+		services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+		services.AddSingleton<IUserAuthorizationService, AuthorizationService>();
 
-		builder.Services.AddAuthentication("CustomHeaderAuthentication")
+		services.AddAuthentication("CustomHeaderAuthentication")
 			.AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(
 				"CustomHeaderAuthentication", options =>
 				{
@@ -51,7 +48,7 @@ public class Program
 
 
 		var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-		builder.Services.AddCors(options =>
+		services.AddCors(options =>
 		{
 			options.AddPolicy(name: MyAllowSpecificOrigins,
 							  policy =>
@@ -62,29 +59,10 @@ public class Program
 								  policy.AllowAnyMethod();
 							  });
 		});
+	}
 
-		var app = builder.Build();
-
-		// Configure the HTTP request pipeline.
-		if (app.Environment.IsDevelopment())
-		{
-			app.UseSwagger();
-			//app.UseSwaggerUI(c =>
-			//{
-			//	c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-			//});
-			app.UseSwaggerUI();
-
-		}
-
-		app.UseCors(MyAllowSpecificOrigins);
-		app.UseHttpsRedirection();
-
-		app.UseAuthentication();
-		app.UseAuthorization();
-
-		app.MapControllers();
-
-		app.Run();
+	public void Configure(IApplicationBuilder app)
+	{
+		
 	}
 }

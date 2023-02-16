@@ -1,32 +1,27 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PurchaseBuddyLibrary.src.auth.contract;
 using System.Security.Claims;
-using IAuthorizationService = PurchaseBuddyLibrary.src.auth.app.IAuthorizationService;
-using PurchaseBuddyLibrary.src.auth.model;
-using PurchaseBuddyLibrary.src.auth.persistance;
-using static System.Net.Mime.MediaTypeNames;
 using System.Net;
+using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.auth.app;
 
 namespace PurchaseBuddy.API.Controllers;
-
 [ApiController]
 [Route("[controller]")]
-public class AuthorizationController : ControllerBase
+public class AuthorizationController : BaseController
 {
-	private readonly IAuthorizationService authorizationService;
+	private readonly IUserAuthorizationService authorizationService;
 	private readonly ILogger<AuthorizationController> logger;
 	private readonly IUserRepository userRepository;
 
 	public AuthorizationController(
-		IAuthorizationService registerService,
+		IUserAuthorizationService authorizationService,
 		ILogger<AuthorizationController> logger,
-		IUserRepository userRepository)
+		IUserRepository userRepository) : base(authorizationService)
 	{
-		this.authorizationService = registerService;
+		this.authorizationService = authorizationService;
 		this.logger = logger;
 		this.userRepository = userRepository;
 	}
@@ -35,14 +30,7 @@ public class AuthorizationController : ControllerBase
 	[Authorize]
 	public async Task<IActionResult> GetLoggedUsername()
 	{
-		if(!User.HasClaim(claim => claim.Type == ClaimTypes.Authentication))
-			await HttpContext.SignOutAsync();
-
-		var sessionId = Guid.Parse(User.Claims.First(c => c.Type == ClaimTypes.Authentication).Value);
-		var user = authorizationService.GetUserFromSessionId(sessionId);
-		logger.LogInformation($"Cookie value: {Request.Cookies["auth"]}");
-		logger.LogInformation($"user cookies: {Request.Cookies}");
-
+		var user = await GetUserFromSessionAsync();
 		return Ok($"Hello {user.Email}");
 	}
 

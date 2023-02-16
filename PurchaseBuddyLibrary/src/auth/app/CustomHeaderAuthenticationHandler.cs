@@ -17,6 +17,7 @@ public class CustomHeaderAuthenticationHandler : AuthenticationHandler<CustomHea
 
 	protected override Task<AuthenticateResult> HandleAuthenticateAsync()
 	{
+		// todo endpoints without Authorize attribute should not be verified with this handler
 		if (!Request.Headers.TryGetValue(Options.HeaderName, out var headerValues))
 		{
 			return Task.FromResult(AuthenticateResult.Fail("Missing authentication header."));

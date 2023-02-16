@@ -7,11 +7,19 @@ public interface IUserShopRepository
 	void Save(UserShop userShop);
 	List<UserShop> GetAllUserShops(Guid userId);
 	UserShop? GetUserShop(Guid userId, Guid userShopId);
+	void Delete(UserShop shop);
 }
 
 public class InMemoryUserShopRepository : IUserShopRepository
 {
 	private Dictionary<Guid, List<UserShop>> cache = new();
+
+	public void Delete(UserShop shop)
+	{
+		if (cache.TryGetValue(shop.UserId, out var userShops))
+			userShops.Remove(shop);
+	}
+
 	public List<UserShop> GetAllUserShops(Guid userId)
 	{
 		if (cache.ContainsKey(userId))

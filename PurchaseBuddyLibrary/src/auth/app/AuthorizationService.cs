@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace PurchaseBuddyLibrary.src.auth.app;
-public class AuthorizationService : IAuthorizationService
+public class AuthorizationService : IUserAuthorizationService
 {
 	public AuthorizationService(IUserRepository userRepository,
 		IConfiguration configuration

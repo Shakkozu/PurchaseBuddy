@@ -2,7 +2,7 @@
 using PurchaseBuddyLibrary.src.auth.model;
 
 namespace PurchaseBuddyLibrary.src.auth.app;
-public interface IAuthorizationService
+public interface IUserAuthorizationService
 {
 	Guid Register(UserDto userDto);
 	Guid Login(string login, string password);
