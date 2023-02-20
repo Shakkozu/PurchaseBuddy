@@ -4,7 +4,7 @@ using PurchaseBuddy.src.stores.persistance;
 
 namespace PurchaseBuddy.src.stores.app;
 
-public class UserShopService
+public class UserShopService : IUserShopService
 {
 	private readonly IUserShopRepository userShopRepository;
 
@@ -20,12 +20,12 @@ public class UserShopService
 
 		return userShop.Guid;
 	}
-	
+
 	public UserShop? GetUserShopById(Guid userId, Guid userShopId)
 	{
 		return userShopRepository.GetUserShop(userId, userShopId);
 	}
-	
+
 	public List<UserShop> GetAllUserShops(Guid userId)
 	{
 		return userShopRepository.GetAllUserShops(userId);

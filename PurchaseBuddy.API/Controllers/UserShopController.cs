@@ -14,7 +14,8 @@ namespace PurchaseBuddy.API.Controllers;
 [Route("shops")]
 public class UserShopController : BaseController
 {
-	public UserShopController(UserShopService userShopService, ILogger<UserShopController> logger,
+	public UserShopController(UserShopService userShopService,
+		ILogger<UserShopController> logger,
 		IUserAuthorizationService authorizationService)
 		: base(authorizationService)
 	{

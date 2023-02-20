@@ -7,7 +7,7 @@ namespace PurchaseBuddy.Tests.auth;
 internal abstract class AuthorizationTestsFixture
 {
 	[SetUp]
-	public void SetUp()
+	public virtual void SetUp()
 	{
 		var builder = new ConfigurationBuilder();
 		builder.AddJsonFile("appsettings.json");

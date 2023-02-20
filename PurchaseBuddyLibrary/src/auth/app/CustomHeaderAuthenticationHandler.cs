@@ -27,7 +27,7 @@ public class CustomHeaderAuthenticationHandler : AuthenticationHandler<CustomHea
 		if (!IsAuthenticated(authorizationHeader))
 			return Task.FromResult(AuthenticateResult.Fail("Authorization failed"));
 
-		var claims = new[] { new Claim(ClaimTypes.Name, authorizationHeader) };
+		var claims = new[] { new Claim(ClaimTypes.Authentication, authorizationHeader) };
 		var identity = new ClaimsIdentity(claims, Options.HeaderName);
 		var principal = new ClaimsPrincipal(identity);
 		var ticket = new AuthenticationTicket(principal, Options.HeaderName);

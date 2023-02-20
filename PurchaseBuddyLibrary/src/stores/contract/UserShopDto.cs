@@ -3,6 +3,10 @@
 namespace PurchaseBuddyLibrary.src.stores.contract;
 public class UserShopDto
 {
+	public UserShopDto()
+	{
+
+	}
 	public static UserShopDto FromModel(UserShop userShop)
 	{
 		return new UserShopDto(userShop.Guid, userShop.Description.Name, userShop.Description.Description, userShop.Description.Address);
