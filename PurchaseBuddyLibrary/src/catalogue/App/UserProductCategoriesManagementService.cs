@@ -19,7 +19,7 @@ public class UserProductCategoriesManagementService
 		productCategoriesRepository.Save(productCategory);
 	}
 
-	public List<UserProductCategory> GetUserProductCategories(Guid userId)
+	public List<IProductCategory> GetUserProductCategories(Guid userId)
 	{
 		return productCategoriesRepository.FindAll(userId);
 	}

@@ -8,7 +8,7 @@ internal class UserCanManageProductsTests : CatalogueTestsFixture
 	[SetUp]
 	public void SetUp()
 	{
-		userProductsManagementService = new UserProductsManagementService(new InMemoryProductsRepository());
+		userProductsManagementService = new UserProductsManagementService(new InMemoryProductsRepository(), null);
 	}
 
 	[Test]

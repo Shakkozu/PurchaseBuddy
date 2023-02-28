@@ -4,31 +4,36 @@ namespace PurchaseBuddy.src.catalogue.Persistance;
 
 public class InMemoryUserProductCategoriesRepository : IUserProductCategoriesRepository
 {
-	private readonly Dictionary<Guid, List<UserProductCategory>> userProductCategories = new();
-	public List<UserProductCategory> FindAll(Guid userId)
+	private readonly Dictionary<Guid, IProductCategory> productCategories = new();
+	public List<IProductCategory> FindAll(Guid userId)
 	{
-		return userProductCategories[userId];
+		return productCategories.Values.Where(category =>
+		{
+			if (category is UserProductCategory)
+				return (category as UserProductCategory).UserId == userId;
+
+			return true;
+		}).ToList();
 	}
 
-	public UserProductCategory? FindById(Guid userId, Guid categoryGuid)
+	public IProductCategory? FindById(Guid userId, Guid categoryGuid)
 	{
-		if (userProductCategories.ContainsKey(userId))
+		if (productCategories.ContainsKey(categoryGuid))
 		{
-			return userProductCategories[userId].FirstOrDefault(category => category.Guid == categoryGuid);
+			var category = productCategories[categoryGuid];
+			var userProductCategory = category as UserProductCategory;
+			if (userProductCategory is not null && userProductCategory.UserId != userId)
+				return null;
+
+			return category;
 		}
 
 		return null;
 	}
 
-	public UserProductCategory Save(UserProductCategory userProductCategory)
+	public IProductCategory Save(IProductCategory productCategory)
 	{
-		if (userProductCategories.ContainsKey(userProductCategory.UserId))
-		{
-			userProductCategories[userProductCategory.UserId].Add(userProductCategory);
-			return userProductCategory;
-		}
-
-		userProductCategories[userProductCategory.UserId] = new List<UserProductCategory> { userProductCategory };
-		return userProductCategory;
+		productCategories[productCategory.Guid] = productCategory;
+		return productCategory;
 	}
 }

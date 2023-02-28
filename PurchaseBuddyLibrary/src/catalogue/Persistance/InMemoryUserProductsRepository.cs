@@ -21,6 +21,14 @@ public class InMemoryProductsRepository : IProductsRepository
 			return true;
 		}).Select(product => product.Value).ToList();
 	}
+	
+	public List<IProduct> GetSharedProducts()
+	{
+		return products
+			.Where(product => product.Value is SharedProduct)
+			.Select(product => product.Value)
+			.ToList();
+	}
 
 	public IProduct Save(IProduct product)
 	{

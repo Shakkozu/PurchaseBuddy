@@ -15,7 +15,7 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 	public void SetUp()
 	{
 		productsRepository = new InMemoryProductsRepository();
-		userProductsManagementService = new UserProductsManagementService(productsRepository);
+		userProductsManagementService = new UserProductsManagementService(productsRepository, null);
 		getUserProductsQueryHandler = new GetUserProductsQueryHandler(productsRepository);
 		SeedRepositoryWithSampleProducts();
 	}

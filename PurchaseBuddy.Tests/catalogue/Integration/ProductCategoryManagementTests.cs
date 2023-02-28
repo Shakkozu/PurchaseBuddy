@@ -2,6 +2,7 @@
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.infra;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
@@ -11,16 +12,27 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	{
 		userProductsRepo = new InMemoryProductsRepository();
 		userCategoriesRepo = new InMemoryUserProductCategoriesRepository();
-		userProductsManagementService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
+		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
+		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
 	}
 
+	[Test]
+	public void TestSeed()
+	{
+		var seed = new SeedSharedProductsDatabase(productService, userProductCategoriesService, userProductsRepo, userCategoriesRepo);
+		seed.Seed();
+
+		var userProductsCategories = userCategoriesRepo.FindAll(UserId);
+		Assert.IsNotEmpty(userProductsCategories);
+	}
+	
 	[Test]
 	public void CanAddNewProductCategory()
 	{
 		var productCategory = AUserProductCategory();
 
-		userProductsManagementService.AddNewProductCategory(productCategory);
-		var productCategories = userProductsManagementService.GetUserProductCategories(UserId);
+		userProductCategoriesService.AddNewProductCategory(productCategory);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.Contains(productCategory, productCategories);
 	}
@@ -31,14 +43,32 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var productCategory = ProductCategoryCreated("dairy");
 		var product = ProductCreated("cheese");
 
-		userProductsManagementService.AssignUserProductToCategory(UserId, product.Guid, productCategory.Guid);
+		userProductCategoriesService.AssignUserProductToCategory(UserId, product.Guid, productCategory.Guid);
 
-		var categoryFromDb = userProductsManagementService.GetUserProductCategories(UserId).First();
+		var categoryFromDb = userProductCategoriesService.GetUserProductCategories(UserId).First();
 		Assert.NotNull(categoryFromDb);
 		Assert.True(categoryFromDb.ContainsProductWithGuid(product.Guid));
 	}
+	
+	[Test]
+	public void CreateProductAndAssignToCategory()
+	{
+		var productCategory = ProductCategoryCreated("dairy");
 
-	private UserProductCategory ProductCategoryCreated(string name)
+		var productDto = new UserProductDto
+		{
+			CategoryId = productCategory.Guid,
+			Name = "Cheese"
+		};
+
+		productService.DefineNewUserProduct(productDto, UserId);
+
+		var categoryFromDb = userProductCategoriesService.GetUserProductCategories(UserId).First();
+		Assert.NotNull(categoryFromDb);
+		Assert.IsNotEmpty(categoryFromDb.GetProductsInCategory());
+	}
+
+	private IProductCategory ProductCategoryCreated(string name)
 	{
 		var category = UserProductCategory.CreateNew(name, UserId);
 		return userCategoriesRepo.Save(category);
@@ -53,5 +83,6 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 
 	private InMemoryProductsRepository userProductsRepo;
 	private InMemoryUserProductCategoriesRepository userCategoriesRepo;
-	private UserProductCategoriesManagementService userProductsManagementService;
+	private UserProductCategoriesManagementService userProductCategoriesService;
+	private UserProductsManagementService productService;
 }

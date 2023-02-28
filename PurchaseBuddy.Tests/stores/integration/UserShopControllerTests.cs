@@ -1,15 +1,7 @@
-﻿using PurchaseBuddy.API.Controllers;
-using PurchaseBuddy.src.stores.app;
-using PurchaseBuddy.src.stores.domain;
-using PurchaseBuddy.src.stores.persistance;
-using PurchaseBuddy.Tests.auth;
-using PurchaseBuddyLibrary.src.auth.app;
-using PurchaseBuddyLibrary.src.auth.contract;
+﻿using PurchaseBuddyLibrary.src.auth.contract;
 using PurchaseBuddyLibrary.src.stores.contract;
 using System.Net;
-using System.Net.Http.Formatting;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 

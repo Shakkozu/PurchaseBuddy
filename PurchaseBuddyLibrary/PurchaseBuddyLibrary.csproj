@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="src\crm\Model\" />
     <Folder Include="src\stores\controllers\" />
   </ItemGroup>
 
