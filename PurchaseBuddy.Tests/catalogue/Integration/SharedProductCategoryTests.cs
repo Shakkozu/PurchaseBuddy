@@ -10,7 +10,7 @@ internal class SharedProductCategoryTests : CatalogueTestsFixture
 
 		Assert.Throws<ArgumentException>(() => child.SetParent(parent));
 	}
-	
+
 	[Test]
 	public void SharedCategoryCanBeAddedAsChildToSharedCategory()
 	{

@@ -12,139 +12,139 @@ using System.Text;
 namespace PurchaseBuddyLibrary.src.auth.app;
 public class AuthorizationService : IUserAuthorizationService
 {
-	public AuthorizationService(IUserRepository userRepository,
-		IConfiguration configuration
-		)
-	{
-		this.userRepository = userRepository;
-		this.configuration = configuration;
-	}
+    public AuthorizationService(IUserRepository userRepository,
+        IConfiguration configuration
+        )
+    {
+        this.userRepository = userRepository;
+        this.configuration = configuration;
+    }
 
-	public Guid Register(UserDto userDto)
-	{
-		if (userRepository.GetByEmail(userDto.Email) != null)
-			throw new ArgumentException("User with this email already exists");
-		if (userRepository.GetByLogin(userDto.Login) != null)
-			throw new ArgumentException("User with this login already exists");
+    public Guid Register(UserDto userDto)
+    {
+        if (userRepository.GetByEmail(userDto.Email) != null)
+            throw new ArgumentException("User with this email already exists");
+        if (userRepository.GetByLogin(userDto.Login) != null)
+            throw new ArgumentException("User with this login already exists");
 
-		if (!ValidateIfEmailIsCorrect(userDto.Email))
-			throw new ArgumentException("Email is incorrect");
+        if (!ValidateIfEmailIsCorrect(userDto.Email))
+            throw new ArgumentException("Email is incorrect");
 
-		if (!ValidateIfPasswordIsCorrect(userDto.Password))
-			throw new ArgumentException("Password is incorrect");
+        if (!ValidateIfPasswordIsCorrect(userDto.Password))
+            throw new ArgumentException("Password is incorrect");
 
-		var salt = GetHash(Guid.NewGuid().ToString("N"));
-		var passwordHash = GetHash(userDto.Password, salt);
-		
-		var user = User.CreateNew(userDto.Login, userDto.Email, passwordHash, salt);
-		userRepository.Add(user);
+        var salt = GetHash(Guid.NewGuid().ToString("N"));
+        var passwordHash = GetHash(userDto.Password, salt);
 
-		return user.Guid;
-	}
+        var user = User.CreateNew(userDto.Login, userDto.Email, passwordHash, salt);
+        userRepository.Add(user);
 
-	public Guid Login(string login, string password)
-	{
-		var user = userRepository.GetByLogin(login);
-		if (user == null)
-			throw new ArgumentException("User not found");
+        return user.Guid;
+    }
 
-		if (user.PasswordHash != GetHash(password + user.Salt))
-			throw new ArgumentException("Invalid user credentials");
+    public Guid Login(string login, string password)
+    {
+        var user = userRepository.GetByLogin(login);
+        if (user == null)
+            throw new ArgumentException("User not found");
 
-		var userSession = StaticUserSessionCache.FindByUserId(user.Guid);
-		if (userSession != null && !userSession.IsExpired)
-			return userSession.SessionId;
-		
-		var ttlInMinutes = Convert.ToInt32(configuration.GetSection("Authentication")["UserSessionLifetimeInMinutes"]);
-		var session = Session.CreateNew(user.Guid, ttlInMinutes);
-		StaticUserSessionCache.Add(session);
+        if (user.PasswordHash != GetHash(password + user.Salt))
+            throw new ArgumentException("Invalid user credentials");
 
-		return session.SessionId;
-	}
-	
-	public void Logout(Guid sessionId)
-	{
-		var session = StaticUserSessionCache.Load(sessionId);
-		if(session != null)
-			StaticUserSessionCache.Delete(session);
-	}
+        var userSession = StaticUserSessionCache.FindByUserId(user.Guid);
+        if (userSession != null && !userSession.IsExpired)
+            return userSession.SessionId;
 
-	public User GetUserFromSessionId(Guid sessionId)
-	{
-		var session = StaticUserSessionCache.Load(sessionId);
-		
-		if (session == null)
-			throw new SessionExpiredException(sessionId);
+        var ttlInMinutes = Convert.ToInt32(configuration.GetSection("Authentication")["UserSessionLifetimeInMinutes"]);
+        var session = Session.CreateNew(user.Guid, ttlInMinutes);
+        StaticUserSessionCache.Add(session);
 
-		return userRepository.GetByGuid(session.UserId);
-	}
+        return session.SessionId;
+    }
 
-	public UserSessionInfo GetUserSessionInfo(Guid sessionId)
-	{
-		var claims = new List<Claim>
-		{
-			new Claim(ClaimTypes.Authentication, sessionId.ToString()),
-		};
+    public void Logout(Guid sessionId)
+    {
+        var session = StaticUserSessionCache.Load(sessionId);
+        if (session != null)
+            StaticUserSessionCache.Delete(session);
+    }
 
-		var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    public User GetUserFromSessionId(Guid sessionId)
+    {
+        var session = StaticUserSessionCache.Load(sessionId);
 
-		var sessionTTLInMinutes = int.Parse(configuration.GetSection("Authentication")["UserSessionLifetimeInMinutes"]);
-		var authProperties = new AuthenticationProperties
-		{
-			AllowRefresh = true,
+        if (session == null)
+            throw new SessionExpiredException(sessionId);
 
-			ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(sessionTTLInMinutes),
-			// The time at which the authentication ticket expires. A 
-			// value set here overrides the ExpireTimeSpan option of 
-			// CookieAuthenticationOptions set with AddCookie.
+        return userRepository.GetByGuid(session.UserId);
+    }
 
-			IsPersistent = false,
-			// Whether the authentication session is persisted across 
-			// multiple requests. When used with cookies, controls
-			// whether the cookie's lifetime is absolute (matching the
-			// lifetime of the authentication ticket) or session-based.
+    public UserSessionInfo GetUserSessionInfo(Guid sessionId)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Authentication, sessionId.ToString()),
+        };
 
-			IssuedUtc = DateTimeOffset.UtcNow,
-			//IssuedUtc = <DateTimeOffset>,
-			// The time at which the authentication ticket was issued.
-			RedirectUri = "/login",
-			//RedirectUri = <string>
-			// The full path or absolute URI to be used as an http 
-			// redirect response value.
-		};
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-			//"CustomHeaderAuthentication",
-		return new UserSessionInfo(
-			CookieAuthenticationDefaults.AuthenticationScheme,
-			new ClaimsPrincipal(claimsIdentity),
-			authProperties);
-	}
+        var sessionTTLInMinutes = int.Parse(configuration.GetSection("Authentication")["UserSessionLifetimeInMinutes"]);
+        var authProperties = new AuthenticationProperties
+        {
+            AllowRefresh = true,
 
-	private bool ValidateIfPasswordIsCorrect(string password)
-	{
-		return password != null
-			&& password.Length >= 6
-			&& password.Any(char.IsDigit)
-			&& password.Any(char.IsLetter)
-			&& password.Any(char.IsUpper)
-			&& password.Any(char.IsLower);
-	}
+            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(sessionTTLInMinutes),
+            // The time at which the authentication ticket expires. A 
+            // value set here overrides the ExpireTimeSpan option of 
+            // CookieAuthenticationOptions set with AddCookie.
 
-	private bool ValidateIfEmailIsCorrect(string email)
-	{
-		return new EmailAddressAttribute().IsValid(email);
-	}
+            IsPersistent = false,
+            // Whether the authentication session is persisted across 
+            // multiple requests. When used with cookies, controls
+            // whether the cookie's lifetime is absolute (matching the
+            // lifetime of the authentication ticket) or session-based.
 
-	private string GetHash(string input, string salt = "")
-	{
-		var salted = input + salt;
-		var bytes = Encoding.UTF8.GetBytes(salted);
-		var hashBytes = SHA256.HashData(bytes);
-		var hash = Convert.ToBase64String(hashBytes);
+            IssuedUtc = DateTimeOffset.UtcNow,
+            //IssuedUtc = <DateTimeOffset>,
+            // The time at which the authentication ticket was issued.
+            RedirectUri = "/login",
+            //RedirectUri = <string>
+            // The full path or absolute URI to be used as an http 
+            // redirect response value.
+        };
 
-		return hash;
-	}
+        //"CustomHeaderAuthentication",
+        return new UserSessionInfo(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity),
+            authProperties);
+    }
 
-	private readonly IUserRepository userRepository;
-	private readonly IConfiguration configuration;
+    private bool ValidateIfPasswordIsCorrect(string password)
+    {
+        return password != null
+            && password.Length >= 6
+            && password.Any(char.IsDigit)
+            && password.Any(char.IsLetter)
+            && password.Any(char.IsUpper)
+            && password.Any(char.IsLower);
+    }
+
+    private bool ValidateIfEmailIsCorrect(string email)
+    {
+        return new EmailAddressAttribute().IsValid(email);
+    }
+
+    private string GetHash(string input, string salt = "")
+    {
+        var salted = input + salt;
+        var bytes = Encoding.UTF8.GetBytes(salted);
+        var hashBytes = SHA256.HashData(bytes);
+        var hash = Convert.ToBase64String(hashBytes);
+
+        return hash;
+    }
+
+    private readonly IUserRepository userRepository;
+    private readonly IConfiguration configuration;
 }

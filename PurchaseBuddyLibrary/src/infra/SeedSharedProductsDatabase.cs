@@ -68,7 +68,7 @@ Food products:
 	Vegetables
 	Sweets
 ";
-	private const string baseProducts = 
+	private const string baseProducts =
 @"Bread; Food products
 Milk; Food products
 Apples; Food products

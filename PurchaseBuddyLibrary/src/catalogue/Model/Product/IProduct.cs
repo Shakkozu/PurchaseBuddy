@@ -2,7 +2,7 @@
 
 public interface IProduct
 {
-    public int Id { get; }
-    public Guid Guid { get; }
+	public int Id { get; }
+	public Guid Guid { get; }
 	public string Name { get; }
 }

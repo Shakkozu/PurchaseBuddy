@@ -37,7 +37,7 @@ internal class UserShopTests
 		Assert.AreEqual(fruitsCategory.Guid, userShop.ConfigurationEntries.ToArray()[2].CategoryGuid);
 		Assert.AreEqual(3, userShop.ConfigurationEntries.ToArray()[2].Index);
 	}
-	
+
 	[Test]
 	public void WhenDescriptionModified_AssertModifiedCorrectly()
 	{

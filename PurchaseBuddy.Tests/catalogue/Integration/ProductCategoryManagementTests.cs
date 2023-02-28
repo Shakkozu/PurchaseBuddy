@@ -25,7 +25,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var userProductsCategories = userCategoriesRepo.FindAll(UserId);
 		Assert.IsNotEmpty(userProductsCategories);
 	}
-	
+
 	[Test]
 	public void CanAddNewProductCategory()
 	{
@@ -49,7 +49,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		Assert.NotNull(categoryFromDb);
 		Assert.True(categoryFromDb.ContainsProductWithGuid(product.Guid));
 	}
-	
+
 	[Test]
 	public void CreateProductAndAssignToCategory()
 	{

@@ -31,7 +31,7 @@ public class ShoppingListProductsManagementService
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
 		var savedProduct = userProductsRepository.GetProduct(userProduct.Guid);
-		if(savedProduct is null)
+		if (savedProduct is null)
 			savedProduct = userProductsRepository.Save(userProduct);
 
 		var shoppingListItem = new ShoppingListItem(savedProduct.Guid);

@@ -1,5 +1,4 @@
 ﻿using PurchaseBuddy.src.catalogue.Persistance;
-using PurchaseBuddy.src.infra;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.src.catalogue.App;
@@ -26,7 +25,7 @@ public class UserProductsManagementService
 		DefineNewUserProduct(product);
 		if (productDto.CategoryId != null)
 			userProductCategoriesManagementService.AssignUserProductToCategory(userId, product.Guid, productDto.CategoryId.Value);
-		
+
 		return userProductsManagementRepository.Save(product);
 	}
 	public List<IProduct> GetUserProducts(Guid userID)

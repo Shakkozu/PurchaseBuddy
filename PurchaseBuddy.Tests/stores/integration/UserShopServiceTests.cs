@@ -30,5 +30,5 @@ internal class UserShopServiceTests
 		userShopService.AddNewUserShop(Fixture.UserId, UserShopDescription.CreateNew("test2"));
 
 		Assert.AreEqual(2, userShopService.GetAllUserShops(Fixture.UserId).Count);
-	} 
+	}
 }

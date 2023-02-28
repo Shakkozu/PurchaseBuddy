@@ -56,7 +56,7 @@ public class ShoppingList
 	public void AddNew(ShoppingListItem shoppingListItem)
 	{
 		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == shoppingListItem.ProductId);
-		if(toUpdate is null)
+		if (toUpdate is null)
 		{
 			shoppingListItems.Add(shoppingListItem);
 			return;

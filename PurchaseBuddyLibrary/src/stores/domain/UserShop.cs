@@ -7,12 +7,12 @@ public class UserShop
 
 	private UserShopConfiguration configuration;
 	public UserShopDescription Description { get; private set; }
-	
+
 	public static UserShop CreateNew(Guid userId, UserShopDescription userShopDescription)
 	{
 		var guid = Guid.NewGuid();
 		var userShopConfiguration = UserShopConfiguration.CreateNew(guid);
-		return new UserShop(guid, userId, userShopDescription, userShopConfiguration); 
+		return new UserShop(guid, userId, userShopDescription, userShopConfiguration);
 	}
 
 	public void ChangeDescriptionTo(UserShopDescription userShopDescription)

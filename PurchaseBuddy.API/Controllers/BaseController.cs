@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using PurchaseBuddyLibrary.src.auth.model;
 using System.Security.Claims;
 using IUserAuthorizationService = PurchaseBuddyLibrary.src.auth.app.IUserAuthorizationService;
-using PurchaseBuddyLibrary.src.auth.model;
 
 namespace PurchaseBuddy.API.Controllers;
 

@@ -23,7 +23,7 @@ internal class UserShopControllerTests
 			Password = "zaq1@WSX"
 		};
 	}
-	
+
 	[SetUp]
 	public void SetUp()
 	{
@@ -52,7 +52,7 @@ internal class UserShopControllerTests
 
 		Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 	}
-	
+
 	[Test]
 	public async Task WhenUserDidNotAddAnyShop_ReturnEmptyList()
 	{
@@ -60,7 +60,7 @@ internal class UserShopControllerTests
 		// then user does not have any shop
 		Assert.IsEmpty(GetUserShops());
 	}
-	
+
 	[Test]
 	public void TestUserShopsManagement()
 	{
@@ -70,7 +70,7 @@ internal class UserShopControllerTests
 		var userShops = GetUserShops();
 		Assert.AreEqual(1, userShops.Count);
 	}
-	
+
 	[Test]
 	public void TestUserShopModification()
 	{
@@ -87,7 +87,7 @@ internal class UserShopControllerTests
 		Assert.AreEqual(1, userShops.Count);
 		Assert.AreEqual("testNewName", userShops[0].Name);
 	}
-	
+
 	[Test]
 	public void TestUserShopRemoving()
 	{

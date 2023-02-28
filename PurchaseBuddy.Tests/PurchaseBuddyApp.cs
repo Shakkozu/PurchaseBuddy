@@ -64,5 +64,5 @@ internal class PurchaseBuddyApp : WebApplicationFactory<Program>
     public Fixtures Fixtures
     => RequestScope().ServiceProvider.GetRequiredService<Fixtures>();
 
-	public IUserAuthorizationService AuthorizationService => RequestScope().ServiceProvider.GetRequiredService<IUserAuthorizationService>();
+    public IUserAuthorizationService AuthorizationService => RequestScope().ServiceProvider.GetRequiredService<IUserAuthorizationService>();
 }

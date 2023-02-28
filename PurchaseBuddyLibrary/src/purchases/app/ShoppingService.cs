@@ -18,31 +18,31 @@ public class ShoppingService
 
 		return shoppingList.Guid;
 	}
-	
+
 	public void AddProductToShoppingList(Guid shoppingListId, Guid userId, Guid productId, int quantity = 1)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		if(shoppingList is null)
+		if (shoppingList is null)
 			throw new ArgumentException($"There is no shopping list with id: {shoppingListId}");
 
 		shoppingList.AddNew(new ShoppingListItem(productId, quantity));
 		shoppingListRepository.Save(shoppingList);
 	}
-	
+
 	public void UpdateProductQuantityOnShoppingList(Guid shoppingListId, Guid userId, Guid productId, int newQuantity)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		if(shoppingList is null)
+		if (shoppingList is null)
 			throw new ArgumentException($"There is no shopping list with id: {shoppingListId}");
 
 		shoppingList.ChangeQuantityOf(productId, newQuantity);
 		shoppingListRepository.Save(shoppingList);
 	}
-	
+
 	public void DeleteProductFromShoppingList(Guid shoppingListId, Guid userId, Guid productId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		if(shoppingList is null)
+		if (shoppingList is null)
 			throw new ArgumentException($"There is no shopping list with id: {shoppingListId}");
 
 		shoppingList.Remove(productId);

@@ -5,62 +5,62 @@ using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class UserCanManageProductsTests : CatalogueTestsFixture
 {
-	[SetUp]
-	public void SetUp()
-	{
-		userProductsManagementService = new UserProductsManagementService(new InMemoryProductsRepository(), null);
-	}
+    [SetUp]
+    public void SetUp()
+    {
+        userProductsManagementService = new UserProductsManagementService(new InMemoryProductsRepository(), null);
+    }
 
-	[Test]
-	public void UserCanChangeProductCategoryAssignmentFromSharedCategoryToUserCategory()
-	{
-		var userProduct = UserProduct.Create("eggs", UserId);
-		var userProductCategory = AUserProductCategory("user_dairy");
-		var sharedProductCategory = ASharedCategory("dairy");
+    [Test]
+    public void UserCanChangeProductCategoryAssignmentFromSharedCategoryToUserCategory()
+    {
+        var userProduct = UserProduct.Create("eggs", UserId);
+        var userProductCategory = AUserProductCategory("user_dairy");
+        var sharedProductCategory = ASharedCategory("dairy");
 
-		userProductCategory.AddProduct(userProduct);
-		Assert.True(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
-		
-		userProductCategory.RemoveProduct(userProduct);
-		sharedProductCategory.AddProduct(userProduct);
+        userProductCategory.AddProduct(userProduct);
+        Assert.True(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
 
-		Assert.False(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
-		Assert.True(sharedProductCategory.ContainsProductWithGuid(userProduct.Guid));
-	}
+        userProductCategory.RemoveProduct(userProduct);
+        sharedProductCategory.AddProduct(userProduct);
 
-	[Test]
-	public void UserProductCanBeAssignedToSharedProductCategory()
-	{
-		var userProduct = UserProduct.Create("eggs", UserId);
-		var userProductCategory = ASharedCategory("dairy");
+        Assert.False(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
+        Assert.True(sharedProductCategory.ContainsProductWithGuid(userProduct.Guid));
+    }
 
-		userProductCategory.AddProduct(userProduct);
+    [Test]
+    public void UserProductCanBeAssignedToSharedProductCategory()
+    {
+        var userProduct = UserProduct.Create("eggs", UserId);
+        var userProductCategory = ASharedCategory("dairy");
 
-		Assert.True(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
-	}
+        userProductCategory.AddProduct(userProduct);
 
-	[Test]
-	public void UserProductCanBeAssignedToUserProductCategory()
-	{
-		var userProduct = UserProduct.Create("eggs", UserId);
-		var userProductCategory = AUserProductCategory("dairy");
+        Assert.True(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
+    }
 
-		userProductCategory.AddProduct(userProduct);
+    [Test]
+    public void UserProductCanBeAssignedToUserProductCategory()
+    {
+        var userProduct = UserProduct.Create("eggs", UserId);
+        var userProductCategory = AUserProductCategory("dairy");
 
-		Assert.True(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
-	}
+        userProductCategory.AddProduct(userProduct);
 
-	[Test]
-	public void CanAddProduct()
-	{
-		var product = UserProduct.Create("eggs", userId);
+        Assert.True(userProductCategory.ContainsProductWithGuid(userProduct.Guid));
+    }
 
-		userProductsManagementService.DefineNewUserProduct(product);
-		var products = userProductsManagementService.GetUserProducts(userId);
+    [Test]
+    public void CanAddProduct()
+    {
+        var product = UserProduct.Create("eggs", userId);
 
-		Assert.Contains(product, products);
-	}
+        userProductsManagementService.DefineNewUserProduct(product);
+        var products = userProductsManagementService.GetUserProducts(userId);
 
-	private readonly Guid userId = Guid.Parse("8FFEE1B4-ADDF-4C5A-B773-16C4830FC278");
-	private UserProductsManagementService userProductsManagementService;
+        Assert.Contains(product, products);
+    }
+
+    private readonly Guid userId = Guid.Parse("8FFEE1B4-ADDF-4C5A-B773-16C4830FC278");
+    private UserProductsManagementService userProductsManagementService;
 }

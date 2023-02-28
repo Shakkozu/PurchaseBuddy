@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace PurchaseBuddyLibrary.src.auth.model;
+﻿namespace PurchaseBuddyLibrary.src.auth.model;
 public class User
 {
 	public Guid Guid { get; }

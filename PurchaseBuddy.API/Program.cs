@@ -3,7 +3,6 @@ using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.persistance;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.auth.persistance;
-using Swashbuckle.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,25 +13,25 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-	{
-		In = ParameterLocation.Header,
-		Description = "Please enter session id in field below",
-		Name = "Authorization",
-		Type = SecuritySchemeType.ApiKey
-	});
-	c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter session id in field below",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
 {
 {
-	new OpenApiSecurityScheme
-	{
-		Reference = new OpenApiReference
-		{
-			Type = ReferenceType.SecurityScheme,
-			Id = "Bearer"
-		}
-	},
-	new string[] {}
+    new OpenApiSecurityScheme
+    {
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    },
+    new string[] {}
 }
 });
 });
@@ -43,24 +42,24 @@ builder.Services.AddSingleton<UserShopService, UserShopService>();
 builder.Services.AddSingleton<IUserShopRepository, InMemoryUserShopRepository>();
 
 builder.Services.AddAuthentication("CustomHeaderAuthentication")
-	.AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(
-		"CustomHeaderAuthentication", options =>
-		{
-			options.HeaderName = "Authorization";
-		});
+    .AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(
+        "CustomHeaderAuthentication", options =>
+        {
+            options.HeaderName = "Authorization";
+        });
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy(name: MyAllowSpecificOrigins,
-						policy =>
-						{
-							//policy.WithOrigins("http://localhost:4200");
-							policy.AllowAnyOrigin();
-							policy.AllowAnyHeader();
-							policy.AllowAnyMethod();
-						});
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                        policy =>
+                        {
+                            //policy.WithOrigins("http://localhost:4200");
+                            policy.AllowAnyOrigin();
+                            policy.AllowAnyHeader();
+                            policy.AllowAnyMethod();
+                        });
 });
 
 var app = builder.Build();
@@ -68,8 +67,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
 }
 
@@ -82,7 +81,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
 public partial class Program
 {
+
 }

@@ -2,8 +2,8 @@
 
 public class Fixtures
 {
-    public Fixtures()
-    {
+	public Fixtures()
+	{
 
-    }
+	}
 }

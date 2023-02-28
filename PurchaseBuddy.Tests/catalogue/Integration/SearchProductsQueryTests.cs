@@ -51,7 +51,7 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 
 		Assert.AreEqual(13, result.Count);
 	}
-	
+
 	[Test]
 	public void WhenFilterStringIsProvided_ReturnProductsThatMeetsCriteria()
 	{
@@ -61,7 +61,7 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 
 		Assert.AreEqual(4, result.Count);
 	}
-	
+
 	[Test]
 	public void WhenMaxSizeIsProvided_AssertReturnedProductsCountIsLimited()
 	{
@@ -71,7 +71,7 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 
 		Assert.AreEqual(10, result.Count);
 	}
-	
+
 	[Test]
 	public void WhenPageIsSpecified_AndUserRequestedProductsFromPAgeThatDoNotExist_ReturnEmptyResult()
 	{
@@ -81,7 +81,7 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 
 		Assert.IsEmpty(result);
 	}
-	
+
 	[Test]
 	public void WhenPageIsSpecified_AssertElementsFromPageAreReturned()
 	{
@@ -92,5 +92,5 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 		Assert.AreEqual(3, result.Count);
 	}
 
-	
+
 }

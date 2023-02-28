@@ -5,7 +5,6 @@ using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.stores.contract;
-using System.Net;
 
 namespace PurchaseBuddy.API.Controllers;
 
@@ -66,7 +65,7 @@ public class UserShopController : BaseController
 
 		return Ok();
 	}
-	
+
 	[HttpDelete("{shopId}")]
 	public async Task<IActionResult> Delete(Guid shopId)
 	{

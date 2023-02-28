@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 
-namespace PurchaseBuddyLibrary.src.auth.app;
+namespace PurchaseBuddyLibrary.src.auth.model;
 public class UserSessionInfo
 {
 	public UserSessionInfo(string schema, ClaimsPrincipal claimsPrincipal, AuthenticationProperties authenticationProperties)
@@ -11,6 +11,6 @@ public class UserSessionInfo
 		AuthenticationProperties = authenticationProperties;
 	}
 	public string Schema { get; }
-	public ClaimsPrincipal ClaimsPrincipal { get;  }
+	public ClaimsPrincipal ClaimsPrincipal { get; }
 	public AuthenticationProperties AuthenticationProperties { get; }
 }

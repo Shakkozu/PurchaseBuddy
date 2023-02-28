@@ -15,13 +15,14 @@ public class InMemoryProductsRepository : IProductsRepository
 
 	public List<IProduct> GetUserProducts(Guid userID)
 	{
-		return products.Where(product => {
+		return products.Where(product =>
+		{
 			if (product.Value is UserProduct userProduct)
 				return userProduct.UserID == userID;
 			return true;
 		}).Select(product => product.Value).ToList();
 	}
-	
+
 	public List<IProduct> GetSharedProducts()
 	{
 		return products

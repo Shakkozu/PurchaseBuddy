@@ -31,6 +31,6 @@ public class ShoppingListItem
 
 	public Guid ProductId { get; }
 	public int Quantity { get; private set; }
-	public bool Purchased  { get; private set; }
+	public bool Purchased { get; private set; }
 	public bool Unavailable { get; private set; }
 }
