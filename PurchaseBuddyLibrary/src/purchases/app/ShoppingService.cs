@@ -11,9 +11,9 @@ public class ShoppingService
 		this.shoppingListRepository = shoppingListRepository;
 	}
 
-	public Guid CreateNewShoppingList(Guid userId)
+	public Guid CreateNewShoppingList(Guid userId, Guid? shopId = null)
 	{
-		var shoppingList = ShoppingList.CreateNew(userId);
+		var shoppingList = ShoppingList.CreateNew(userId, shopId);
 		shoppingListRepository.Save(shoppingList);
 
 		return shoppingList.Guid;

@@ -54,4 +54,8 @@
     <ProjectReference Include="..\PurchaseBuddyLibrary\PurchaseBuddyLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="e2e\" />
+  </ItemGroup>
+
 </Project>

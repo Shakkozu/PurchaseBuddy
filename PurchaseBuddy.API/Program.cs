@@ -1,4 +1,6 @@
 using Microsoft.OpenApi.Models;
+using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.persistance;
 using PurchaseBuddyLibrary.src.auth.app;
@@ -40,6 +42,9 @@ builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
 builder.Services.AddSingleton<IUserAuthorizationService, AuthorizationService>();
 builder.Services.AddSingleton<UserShopService, UserShopService>();
 builder.Services.AddSingleton<IUserShopRepository, InMemoryUserShopRepository>();
+builder.Services.AddSingleton<IProductsRepository, InMemoryProductsRepository>();
+builder.Services.AddSingleton<IUserProductCategoriesRepository, InMemoryUserProductCategoriesRepository>();
+builder.Services.AddSingleton<UserProductCategoriesManagementService>();
 
 builder.Services.AddAuthentication("CustomHeaderAuthentication")
     .AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(

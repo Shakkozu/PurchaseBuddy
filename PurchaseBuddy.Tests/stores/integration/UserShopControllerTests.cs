@@ -1,4 +1,4 @@
-﻿using PurchaseBuddyLibrary.src.auth.contract;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using PurchaseBuddyLibrary.src.stores.contract;
 using System.Net;
 using System.Net.Http.Json;
@@ -6,45 +6,8 @@ using System.Text;
 using System.Text.Json;
 
 namespace PurchaseBuddy.Tests.stores.integration;
-
-internal class UserShopControllerTests
+internal class UserShopControllerTests : ControllersTestsFixture
 {
-	private Guid sessionId;
-	private PurchaseBuddyApp app;
-	private HttpClient httpClient;
-	private Fixtures Fixtures => app.Fixtures;
-
-	protected UserDto AUser()
-	{
-		return new UserDto
-		{
-			Email = "john.doe@example.com",
-			Login = "johnDoe",
-			Password = "zaq1@WSX"
-		};
-	}
-
-	[SetUp]
-	public void SetUp()
-	{
-		app = PurchaseBuddyApp.CreateInstance();
-		sessionId = CreateAndLogUser();
-		httpClient = app.CreateClient();
-		httpClient.DefaultRequestHeaders.Add("Authorization", sessionId.ToString());
-	}
-
-	[TearDown]
-	public async Task DisposeOfApp()
-	{
-		await app.DisposeAsync();
-	}
-
-	private Guid CreateAndLogUser()
-	{
-		app.AuthorizationService.Register(AUser());
-		return app.AuthorizationService.Login(AUser().Login, AUser().Password);
-	}
-
 	[Test]
 	public async Task TestGetShops()
 	{
@@ -54,7 +17,7 @@ internal class UserShopControllerTests
 	}
 
 	[Test]
-	public async Task WhenUserDidNotAddAnyShop_ReturnEmptyList()
+	public void WhenUserDidNotAddAnyShop_ReturnEmptyList()
 	{
 		// when user did not add any shop
 		// then user does not have any shop

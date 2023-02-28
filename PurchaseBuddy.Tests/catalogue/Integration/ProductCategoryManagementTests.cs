@@ -29,12 +29,12 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	[Test]
 	public void CanAddNewProductCategory()
 	{
-		var productCategory = AUserProductCategory();
+		var createRequest = AUserProductCategoryCreateRequest();
 
-		userProductCategoriesService.AddNewProductCategory(productCategory);
+		var createdId = userProductCategoriesService.AddNewProductCategory(UserId, createRequest);
+
 		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
-
-		Assert.Contains(productCategory, productCategories);
+		Assert.True(productCategories.Any(category => category.Guid == createdId));
 	}
 
 	[Test]

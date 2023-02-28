@@ -9,22 +9,25 @@ public class ShoppingList
 	public IReadOnlyCollection<ShoppingListItem> Items => new ReadOnlyCollection<ShoppingListItem>(shoppingListItems);
 	public Guid UserId { get; }
 	public Guid Guid { get; }
+	public Guid? ShopId { get; }
+
 	public bool IsClosed => closedAt.HasValue;
 	private DateTime? closedAt;
 	private DateTime createdAt;
 
-	private ShoppingList(Guid userId, Guid guid, List<ShoppingListItem> shoppingListEntries, DateTime createdAt, DateTime? closedAt)
+	private ShoppingList(Guid userId, Guid? shopId, Guid guid, List<ShoppingListItem> shoppingListEntries, DateTime createdAt, DateTime? closedAt)
 	{
 		UserId = userId;
 		shoppingListItems = shoppingListEntries;
 		this.createdAt = createdAt;
 		this.closedAt = closedAt;
 		Guid = guid;
+		ShopId = shopId;
 
 	}
-	public static ShoppingList CreateNew(Guid userId)
+	public static ShoppingList CreateNew(Guid userId, Guid? shopId = null)
 	{
-		return new ShoppingList(userId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
+		return new ShoppingList(userId, shopId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
 	}
 
 	public void Close()
