@@ -39,6 +39,8 @@ public class SeedSharedProductsDatabase
 				categoriesList.Add(parentCategory);
 			}
 			for (var i = 0; i < tabsCount; i++)
+
+
 			{
 				var childCategory = SharedProductCategory.CreateNew(categoryName);
 				parentCategory.AddChild(childCategory);
@@ -68,7 +70,7 @@ Food products:
 	Vegetables
 	Sweets
 ";
-	private const string baseProducts =
+	private const string baseProducts = 
 @"Bread; Food products
 Milk; Food products
 Apples; Food products

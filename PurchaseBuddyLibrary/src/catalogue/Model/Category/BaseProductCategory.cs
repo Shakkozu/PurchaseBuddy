@@ -11,7 +11,10 @@ public abstract class BaseProductCategory : IProductCategory
 	public string? Description { get; protected set; }
 
 	public IProductCategory? Parent { get; protected set; }
+	public Guid? ParentId { get; protected set; }
 	public IReadOnlyCollection<IProductCategory> Children => new ReadOnlyCollection<IProductCategory>(children);
+
+	public bool IsRoot { get; protected set; }
 
 	public List<Guid> GetProductsInCategory()
 	{
@@ -30,10 +33,14 @@ public abstract class BaseProductCategory : IProductCategory
 	public void AddChild(IProductCategory child)
 	{
 		children.Add(child);
-		child.SetParent(this);
+		((BaseProductCategory)child).IsRoot = false;
+		((BaseProductCategory)child).ParentId = Guid;
 	}
-
-	public abstract void SetParent(IProductCategory productCategory);
+	public void RemoveChild(IProductCategory child)
+	{
+		children.Remove(child);
+		((BaseProductCategory)child).ParentId = null;
+	}
 	public abstract void AddProduct(IProduct product);
 
 	public bool ContainsProductWithGuid(Guid userProductId)

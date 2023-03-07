@@ -4,12 +4,11 @@ namespace PurchaseBuddyLibrary.src.catalogue.Model.Category;
 public class UserProductCategory : BaseProductCategory
 {
     public Guid UserId { get; private set; }
-
-    public static UserProductCategory CreateNew(string name, Guid userId, string? desc = null)
+	public static UserProductCategory CreateNew(string name, Guid userId, string? desc = null)
     {
         return new UserProductCategory(Guid.NewGuid(), userId, name, desc, null, new List<IProductCategory>(), new List<Guid>());
     }
-    public static UserProductCategory CreateNewWithParent(string name, Guid userId, IProductCategory parent, string? desc = null)
+    public static UserProductCategory CreateNewWithParent(string name, Guid userId, IProductCategory? parent, string? desc = null)
     {
         return new UserProductCategory(Guid.NewGuid(), userId, name, desc, parent, new List<IProductCategory>(), new List<Guid>());
     }
@@ -20,9 +19,14 @@ public class UserProductCategory : BaseProductCategory
         UserId = userId;
         Name = name;
         Description = description;
-        Parent = parent;
         this.children = children;
         this.productsInCategory = productsInCategory;
+        IsRoot = parent == null;
+		if(parent != null)
+		{
+			ParentId = parent.Guid;
+			parent.AddChild(this);
+		}
     }
 
     public override void AddProduct(IProduct product)
@@ -58,10 +62,5 @@ public class UserProductCategory : BaseProductCategory
 
         // todo: If it's possible to fetch products from children categories, removing a product from child via root should be possible
         productsInCategory.Remove(product.Guid);
-    }
-
-    public override void SetParent(IProductCategory productCategory)
-    {
-        Parent = productCategory;
     }
 }

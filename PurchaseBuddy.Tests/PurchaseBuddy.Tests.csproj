@@ -55,6 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="catalogue\Unit\" />
     <Folder Include="e2e\" />
   </ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.infra;
+using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.src.catalogue.App;
@@ -22,15 +23,26 @@ public class UserProductCategoriesManagementService
 
 		var upc = parent == null
 			? UserProductCategory.CreateNew(request.Name, userID, request.Description)
-			:UserProductCategory.CreateNewWithParent(request.Name, userID, parent, request.Description);
-		productCategoriesRepository.Save(upc);
+			: UserProductCategory.CreateNewWithParent(request.Name, userID, parent, request.Description);
 
+		if(parent != null)
+			productCategoriesRepository.Save(parent);
+
+		productCategoriesRepository.Save(upc);
 		return upc.Guid;
 	}
 
 	public List<IProductCategory> GetUserProductCategories(Guid userId)
 	{
 		return productCategoriesRepository.FindAll(userId);
+	}
+
+	public List<ProductCategoryDto> GetProductCategories2(Guid userId)
+	{
+		return productCategoriesRepository.FindAll(userId)
+			.Where(cat => cat.IsRoot)
+			.Select(category => new ProductCategoryDto(category))
+			.ToList();
 	}
 
 	public void AssignUserProductToCategory(Guid userId, Guid productGuid, Guid categoryGuid)
@@ -46,37 +58,32 @@ public class UserProductCategoriesManagementService
 		category.AddProduct(userProduct);
 		productCategoriesRepository.Save(category);
 	}
-}
 
-public class CreateUserCategoryRequest
-{
-	public CreateUserCategoryRequest()
+	public void ReassignUserProductCategory(Guid userId, Guid productCategoryGuid, Guid newParentCategoryGuid)
 	{
-	}
+		var category = productCategoriesRepository.FindById(userId, productCategoryGuid);
+		if(category is null)
+			throw new ResourceNotFoundException($"user product category with id {productCategoryGuid} not found for user: {userId}");
 
-	public CreateUserCategoryRequest(string name, string? desc, Guid? parentId)
-	{
-		Name = name;
-		Description = desc;
-		ParentId = parentId;
-	}
-	public string Name { get; set; }
-	public string? Description { get; set; }
-	public Guid? ParentId { get; set; }
-}
+		var newParentCategory = productCategoriesRepository.FindById(userId, newParentCategoryGuid);
+		if (newParentCategory is null)
+			throw new ResourceNotFoundException($"user product category with id {newParentCategoryGuid} not found for user: {userId}");
 
-public class ProductCategoryDto
-{
-	public string Name { get; set; }
-	public Guid Guid { get; set; }
+		
+		if(category.ParentId.HasValue)
+		{
+			var currentParentCategory = productCategoriesRepository.FindById(userId, category.ParentId.Value);
+			if (currentParentCategory is null)
+				throw new ResourceNotFoundException($"user product category with id {category.ParentId.Value} not found for user: {userId}");
 
-	public ProductCategoryDto()
-	{
+			currentParentCategory.RemoveChild(category);
+			productCategoriesRepository.Save(currentParentCategory);
+		}
+		newParentCategory.AddChild(category);
 
-	}
-	public ProductCategoryDto(IProductCategory category)
-	{
-		Name = category.Name;
-		Guid = category.Guid;
+		productCategoriesRepository.Save(newParentCategory);
+		productCategoriesRepository.Save(category);
 	}
 }
+
+

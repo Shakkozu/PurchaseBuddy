@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.Tests.stores.integration;
+using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using System;
 using System.Collections.Generic;
