@@ -2,6 +2,7 @@
 using PurchaseBuddy.src.infra;
 using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using System.ComponentModel;
 
 namespace PurchaseBuddy.src.catalogue.App;
 
@@ -34,14 +35,8 @@ public class UserProductCategoriesManagementService
 
 	public List<IProductCategory> GetUserProductCategories(Guid userId)
 	{
-		return productCategoriesRepository.FindAll(userId);
-	}
-
-	public List<ProductCategoryDto> GetProductCategories2(Guid userId)
-	{
 		return productCategoriesRepository.FindAll(userId)
 			.Where(cat => cat.IsRoot)
-			.Select(category => new ProductCategoryDto(category))
 			.ToList();
 	}
 
@@ -83,6 +78,14 @@ public class UserProductCategoriesManagementService
 
 		productCategoriesRepository.Save(newParentCategory);
 		productCategoriesRepository.Save(category);
+	}
+
+	internal IProductCategory? GetUserProductCategory(Guid userId, Guid? categoryId)
+	{
+		if (categoryId is null)
+			return null;
+
+		return productCategoriesRepository.FindById(userId, categoryId.Value);
 	}
 }
 

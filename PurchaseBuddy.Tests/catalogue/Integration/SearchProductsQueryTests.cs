@@ -8,6 +8,7 @@ namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class SearchProductsQueryTests : CatalogueTestsFixture
 {
 	private InMemoryProductsRepository productsRepository;
+	private UserProductCategoriesManagementService userProductCategoriesService;
 	private UserProductsManagementService userProductsManagementService;
 	private GetUserProductsQueryHandler getUserProductsQueryHandler;
 
@@ -15,8 +16,9 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 	public void SetUp()
 	{
 		productsRepository = new InMemoryProductsRepository();
-		userProductsManagementService = new UserProductsManagementService(productsRepository, null);
-		getUserProductsQueryHandler = new GetUserProductsQueryHandler(productsRepository);
+		userProductCategoriesService = new UserProductCategoriesManagementService(new InMemoryUserProductCategoriesRepository(), productsRepository);
+		userProductsManagementService = new UserProductsManagementService(productsRepository, userProductCategoriesService);
+		getUserProductsQueryHandler = new GetUserProductsQueryHandler(productsRepository, userProductCategoriesService);
 		SeedRepositoryWithSampleProducts();
 	}
 
@@ -93,4 +95,31 @@ internal class SearchProductsQueryTests : CatalogueTestsFixture
 	}
 
 
+	[Test]
+	public void WhenProductHasSpecifiedCategoryAsSubcategory_ReturnProductWithCategoryName()
+	{
+		var productCategoryParent = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		var productCategoryChild = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest(parentId: productCategoryParent, name: "dupa123"));
+		var productDto = AUserProduct(categoryId: productCategoryChild);
+		var created = userProductsManagementService.DefineNewUserProduct(productDto, UserId);
+		var query = new GetUserProductsQuery(UserId, pageSize: 100, page: 1);
+
+		var result = getUserProductsQueryHandler.Handle(query);
+		var product = result.First(p => p.Guid == created.Guid);
+
+		Assert.NotNull(product);
+		Assert.NotNull(product.Name);
+		Assert.NotNull(product.CategoryId);
+		Assert.AreEqual("dupa123", product.CategoryName);
+		Assert.NotNull(product.Guid);
+	}
+
+	private UserProductDto AUserProduct(string name = "test", Guid? categoryId = null)
+	{
+		return new UserProductDto
+		{
+			Name = name,
+			CategoryId = categoryId,
+		};
+	}
 }

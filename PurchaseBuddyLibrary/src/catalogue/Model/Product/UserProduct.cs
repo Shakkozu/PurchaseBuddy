@@ -1,15 +1,29 @@
-﻿namespace PurchaseBuddyLibrary.src.catalogue.Model.Product;
+﻿using PurchaseBuddy.src.catalogue.Persistance;
+using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+
+namespace PurchaseBuddyLibrary.src.catalogue.Model.Product;
 public class UserProduct : IProduct
 {
 	public int Id { get; }
 	public Guid Guid { get; }
 	public Guid UserID { get; }
+	public Guid? CategoryId { get; private set; }
 	public string Name { get; }
-	public static UserProduct Create(string name, Guid userId)
+	public static UserProduct Create(string name, Guid userId, Guid? categoryId = null)
 	{
-		return new UserProduct(null, userId, name, Guid.NewGuid());
+		return new UserProduct(null, userId, name, Guid.NewGuid(), categoryId);
 	}
-	private UserProduct(int? id, Guid userID, string name, Guid guid)
+	public void AssignProductToCategory(IProductCategory category)
+	{
+		CategoryId = category.Guid;
+	}
+
+	internal static IProduct LoadFrom(IProduct product, SharedProductCustomization customization)
+	{
+		return new UserProduct(product.Id, customization.UserID, customization.Name, product.Guid, customization.CategoryId);
+	}
+
+	private UserProduct(int? id, Guid userID, string name, Guid guid, Guid? categoryId)
 	{
 		if (id.HasValue)
 			Id = id.Value;
@@ -17,5 +31,6 @@ public class UserProduct : IProduct
 		UserID = userID;
 		Name = name;
 		Guid = guid;
+		CategoryId = categoryId;
 	}
 }

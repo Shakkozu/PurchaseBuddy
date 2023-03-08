@@ -1,9 +1,16 @@
-﻿using PurchaseBuddy.src.catalogue.Persistance;
+﻿using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddyLibrary.src.catalogue.App.Queries;
 
 
+public class GetUserProductsRequest
+{
+    public int? Page { get; set; }
+    public int? PageSize { get; set; }
+    public string? Filter { get; set; }
+}
 public class GetUserProductsQuery
 {
 	public GetUserProductsQuery(Guid userId, string? filter = null, int page = 1, int pageSize = 10)
@@ -22,12 +29,16 @@ public class GetUserProductsQuery
 public class GetUserProductsQueryHandler
 {
 	private readonly IProductsRepository productsRepository;
+	private readonly UserProductCategoriesManagementService userProductCategoriesManagementService;
 
-	public GetUserProductsQueryHandler(IProductsRepository productsRepository)
+	public GetUserProductsQueryHandler(IProductsRepository productsRepository,
+		UserProductCategoriesManagementService userProductCategoriesManagementService)
 	{
 		this.productsRepository = productsRepository;
+		this.userProductCategoriesManagementService = userProductCategoriesManagementService;
 	}
-	public List<IProduct> Handle(GetUserProductsQuery query)
+	
+	public List<UserProductDto> Handle(GetUserProductsQuery query)
 	{
 		var itemsToSkip = (query.Page - 1) * query.PageSize;
 
@@ -36,6 +47,9 @@ public class GetUserProductsQueryHandler
 			.OrderByDescending(x => x.Name.ToLower())
 			.Skip(itemsToSkip)
 			.Take(query.PageSize)
+			.Select(p => p.CategoryId.HasValue
+				? new UserProductDto(p, userProductCategoriesManagementService.GetUserProductCategory(query.UserId, p.CategoryId.Value))
+				: new UserProductDto(p))
 			.ToList();
 	}
 }

@@ -1,5 +1,4 @@
-﻿using PurchaseBuddy.src.catalogue.App;
-using PurchaseBuddyLibrary.src.catalogue.contract;
+﻿using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.Tests.catalogue;
@@ -11,9 +10,9 @@ internal class CatalogueTestsFixture
 	{
 		return UserProductCategory.CreateNew(name ?? "dairy", UserId);
 	}
-	protected CreateUserCategoryRequest AUserProductCategoryCreateRequest(string? name = null, Guid? parentId = null)
+	protected CreateUserCategoryRequest AUserProductCategoryCreateRequest(string? name = null, Guid? parentId = null, string? description = null)
 	{
-		return new CreateUserCategoryRequest(name ?? "dairy", null, parentId);
+		return new CreateUserCategoryRequest(name ?? "dairy", description, parentId);
 	}
 
 	public SharedProductCategory ASharedCategory(string name, IProductCategory? parent = null)

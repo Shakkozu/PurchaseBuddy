@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.catalogue.contract;
-using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using System.Text.Json;
 
 namespace PurchaseBuddy.API.Controllers;
 
 [ApiController]
-// to test purposes
-//[Authorize]
+[Authorize]
 [Route("categories")]
 public class UserProductCategoryController : BaseController
 {
@@ -25,7 +26,7 @@ public class UserProductCategoryController : BaseController
 	public async Task<IActionResult> GetUserCategories()
 	{
 		var user = await GetUserFromSessionAsync();
-		var result = categoriesManagementService.GetProductCategories2(user.Guid);
+		var result = categoriesManagementService.GetUserProductCategories(user.Guid);
 
 		return Ok(result);
 	}

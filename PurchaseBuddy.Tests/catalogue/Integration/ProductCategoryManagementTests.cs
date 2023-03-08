@@ -5,6 +5,7 @@ using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.infra;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
+
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
 {
 	[SetUp]
@@ -42,7 +43,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	{
 		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
 
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 	}
@@ -54,7 +55,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
 		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child2", root));
 
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.AreEqual(2, productCategories.First().Children.Count);
@@ -67,7 +68,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
 		var child2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child2", child));
 
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 		var lastAddedChild = productCategories.First().Children.First().Children.First();
 
 		Assert.AreEqual(1, productCategories.Count);
@@ -84,7 +85,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var grandChild = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandChild", child));
 
 		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root2);
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.IsEmpty(productCategories.First(pc => pc.Guid == root).Children);
 		Assert.IsNotEmpty(productCategories.First(pc => pc.Guid == root2).Children);
@@ -99,7 +100,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root1));
 
 		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root2);
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.AreEqual(2, productCategories.Count);
 		Assert.IsEmpty(productCategories.First(pc => pc.Guid == root1).Children);
@@ -114,7 +115,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child"));
 
 		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root.Guid);
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.IsNotEmpty(productCategories.First().Children);
@@ -127,7 +128,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1"));
 
 		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root2);
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.IsNotEmpty(productCategories.First(pc => pc.Guid == root2).Children);
@@ -139,7 +140,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("test", root));
 
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.NotNull(productCategories.First().Children);
@@ -155,24 +156,11 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 
 		var childUser = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("test", root.Guid));
 
-		var productCategories = userProductCategoriesService.GetProductCategories2(UserId);
+		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.AreEqual(2,productCategories.First(c => c.Guid == root.Guid).Children.Count);
 		Assert.NotNull(productCategories.First().Children);
-	}
-
-	[Test]
-	public void WhenProductAddedToCategory_AssertProductIsShownInCategory()
-	{
-		var productCategory = ProductCategoryCreated("dairy");
-		var product = ProductCreated("cheese");
-
-		userProductCategoriesService.AssignUserProductToCategory(UserId, product.Guid, productCategory.Guid);
-
-		var categoryFromDb = userProductCategoriesService.GetUserProductCategories(UserId).First();
-		Assert.NotNull(categoryFromDb);
-		Assert.True(categoryFromDb.ContainsProductWithGuid(product.Guid));
 	}
 
 	[Test]
@@ -190,7 +178,6 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 
 		var categoryFromDb = userProductCategoriesService.GetUserProductCategories(UserId).First();
 		Assert.NotNull(categoryFromDb);
-		Assert.IsNotEmpty(categoryFromDb.GetProductsInCategory());
 	}
 
 	private IProductCategory ProductCategoryCreated(string name)

@@ -5,12 +5,29 @@ namespace PurchaseBuddy.src.catalogue.Persistance;
 public class InMemoryProductsRepository : IProductsRepository
 {
 	private readonly Dictionary<Guid, IProduct> products = new();
+	private readonly Dictionary<Guid, List<SharedProductCustomization>> sharedProductsCustomizations = new();
 	public IProduct? GetProduct(Guid productGuid)
 	{
 		if (products.ContainsKey(productGuid))
 			return products[productGuid];
 
 		return null;
+	}
+
+	public void SaveSharedProductCustomization(SharedProductCustomization sharedProductCustomization)
+	{
+		if (!sharedProductsCustomizations.ContainsKey(sharedProductCustomization.UserID))
+		{
+			sharedProductsCustomizations[sharedProductCustomization.UserID] = new List<SharedProductCustomization> { sharedProductCustomization};
+			return;
+		}
+
+		var userCustomizations = sharedProductsCustomizations[sharedProductCustomization.UserID];
+		var expectedCustomization = userCustomizations.FirstOrDefault(uc => uc.ProductGuid == sharedProductCustomization.ProductGuid);
+		if(expectedCustomization != null)
+			userCustomizations.Remove(expectedCustomization);
+
+		userCustomizations.Add(sharedProductCustomization);
 	}
 
 	public List<IProduct> GetUserProducts(Guid userID)
@@ -20,7 +37,23 @@ public class InMemoryProductsRepository : IProductsRepository
 			if (product.Value is UserProduct userProduct)
 				return userProduct.UserID == userID;
 			return true;
-		}).Select(product => product.Value).ToList();
+		}).Select(product => GetProduct(userID, product.Value)).ToList();
+	}
+
+	private IProduct GetProduct(Guid userGuid, IProduct product)
+	{
+		if (product is UserProduct)
+			return product;
+
+		if (!sharedProductsCustomizations.ContainsKey(userGuid))
+			return product;
+
+		var customization = sharedProductsCustomizations[userGuid]
+				.FirstOrDefault(_customization => _customization.ProductGuid == product.Guid);
+
+		return customization == null
+			? product
+			: UserProduct.LoadFrom(product, customization);
 	}
 
 	public List<IProduct> GetSharedProducts()

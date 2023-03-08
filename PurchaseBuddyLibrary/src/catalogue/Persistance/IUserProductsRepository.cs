@@ -8,4 +8,5 @@ public interface IProductsRepository
 	List<IProduct> GetSharedProducts();
 	IProduct Save(IProduct product);
 	IProduct? GetProduct(Guid productGuid);
+	void SaveSharedProductCustomization(SharedProductCustomization customization);
 }

@@ -9,8 +9,7 @@ using PurchaseBuddyLibrary.src.stores.contract;
 namespace PurchaseBuddy.API.Controllers;
 
 [ApiController]
-// to test purposes
-//[Authorize]
+[Authorize]
 [Route("shops")]
 public class UserShopController : BaseController
 {

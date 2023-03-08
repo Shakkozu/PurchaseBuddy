@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="src\catalogue\infra\" />
     <Folder Include="src\crm\Model\" />
     <Folder Include="src\stores\controllers\" />
   </ItemGroup>

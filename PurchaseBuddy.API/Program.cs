@@ -45,6 +45,7 @@ builder.Services.AddSingleton<IUserShopRepository, InMemoryUserShopRepository>()
 builder.Services.AddSingleton<IProductsRepository, InMemoryProductsRepository>();
 builder.Services.AddSingleton<IUserProductCategoriesRepository, InMemoryUserProductCategoriesRepository>();
 builder.Services.AddSingleton<UserProductCategoriesManagementService>();
+builder.Services.AddSingleton<UserProductsManagementService>();
 
 builder.Services.AddAuthentication("CustomHeaderAuthentication")
     .AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(
