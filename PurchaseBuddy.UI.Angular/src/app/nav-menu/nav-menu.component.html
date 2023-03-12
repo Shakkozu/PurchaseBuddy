@@ -5,6 +5,7 @@
         <a mat-button routerLink="/about" routerLinkActive="active">About</a>
         <a mat-button routerLink="/department" routerLinkActive="active">Department</a>
         <a mat-button routerLink="/weather" routerLinkActive="active">Weather forecast</a>
+        <a mat-button routerLink="/user-products" routerLinkActive="active">User products</a>
       </div>
       <div *ngIf="(isUserLoggedIn$ | async)" class="grid__cell 1/5">
         <p>Hello: {{username$ | async}}</p>

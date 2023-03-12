@@ -80,12 +80,8 @@ export class AuthorizationState {
 	}
 
 	private redirect(): void {
-		const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-		if (returnUrl) {
-			this.router.navigate([returnUrl]);
-
-			return;
-		}
+		// temporary disabled redirect, because it doesn't work with user-products component.
+		// Filtering on products table doesnt work.
 
 		this.router.navigate(['/home']);
 	}

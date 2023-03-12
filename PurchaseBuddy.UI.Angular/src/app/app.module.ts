@@ -16,6 +16,7 @@ import { HttpAuthorizationInterceptor } from './auth/http/http-authorization.int
 import { ErrorInterceptor } from './http/error.interceptor';
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
 import { NgxsModule } from '@ngxs/store';
+import { ProductsModule } from './products/products.module';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { NgxsModule } from '@ngxs/store';
     AppRoutingModule,
     MaterialModule,
     AuthModule,
+    ProductsModule,
     EmployeeModule,
     DepartmentModule,
     ReactiveFormsModule,

@@ -18,8 +18,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor (private formBuilder: FormBuilder,
     private store: Store) {
-    
-    
   }
 
   public ngOnInit(): void {
