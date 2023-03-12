@@ -7,8 +7,9 @@ import { LoginComponent } from './components/login/login.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthorizationState } from './store/authorization.state';
-import { NgxsModule } from '@ngxs/store';
 import { HttpClientModule } from '@angular/common/http';
+import { NgxsModule } from '@ngxs/store';
+import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 
 
 @NgModule({
@@ -25,6 +26,9 @@ import { HttpClientModule } from '@angular/common/http';
     NgxsModule.forFeature([
       AuthorizationState,
     ]),
+    NgxsStoragePluginModule.forRoot({
+      key: [AuthorizationState]
+    }),
     HttpClientModule,
   ],
   exports: [

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { Store } from '@ngxs/store';
 import { AuthorizationState } from '../store/authorization.state';
+import { Logout } from '../store/authorization.actions';
 
 @Injectable()
 export class HttpAuthorizationInterceptor implements HttpInterceptor {
@@ -22,6 +23,13 @@ export class HttpAuthorizationInterceptor implements HttpInterceptor {
 			});
 		}
 
-		return next.handle(req);
+		return next.handle(req).pipe(
+			catchError((error) => {
+				if (error.status === 401) {
+					this.store.dispatch(new Logout());
+				}
+				return throwError(error);
+			})
+		);
 	}
 }

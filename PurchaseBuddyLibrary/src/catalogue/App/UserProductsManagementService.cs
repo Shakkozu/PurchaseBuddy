@@ -23,9 +23,17 @@ public class UserProductsManagementService
 
 	private void AddSharedProducts()
 	{
-		for(int i = 0; i < 5; i++)
+		var sampleProductsNames = new[]
 		{
-			productsRepository.Save(SharedProduct.CreateNew("TestProduct" + i));
+			"Banana",
+			"Apple",
+			"Peach",
+			"Kiwi",
+			"Milk"
+		};
+		foreach(var productName in sampleProductsNames)
+		{
+			productsRepository.Save(SharedProduct.CreateNew(productName));
 		}
 	}
 	public void AssignProductToCategory(Guid userGuid, Guid productId, Guid categoryId)

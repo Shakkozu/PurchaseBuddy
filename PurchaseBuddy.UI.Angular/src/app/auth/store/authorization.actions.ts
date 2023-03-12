@@ -10,6 +10,11 @@ export class Logout {
 	constructor () { }
 }
 
+export class OnLogoutSuccess {
+	static readonly type = '[UserSession] Logout success';
+	constructor () { }
+}
+
 export class Login {
 	static readonly type = '[UserSession] Login';
 	constructor (public username: string, public password: string) { }

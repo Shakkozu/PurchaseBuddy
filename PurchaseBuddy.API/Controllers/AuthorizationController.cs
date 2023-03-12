@@ -76,12 +76,15 @@ public class AuthorizationController : BaseController
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> LogoutAsync()
+    public IActionResult LogoutAsync()
     {
         try
         {
-            await HttpContext.SignOutAsync();
-            authorizationService.Logout(Guid.Parse(User.Claims.First(c => c.Type == ClaimTypes.Authentication).Value));
+			var userClaims = User.Claims.ToList();
+			var userAuthenticationClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Authentication);
+			if(userAuthenticationClaim != null)
+				authorizationService.Logout(Guid.Parse(userAuthenticationClaim.Value));
+
             return Ok();
         }
         catch (Exception e)

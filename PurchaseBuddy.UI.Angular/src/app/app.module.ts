@@ -17,6 +17,7 @@ import { ErrorInterceptor } from './http/error.interceptor';
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
 import { NgxsModule } from '@ngxs/store';
 import { ProductsModule } from './products/products.module';
+import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,8 @@ import { ProductsModule } from './products/products.module';
     WeatherComponent,
   ],
   imports: [
+    NgxsStoragePluginModule.forRoot(),
+    NgxsModule.forRoot(),
     CommonModule,
     BrowserModule,
     AppRoutingModule,
@@ -36,7 +39,6 @@ import { ProductsModule } from './products/products.module';
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
-    NgxsModule.forRoot(),
   ],
   exports: [
     CommonModule,

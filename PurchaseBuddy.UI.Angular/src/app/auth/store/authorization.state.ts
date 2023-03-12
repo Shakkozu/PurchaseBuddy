@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { Action, State, StateContext, Selector } from "@ngxs/store";
 import { AuthorizationService } from "../service/authorization.service";
-import { OnLoginSuccess, Login, Register, Logout } from "./authorization.actions";
+import { OnLoginSuccess, Login, Register, Logout, OnLogoutSuccess } from "./authorization.actions";
 
 
 export interface UserSessionStateModel {
@@ -30,8 +30,7 @@ export class testService {
 
 export class AuthorizationState {
 	constructor (private authorizationService: AuthorizationService,
-		private router: Router,
-		private route: ActivatedRoute) {
+		private router: Router) {
 	}
 
 	@Action(OnLoginSuccess)
@@ -57,11 +56,19 @@ export class AuthorizationState {
 	}
 	
 	@Action(Logout)
-	public logout({ getState, patchState }: StateContext<UserSessionStateModel>) {
-		const state = getState();
-		patchState({
-			...defaultState
-		});
+	public logout(ctx: StateContext<UserSessionStateModel>) {
+		const state = ctx.getState();
+		if (!state.sessionId)
+			return;
+
+		this.authorizationService.logout(state.sessionId)
+			.subscribe(() => ctx.dispatch(new OnLogoutSuccess()));
+	}
+
+	@Action(OnLogoutSuccess)
+	public onLogoutSuccess(ctx: StateContext<UserSessionStateModel>) {
+		ctx.patchState(defaultState);
+		this.redirect();
 	}
 	
 	@Selector()
