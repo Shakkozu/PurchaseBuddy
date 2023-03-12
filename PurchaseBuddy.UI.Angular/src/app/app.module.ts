@@ -13,11 +13,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WeatherComponent } from './weather/weather.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpAuthorizationInterceptor } from './auth/http/http-authorization.interceptor';
-import { ErrorInterceptor } from './http/error.interceptor';
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
 import { NgxsModule } from '@ngxs/store';
 import { ProductsModule } from './products/products.module';
-import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 
 @NgModule({
   declarations: [
@@ -26,7 +24,6 @@ import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
     WeatherComponent,
   ],
   imports: [
-    NgxsStoragePluginModule.forRoot(),
     NgxsModule.forRoot(),
     CommonModule,
     BrowserModule,
