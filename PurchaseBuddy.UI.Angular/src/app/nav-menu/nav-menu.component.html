@@ -1,19 +1,9 @@
-<mat-toolbar>
-  <mat-toolbar-row class="grid">
-      <div class="grid__cell 3/5">
-        <a mat-button routerLink="/home" routerLinkActive="active">Home</a>
-        <a mat-button routerLink="/about" routerLinkActive="active">About</a>
-        <a mat-button routerLink="/department" routerLinkActive="active">Department</a>
-        <a mat-button routerLink="/weather" routerLinkActive="active">Weather forecast</a>
-        <a mat-button routerLink="/user-products" routerLinkActive="active">User products</a>
-      </div>
-      <div *ngIf="(isUserLoggedIn$ | async)" class="grid__cell 1/5">
-        <p>Hello: {{username$ | async}}</p>
-        <a mat-button routerLinkActive="active" (click)="logout()">Logout</a>
-      </div>
-      <div *ngIf="!(isUserLoggedIn$ | async)" class="grid__cell 1/5">
-        <a mat-button routerLink="/login" routerLinkActive="active">Login</a>
-        <button mat-button routerLink="/register">Register</button>
-    </div>
-  </mat-toolbar-row>
-</mat-toolbar>
+<mat-toolbar color="primary">
+	<span>My App</span>
+	<span class="spacer"></span>
+	<button mat-button routerLink="/">Home</button>
+	<button mat-button routerLink="/about">About</button>
+	<button mat-button routerLink="/contact">Contact</button>
+	</mat-toolbar>
+<router-outlet></router-outlet>
+

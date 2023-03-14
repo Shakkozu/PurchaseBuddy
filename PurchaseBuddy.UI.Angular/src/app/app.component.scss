@@ -1,8 +1,18 @@
-.navigation {  
-	height: 5%;
-}
+/* app.component.scss */
 .container {
-	margin-top: 24px;
-	margin: 48px 16px;
-	height: 90%;
+  height: 100vh;
+}
+
+.sidenav {
+  width: 10vw;
+}
+
+.login-register {
+  button {
+    margin: 8px;
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
 }

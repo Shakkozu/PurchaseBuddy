@@ -11,3 +11,4 @@ export class GlobalErrorHandler implements ErrorHandler {
 		this.notificationService.showError(error);
 	}
 }
+

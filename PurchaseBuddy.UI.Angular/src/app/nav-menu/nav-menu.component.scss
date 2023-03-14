@@ -24,3 +24,9 @@ html {
 .toolbar-left {
   justify-content: flex-start;
 }
+
+
+/* app.component.scss */
+.spacer {
+  flex: 1 1 auto;
+}

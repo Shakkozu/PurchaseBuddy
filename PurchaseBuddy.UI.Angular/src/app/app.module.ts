@@ -10,7 +10,6 @@ import { MaterialModule } from './shared/material.module';
 import { EmployeeModule } from './employee/employee.module';
 import { DepartmentModule } from './department/department.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { WeatherComponent } from './weather/weather.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpAuthorizationInterceptor } from './auth/http/http-authorization.interceptor';
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
@@ -21,7 +20,6 @@ import { ProductsModule } from './products/products.module';
   declarations: [
     AppComponent,
     NavMenuComponent,
-    WeatherComponent,
   ],
   imports: [
     NgxsModule.forRoot(),
@@ -39,7 +37,6 @@ import { ProductsModule } from './products/products.module';
   ],
   exports: [
     CommonModule,
-    WeatherComponent,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: HttpAuthorizationInterceptor, multi: true },

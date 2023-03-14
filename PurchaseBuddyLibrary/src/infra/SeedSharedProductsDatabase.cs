@@ -5,18 +5,12 @@ using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 namespace PurchaseBuddyLibrary.src.infra;
 public class SeedSharedProductsDatabase
 {
-	private readonly UserProductsManagementService userProductsService;
-	private readonly UserProductCategoriesManagementService categoriesManagementService;
 	private readonly IProductsRepository productsRepository;
 	private readonly IUserProductCategoriesRepository productCategoriesRepository;
 
-	public SeedSharedProductsDatabase(UserProductsManagementService userProductsService,
-		UserProductCategoriesManagementService categoriesManagementService,
-		IProductsRepository productsRepository,
+	public SeedSharedProductsDatabase(IProductsRepository productsRepository,
 		IUserProductCategoriesRepository productCategoriesRepository)
 	{
-		this.userProductsService = userProductsService;
-		this.categoriesManagementService = categoriesManagementService;
 		this.productsRepository = productsRepository;
 		this.productCategoriesRepository = productCategoriesRepository;
 	}
@@ -54,6 +48,7 @@ public class SeedSharedProductsDatabase
 
 	private bool AlreadySeed()
 	{
+		return false;
 		return productsRepository.GetSharedProducts().Any();
 	}
 

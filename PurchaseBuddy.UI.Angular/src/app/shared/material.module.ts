@@ -27,6 +27,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialogModule } from '@angular/material/dialog';
 
 const materialModules = [
   CdkTreeModule,
@@ -57,6 +58,9 @@ const materialModules = [
   OverlayModule,
   PortalModule,
   BrowserAnimationsModule,
+  MatDialogModule,
+  MatSidenavModule,
+  MatTreeModule,
 ];
 
 @NgModule({
@@ -64,7 +68,9 @@ const materialModules = [
     ...materialModules
   ],
   exports: [
-    ...materialModules
+    ...materialModules,
+  ],
+  declarations: [
   ],
 })
 export class MaterialModule {

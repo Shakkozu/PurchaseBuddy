@@ -20,7 +20,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	[Test]
 	public void TestSeed()
 	{
-		var seed = new SeedSharedProductsDatabase(productService, userProductCategoriesService, userProductsRepo, userCategoriesRepo);
+		var seed = new SeedSharedProductsDatabase(userProductsRepo, userCategoriesRepo);
 		seed.Seed();
 
 		var userProductsCategories = userCategoriesRepo.FindAll(UserId);

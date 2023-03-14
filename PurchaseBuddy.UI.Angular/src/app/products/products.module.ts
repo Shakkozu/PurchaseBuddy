@@ -6,12 +6,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxsModule } from '@ngxs/store';
 import { ProductsRoutingModule } from './products-routing.module';
 import { UserProductsState } from './store/user-products.state';
+import { UserProductDetailsComponent } from './components/product-details/product-details.component';
 
 
 
 @NgModule({
   declarations: [
-    UserProductsListComponent
+    UserProductsListComponent,
+    UserProductDetailsComponent
   ],
   imports: [
     ProductsRoutingModule,
