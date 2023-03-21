@@ -5,6 +5,9 @@ import { FormGroup, FormControl } from '@angular/forms';
 @Injectable({ providedIn: 'root' })
 export class FormErrorHandler {
 	public handleError(formGroup: FormGroup, formControlName: string) {
+		if (formGroup.touched === false) {
+			return '';
+		}
 		const formControl = formGroup.get(formControlName) as FormControl;
 		if (!formControl || !formControl.invalid)
 			return '';

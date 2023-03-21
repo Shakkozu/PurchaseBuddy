@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { Observable } from "rxjs";
 import { ProductsService } from "../services/products-service";
-import { GetUserProducts } from "./user-products.actions";
+import { GetUserProducts, AddNewUserProduct } from "./user-products.actions";
 
 export interface UserProductsStateModel {
 	  products: Product[];
@@ -25,7 +26,9 @@ const defaultState: UserProductsStateModel = {
 	defaults: defaultState
 })
 export class UserProductsState {
-	constructor (private productsService: ProductsService) {
+	constructor (private productsService: ProductsService,
+		private router: Router
+	) {
 	}
 
 	@Selector()
@@ -40,5 +43,14 @@ export class UserProductsState {
 				products: products
 			});
 		});
+	}
+
+	@Action(AddNewUserProduct)
+	public addNewUserProduct(ctx: StateContext<UserProductsStateModel>, action: AddNewUserProduct) {
+		return this.productsService.addNewUserProduct({name: action.name, categoryId: action.categoryGuid})
+			.subscribe(() => {
+				ctx.dispatch(new GetUserProducts());
+				this.router.navigate(['user-products']);
+			});
 	}
 }

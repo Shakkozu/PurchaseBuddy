@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
-import { CookieService } from 'ngx-cookie-service';
 import { Store } from '@ngxs/store';
 import { Login } from '../../store/authorization.actions';
 
@@ -9,7 +8,7 @@ import { Login } from '../../store/authorization.actions';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  providers: [CookieService],
+  providers: [],
 })
 export class LoginComponent implements OnInit, OnDestroy {
   public hide: boolean = false;

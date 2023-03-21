@@ -1,9 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Store } from '@ngxs/store';
+import { GenericDialogComponent } from 'src/app/shared/generic-dialog/generic-dialog.component';
 import { GetUserProducts } from '../store/user-products.actions';
 import { Product, UserProductsState } from '../store/user-products.state';
 import { UserProductDetailsComponent } from './product-details/product-details.component';
@@ -17,6 +18,9 @@ import { UserProductDetailsComponent } from './product-details/product-details.c
 export class UserProductsListComponent {
   @ViewChild(MatPaginator)
   public paginator!: MatPaginator;
+
+  @ViewChild('dialogTemplate', { static: true })
+  dialogTemplate!: TemplateRef<any>;
 
   public displayedColumns: string[] = ['name', 'category'];
   public products: Product[] = [];
@@ -55,10 +59,22 @@ export class UserProductsListComponent {
     this.router.navigate(['user-product-details', productGuid]);
   }
 
-  add() {
-    this.dialogRef = this.matDialog.open(UserProductDetailsComponent, {
-      width: '400px',
-      height: '400px',
-    });
+  public addNew(): void {
+    this.router.navigate(['user-product-details/new']);
   }
+  // openDialog(): void {
+  //   const dialogRef = this.matDialog.open(GenericDialogComponent, {
+  //     width: '500px',
+  //     height: '700px',
+  //     disableClose: true,
+  //     data: {
+  //       title: 'Product Details',
+  //       component: UserProductDetailsComponent,
+  //       content: this.dialogTemplate,
+  //     },
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((result) => {
+  //   });
+  // }
 }

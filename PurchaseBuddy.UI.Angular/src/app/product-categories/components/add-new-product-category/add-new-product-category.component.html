@@ -1,16 +1,24 @@
+<mat-progress-bar *ngIf="progressService.visible" mode="indeterminate"></mat-progress-bar>
 <div class="grid">
   <form mat-form [formGroup]="dataForm">
     <div class="3/4 grid__cell">
       <mat-form-field appearance="fill">
-        <mat-label>Product Name</mat-label>
-        <input formControlName="productName" matInput>
+        <mat-label>Name</mat-label>
+        <input formControlName="categoryName" matInput>
       </mat-form-field>
-      <mat-error>{{getErrorMessage("productName")}}</mat-error>
+      <mat-error>{{getErrorMessage("categoryName")}}</mat-error>
     </div>
     <div class="3/4 grid__cell">
       <mat-form-field appearance="fill">
-        <mat-label>Product Category</mat-label>
-        <input formControlName="productCategory" matInput>
+        <mat-label>Description</mat-label>
+        <input formControlName="categoryDescription" matInput>
+      </mat-form-field>
+      <mat-error>{{getErrorMessage("categoryDescription")}}</mat-error>
+    </div>
+    <div class="3/4 grid__cell">
+      <mat-form-field appearance="fill">
+        <mat-label>Product Category Parent</mat-label>
+        <input formControlName="parentCategory" matInput>
       </mat-form-field>
     </div>
   </form>
@@ -36,7 +44,7 @@
       </mat-tree-node>
     </mat-tree>
 
-    <button mat-flat-button class="save-button" color="primary" (click)="save()">
+    <button [disabled]="isSubmitting" mat-flat-button class="save-button" color="primary" (click)="save()">
       Save
     </button>
   </div>

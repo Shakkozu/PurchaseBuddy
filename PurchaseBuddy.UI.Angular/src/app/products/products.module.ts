@@ -13,7 +13,7 @@ import { UserProductDetailsComponent } from './components/product-details/produc
 @NgModule({
   declarations: [
     UserProductsListComponent,
-    UserProductDetailsComponent
+    UserProductDetailsComponent,
   ],
   imports: [
     ProductsRoutingModule,

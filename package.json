@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@angular/material": "^13.0.0",
+    "@ngxs/store": "^3.7.6"
+  }
+}

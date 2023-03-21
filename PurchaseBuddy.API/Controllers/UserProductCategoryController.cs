@@ -32,18 +32,18 @@ public class UserProductCategoryController : BaseController
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Create([FromBody] CreateUserCategoryRequest request)
+	public async Task<dynamic> Create([FromBody] CreateUserCategoryRequest request)
 	{
 		var user = await GetUserFromSessionAsync();
 		var createdCategoryId = categoriesManagementService.AddNewProductCategory(user.Guid, request);
 
-		return Ok(createdCategoryId.ToString());
+		return Ok(createdCategoryId);
 	
 	}
 
 	[HttpPost()]
 	[Route("reassign/{categoryId}/to/{newParentCategoryId}")]
-	public async Task<IActionResult> Create(Guid categoryId, Guid newParentCategoryId)
+	public async Task<dynamic> Reassign(Guid categoryId, Guid newParentCategoryId)
 	{
 		var user = await GetUserFromSessionAsync();
 		try
@@ -53,6 +53,24 @@ public class UserProductCategoryController : BaseController
 		catch (Exception e )
 		{
 			logger.LogError($"Reassignment of product category {categoryId} failed for used {user.Id} with exception: {e}");
+			return BadRequest(e.Message);
+		}
+
+		return NoContent();
+	}
+
+	[HttpDelete]
+	[Route("{categoryId}")]
+	public async Task<dynamic> DeleteAsync(Guid categoryId)
+	{
+		var user = await GetUserFromSessionAsync();
+		try
+		{
+			categoriesManagementService.DeleteUserProductCategory(user.Guid, categoryId);
+		}
+		catch (Exception e)
+		{
+			logger.LogError($"Removing product category {categoryId} failed for used {user.Id} with exception: {e}");
 			return BadRequest(e.Message);
 		}
 

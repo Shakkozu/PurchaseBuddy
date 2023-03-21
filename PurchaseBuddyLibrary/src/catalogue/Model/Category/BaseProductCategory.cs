@@ -48,6 +48,13 @@ public abstract class BaseProductCategory : IProductCategory
 		return GetProductsInCategory().Any(productId => productId == userProductId);
 	}
 
+	public void RemoveParent()
+	{
+		ParentId = null;
+		Parent = null;
+		IsRoot = true;
+	}
+
 	protected List<Guid> productsInCategory = new List<Guid>();
 	protected List<IProductCategory> children = new List<IProductCategory>();
 }

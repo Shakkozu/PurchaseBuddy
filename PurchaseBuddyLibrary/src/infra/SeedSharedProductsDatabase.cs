@@ -19,31 +19,6 @@ public class SeedSharedProductsDatabase
 		if (AlreadySeed())
 			return;
 
-		var categories = baseCategories.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-		// get categories from baseCategories string. Tabs means, that category is nested on level of tabs count
-		var categoriesList = new List<IProductCategory>();
-		foreach (var category in categories)
-		{
-			var tabsCount = category.Count(c => c == '\t');
-			var categoryName = category.TrimStart('\t').Replace(":", string.Empty);
-			var parentCategory = categoriesList.FirstOrDefault(c => c.Name == categoryName);
-			if (parentCategory == null)
-			{
-				parentCategory = SharedProductCategory.CreateNew(categoryName);
-				categoriesList.Add(parentCategory);
-			}
-			for (var i = 0; i < tabsCount; i++)
-
-
-			{
-				var childCategory = SharedProductCategory.CreateNew(categoryName);
-				parentCategory.AddChild(childCategory);
-			}
-		}
-		foreach (var category in categoriesList)
-			productCategoriesRepository.Save(category);
-
-
 	}
 
 	private bool AlreadySeed()

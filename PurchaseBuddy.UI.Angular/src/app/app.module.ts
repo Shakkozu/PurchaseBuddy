@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthModule } from './auth/auth.module';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from './shared/material.module';
 import { EmployeeModule } from './employee/employee.module';
@@ -15,11 +14,13 @@ import { HttpAuthorizationInterceptor } from './auth/http/http-authorization.int
 import { ServerErrorInterceptor } from './shared/error-handling/server-error-interceptor';
 import { NgxsModule } from '@ngxs/store';
 import { ProductsModule } from './products/products.module';
+import { GenericDialogComponent } from './shared/generic-dialog/generic-dialog.component';
+import { ProductCategoriesModule } from './product-categories/product-categories/product-categories.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    NavMenuComponent,
+    GenericDialogComponent,
   ],
   imports: [
     NgxsModule.forRoot(),
@@ -34,9 +35,11 @@ import { ProductsModule } from './products/products.module';
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
+    ProductCategoriesModule,
   ],
   exports: [
     CommonModule,
+    GenericDialogComponent,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: HttpAuthorizationInterceptor, multi: true },

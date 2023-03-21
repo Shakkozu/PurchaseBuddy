@@ -2,6 +2,7 @@
 using PurchaseBuddy.src.infra;
 using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using PurchaseBuddyLibrary.src.infra;
 using System.ComponentModel;
 
 namespace PurchaseBuddy.src.catalogue.App;
@@ -15,6 +16,8 @@ public class UserProductCategoriesManagementService
 	{
 		this.productCategoriesRepository = productCategoriesRepository;
 		this.userProductsRepository = userProductsRepository;
+		var seed = new SeedSharedProductsDatabase(userProductsRepository, productCategoriesRepository);
+		seed.Seed();
 	}
 	public Guid AddNewProductCategory(Guid userID, CreateUserCategoryRequest request)
 	{
@@ -38,6 +41,36 @@ public class UserProductCategoriesManagementService
 		return productCategoriesRepository.FindAll(userId)
 			.Where(cat => cat.IsRoot)
 			.ToList();
+	}
+
+	public void DeleteUserProductCategory(Guid userId, Guid categoryId)
+	{
+		var category = productCategoriesRepository.FindById(userId, categoryId);
+		if (category is null)
+			throw new ResourceNotFoundException($"user product category with id {categoryId} not found for user: {userId}");
+
+		if (category.ParentId.HasValue)
+		{
+			var parentCategory = productCategoriesRepository.FindById(userId, category.ParentId.Value);
+			if (parentCategory is null)
+				throw new ResourceNotFoundException($"user product category with id {category.ParentId.Value} not found for user: {userId}");
+
+			foreach(var child in category.Children.ToList())
+			{
+				category.RemoveChild(child);
+				parentCategory.AddChild(child);
+			}
+			parentCategory.RemoveChild(category);
+			productCategoriesRepository.Save(parentCategory);
+			return;
+		}
+
+		foreach (var child in category.Children.ToList())
+		{
+			child.RemoveParent();
+			productCategoriesRepository.Save(child);
+		}
+		productCategoriesRepository.Remove(category);
 	}
 
 	public void AssignUserProductToCategory(Guid userId, Guid productGuid, Guid categoryGuid)

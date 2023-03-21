@@ -34,7 +34,8 @@ export class AuthorizationState {
 	}
 
 	@Action(OnLoginSuccess)
-	public createUserSession({ patchState }: StateContext<UserSessionStateModel>, { username, sessionId }: OnLoginSuccess) {
+	public createUserSession({ patchState }: StateContext<UserSessionStateModel>,
+		{ username, sessionId }: OnLoginSuccess) {
 		patchState({
 			username: username,
 			sessionId: sessionId,
@@ -43,7 +44,8 @@ export class AuthorizationState {
 	}
 	
 	@Action(Login)
-	public login(ctx: StateContext<UserSessionStateModel>, { username, password }: Login) {
+	public login(ctx: StateContext<UserSessionStateModel>,
+		{ username, password }: Login) {
 		this.authorizationService.login(username, password)
 			.subscribe(sessionId => ctx.dispatch(new OnLoginSuccess(username, sessionId)));
 	}

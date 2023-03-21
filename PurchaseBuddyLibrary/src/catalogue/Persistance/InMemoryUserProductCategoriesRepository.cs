@@ -31,6 +31,12 @@ public class InMemoryUserProductCategoriesRepository : IUserProductCategoriesRep
 		return null;
 	}
 
+	public void Remove(IProductCategory category)
+	{
+		if(productCategories.ContainsKey(category.Guid))
+			productCategories.Remove(category.Guid);
+	}
+
 	public IProductCategory Save(IProductCategory productCategory)
 	{
 		productCategories[productCategory.Guid] = productCategory;

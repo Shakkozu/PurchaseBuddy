@@ -5,7 +5,6 @@ using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.infra;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
-
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
 {
 	[SetUp]
@@ -16,6 +15,26 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
 		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
 	}
+
+	public class TestValidation
+	{
+		private TestValidation(int value) {
+			Value = value;
+		}
+
+		public static TestValidation CreateFrom(int? input)
+		{
+			return input switch
+			{
+				null => throw new ArgumentNullException(),
+				<= 0 => throw new ArgumentOutOfRangeException(),
+				_ => new TestValidation(input.Value),
+			};
+		}
+        public int Value { get; }
+    }
+
+
 
 	[Test]
 	public void TestSeed()

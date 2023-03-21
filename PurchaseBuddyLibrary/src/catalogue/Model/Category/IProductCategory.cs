@@ -17,4 +17,5 @@ public interface IProductCategory
 	void AddChild(IProductCategory productCategory);
 	void AddProduct(IProduct product);
 	void RemoveChild(IProductCategory category);
+	void RemoveParent();
 }
