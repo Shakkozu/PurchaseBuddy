@@ -7,6 +7,7 @@ import { NgxsModule } from '@ngxs/store';
 import { ProductsRoutingModule } from './products-routing.module';
 import { UserProductsState } from './store/user-products.state';
 import { UserProductDetailsComponent } from './components/product-details/product-details.component';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 
 
@@ -21,6 +22,7 @@ import { UserProductDetailsComponent } from './components/product-details/produc
     MaterialModule,
     ReactiveFormsModule,
     FormsModule,
+    NgxDatatableModule,
     NgxsModule.forFeature([UserProductsState]),
   ]
 })

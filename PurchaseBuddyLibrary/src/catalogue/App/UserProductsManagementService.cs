@@ -36,11 +36,14 @@ public class UserProductsManagementService
 			productsRepository.Save(SharedProduct.CreateNew(productName));
 		}
 	}
-	public void AssignProductToCategory(Guid userGuid, Guid productId, Guid categoryId)
+	public void AssignProductToCategory(Guid userGuid, Guid productId, Guid? categoryId)
 	{
 		var product = productsRepository.GetProduct(productId);
 		if(product == null)
 			throw new ResourceNotFoundException($"Product {productId} not found for user {userGuid}");
+
+		if (product.CategoryId.GetValueOrDefault() == categoryId)
+			return;
 
 		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId);
 		if(category is null)
@@ -81,5 +84,33 @@ public class UserProductsManagementService
 	public List<UserProductDto> GetUserProducts(GetUserProductsQuery query)
 	{
 		return queryHandler.Handle(query);
+	}
+
+	public void Modify(Guid productId, UserProductDto request, Guid userGuid)
+	{
+		var product = productsRepository.GetProduct(productId);
+		if(product is null)
+			throw new ResourceNotFoundException($"Product {productId} not found for user {userGuid}");
+
+		product.Name = request.Name;
+		if (request.CategoryId.GetValueOrDefault() == product.CategoryId.GetValueOrDefault())
+		{
+			productsRepository.Save(product);
+			return;
+		}
+
+		if(!request.CategoryId.HasValue)
+		{
+			product.RemoveProductCategory();
+			productsRepository.Save(product);
+			return;
+		}
+
+		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, request.CategoryId.Value);
+		if (category is null)
+			throw new ResourceNotFoundException($"product category {request.CategoryId.Value} not found for user {userGuid}");
+		product.AssignProductToCategory(category);
+		product.Name = request.Name;
+		productsRepository.Save(product);
 	}
 }

@@ -7,7 +7,7 @@ public class SharedProduct : IProduct
 	public int Id { get; }
 	public Guid Guid { get; }
 	public Guid? CategoryId { get; private set; }
-	public string Name { get; }
+	public string Name { get; set; }
 
 	public static SharedProduct CreateNew(string name)
 	{
@@ -16,7 +16,11 @@ public class SharedProduct : IProduct
 
 	public void AssignProductToCategory(IProductCategory category)
 	{
-		throw new NotImplementedException();
+		CategoryId = category.Guid;
+	}
+	public void RemoveProductCategory()
+	{
+		CategoryId = null;
 	}
 
 	private SharedProduct(string name, Guid guid)

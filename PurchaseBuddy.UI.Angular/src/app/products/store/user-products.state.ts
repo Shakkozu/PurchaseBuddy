@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { Observable } from "rxjs";
 import { ProductsService } from "../services/products-service";
-import { GetUserProducts, AddNewUserProduct } from "./user-products.actions";
+import { GetUserProducts, AddNewUserProduct, UpdateUserProduct } from "./user-products.actions";
 
 export interface UserProductsStateModel {
 	  products: Product[];
@@ -53,4 +53,14 @@ export class UserProductsState {
 				this.router.navigate(['user-products']);
 			});
 	}
+
+	@Action(UpdateUserProduct)
+	public updateUserProduct(ctx: StateContext<UserProductsStateModel>, action: UpdateUserProduct) {
+		return this.productsService.updateUserProduct(action.id, {name: action.name, categoryId: action.categoryGuid})
+			.subscribe(() => {
+				ctx.dispatch(new GetUserProducts());
+				this.router.navigate(['user-products']);
+			});
+	}
+		
 }

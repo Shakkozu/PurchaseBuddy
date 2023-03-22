@@ -1,13 +1,18 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { FlatTreeControl, NestedTreeControl } from '@angular/cdk/tree';
+import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeNestedDataSource } from '@angular/material/tree';
+import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { ExampleFlatNode, ProductCategoryFlatNode, ProductCategoryNode } from 'src/app/product-categories/product-categories.model';
 import { ProductCategoriesService } from 'src/app/product-categories/services/product-categories.service';
 import { FormErrorHandler } from 'src/app/shared/error-handling/form-error-handler';
-import { AddNewUserProduct } from '../../store/user-products.actions';
+import { AddNewUserProduct, UpdateUserProduct } from '../../store/user-products.actions';
+import { OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { UserProductsState } from '../../store/user-products.state';
+import { ProductsService } from '../../services/products-service';
 
 
 
@@ -19,27 +24,53 @@ import { AddNewUserProduct } from '../../store/user-products.actions';
   templateUrl: 'product-details.component.html',
   styleUrls: ['product-details.component.scss'],
 })
-export class UserProductDetailsComponent {
+export class UserProductDetailsComponent implements OnInit, OnDestroy {
   
   checklistSelection = new SelectionModel<ProductCategoryNode>(true);
   dataForm!: FormGroup;
   public selectedNode!: ProductCategoryNode;
   public selectedNodeGuid: string = '';
   public saveOccured: boolean = false;
+  private routeParamsSubscription!: Subscription;
+  private header = 'New Product';
+  private productId!: string;
 
 
   public dataSource!: MatTreeFlatDataSource<ProductCategoryNode, ProductCategoryFlatNode>;
 
   constructor (private productCategoriesService: ProductCategoriesService,
+    private productService: ProductsService,
     private formBuilder: FormBuilder,
     private formErrorHandler: FormErrorHandler,
-    private store: Store) {
-    
-    this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-    this.productCategoriesService.getCategories().subscribe(categories => {
-      this.dataSource.data = categories;
+    private store: Store,
+    private activatedRoute: ActivatedRoute) {
+      this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+      this.productCategoriesService
+        .getCategories()
+        .subscribe(categories => this.dataSource.data = categories);
+      this.initForm();
+  }
+
+  ngOnInit(): void {
+    this.routeParamsSubscription = this.activatedRoute.params.subscribe((params: Params) => {
+      if (params['id']) {
+        this.productId = params['id'];
+        this.header = 'Edit Product';
+
+        this.productService.getUserProducts().subscribe((products) => {
+          const product = products.find((p) => p.guid === this.productId);
+          this.dataForm.get('productName')?.setValue(product?.name);
+          this.dataForm.get('productCategory')?.setValue(product?.categoryName);
+          this.selectedNodeGuid = product?.categoryId ?? '';
+        });
+      }
     });
-    this.initForm();
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeParamsSubscription) {
+      this.routeParamsSubscription.unsubscribe();
+    }
   }
 
   private initForm(): void {
@@ -86,11 +117,18 @@ export class UserProductDetailsComponent {
 
     this.saveOccured = true;
     const productName = this.dataForm.get('productName')?.value;
-    this.store.dispatch(new AddNewUserProduct(productName, this.selectedNodeGuid));
+    if (this.productId) {
+      this.store.dispatch(new UpdateUserProduct(this.productId, productName, this.selectedNodeGuid));
+    } else {      
+      this.store.dispatch(new AddNewUserProduct(productName, this.selectedNodeGuid));
+    }
   }
 
   public getErrorMessage(formControlName: string): string {
     return this.formErrorHandler.handleError(this.dataForm, formControlName);
   }
 
+  public getHeader() {
+    return this.header;
+  }
 }

@@ -8,7 +8,7 @@ public class UserProduct : IProduct
 	public Guid Guid { get; }
 	public Guid UserID { get; }
 	public Guid? CategoryId { get; private set; }
-	public string Name { get; }
+	public string Name { get; set; }
 	public static UserProduct Create(string name, Guid userId, Guid? categoryId = null)
 	{
 		return new UserProduct(null, userId, name, Guid.NewGuid(), categoryId);
@@ -21,6 +21,11 @@ public class UserProduct : IProduct
 	internal static IProduct LoadFrom(IProduct product, SharedProductCustomization customization)
 	{
 		return new UserProduct(product.Id, customization.UserID, customization.Name, product.Guid, customization.CategoryId);
+	}
+
+	public void RemoveProductCategory()
+	{
+		CategoryId = null;
 	}
 
 	private UserProduct(int? id, Guid userID, string name, Guid guid, Guid? categoryId)

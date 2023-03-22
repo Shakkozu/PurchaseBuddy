@@ -9,7 +9,6 @@ import { UserProductCategoriesState } from '../../store/product-categories-state
 import { InitializeUserProductCategories, RemoveUserProductCategory } from '../../store/product-categories.actions';
 import { OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-product-categories-list',

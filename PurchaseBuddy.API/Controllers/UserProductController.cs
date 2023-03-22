@@ -44,7 +44,7 @@ public class UserProductController : BaseController
 	public async Task<IActionResult> GetUserProducts(string? filter, int? page, int? pageSize)
 	{
 		var user = await GetUserFromSessionAsync();
-		var query = new GetUserProductsQuery(user.Guid, filter, page ?? 1, pageSize ?? 10);
+		var query = new GetUserProductsQuery(user.Guid, filter, page ?? 1, pageSize ?? 10000);
 		var result = productsManagementService.GetUserProducts(query);
 
 		return Ok(result);
@@ -57,6 +57,23 @@ public class UserProductController : BaseController
 		try
 		{
 			var createdProduct = productsManagementService.DefineNewUserProduct(request, user.Guid);
+		}
+		catch (Exception e )
+		{
+			logger.LogError($"Creating product {System.Text.Json.JsonSerializer.Serialize(request)} for user {user.Id} failed with exception: {e}");
+			return BadRequest(e.Message);
+		}
+
+		return NoContent();
+	}
+	
+	[HttpPut("{productId}")]
+	public async Task<IActionResult> Update(Guid productId, [FromBody] UserProductDto request)
+	{
+		var user = await GetUserFromSessionAsync();
+		try
+		{
+			productsManagementService.Modify(productId, request, user.Guid);
 		}
 		catch (Exception e )
 		{

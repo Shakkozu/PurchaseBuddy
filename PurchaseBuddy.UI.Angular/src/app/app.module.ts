@@ -16,6 +16,8 @@ import { NgxsModule } from '@ngxs/store';
 import { ProductsModule } from './products/products.module';
 import { GenericDialogComponent } from './shared/generic-dialog/generic-dialog.component';
 import { ProductCategoriesModule } from './product-categories/product-categories/product-categories.module';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -36,10 +38,13 @@ import { ProductCategoriesModule } from './product-categories/product-categories
     FormsModule,
     HttpClientModule,
     ProductCategoriesModule,
+    NgxDatatableModule,
+    BrowserAnimationsModule,
   ],
   exports: [
     CommonModule,
     GenericDialogComponent,
+    NgxDatatableModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: HttpAuthorizationInterceptor, multi: true },
