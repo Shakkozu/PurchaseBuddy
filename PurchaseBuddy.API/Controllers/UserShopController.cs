@@ -52,7 +52,7 @@ public class UserShopController : BaseController
 		var userShopDescription = UserShopDescription.CreateNew(userShopDto.Name, userShopDto.Description, address);
 		var createdUserShopId = userShopService.AddNewUserShop(user.Guid, userShopDescription);
 
-		return Ok(createdUserShopId.ToString());
+		return NoContent();
 	}
 
 	[HttpPut("{shopId}")]
@@ -63,7 +63,7 @@ public class UserShopController : BaseController
 		var userShopDescription = UserShopDescription.CreateNew(userShopDto.Name, userShopDto.Description, address);
 		userShopService.UpdateShopDescription(userShopDescription, user.Guid, shopId);
 
-		return Ok();
+		return NoContent();
 	}
 
 	[HttpDelete("{shopId}")]

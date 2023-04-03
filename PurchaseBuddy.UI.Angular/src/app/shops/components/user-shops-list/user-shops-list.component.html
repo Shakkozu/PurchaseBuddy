@@ -1,24 +1,27 @@
 <div class="grid">
-
   <div class="grid grid__cell">
     <button mat-flat-button class="save-button" color="primary" (click)="addNew()">
       Add new
     </button>
   </div>
   <div class="grid__cell 1/2">
-
     <input type="text" style="padding:8px;margin:15px auto;width:30%;" placeholder="Type to filter the name column..."
       (keyup)="updateFilter($event)" />
     <ngx-datatable #table class="material" [columns]="columns" [columnMode]="ColumnMode.force" [headerHeight]="50"
       [footerHeight]="50" rowHeight="auto" [limit]="10" [rows]="rows">
       <ngx-datatable-column name="Name" prop="name">
         <ng-template let-row="row" ngx-datatable-cell-template>
-          <button mat-button [routerLink]="['/user-product-details', row.guid]">{{ row.name }}</button>
+          <button mat-button [routerLink]="['/user-shop-details', row.guid]">{{ row.name }}</button>
         </ng-template>
       </ngx-datatable-column>
-      <ngx-datatable-column name="Category" prop="categoryName">
+      <ngx-datatable-column name="Address" prop="address">
         <ng-template let-row="row" ngx-datatable-cell-template>
-          <p>{{row.categoryName}}</p>
+          <p>{{getAddressDescription(row)}}</p>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="Description" prop="description">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <p>{{row.description}}</p>
         </ng-template>
       </ngx-datatable-column>
     </ngx-datatable>

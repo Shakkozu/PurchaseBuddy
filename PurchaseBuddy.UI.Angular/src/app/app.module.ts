@@ -18,6 +18,7 @@ import { GenericDialogComponent } from './shared/generic-dialog/generic-dialog.c
 import { ProductCategoriesModule } from './product-categories/product-categories/product-categories.module';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UserShopsModule } from './shops/user-shops.module';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ProductCategoriesModule,
     NgxDatatableModule,
     BrowserAnimationsModule,
+    UserShopsModule,
   ],
   exports: [
     CommonModule,

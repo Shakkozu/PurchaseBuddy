@@ -21,7 +21,6 @@ export class ServerErrorInterceptor implements HttpInterceptor {
 		this.notificationService.closeSnackBar();
 
 		return next.handle(request).pipe(
-			retry(1),
 			catchError((error: HttpErrorResponse) => {
 				const errorResponse = error.error as string;
 				if (errorResponse) {

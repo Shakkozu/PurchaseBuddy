@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root'})
 export class ProductCategoriesService {
-	private urlBase = 'http://localhost:5133/categories/';
+	private urlBase = environment.apiUrl + 'categories/';
 	constructor (private http: HttpClient) { }
 
 	getCategories(): Observable<ProductCategory[]> {
@@ -47,6 +47,7 @@ export interface CreateProductCategoryRequest {
 
 
 import { BehaviorSubject } from 'rxjs';
+import { environment } from "src/environments/environment";
 
 @Injectable()
 export class ProgressService {
