@@ -59,14 +59,10 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
       localNumber: this.dataForm.get('localNumber')?.value,
     }
 
-    if (this.shopId) {
-      this.store.dispatch(new UpdateUserShop(this.shopId, request)).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      });
-
-    } else {
-      this.store.dispatch(new AddNewUserShop(request)).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      });
-    }
+    if (this.shopId)
+      this.store.dispatch(new UpdateUserShop(this.shopId, request)).pipe(takeUntil(this.destroy$)).subscribe(() => {});
+    else
+      this.store.dispatch(new AddNewUserShop(request)).pipe(takeUntil(this.destroy$)).subscribe(() => {});
   }
 
   public ngOnInit(): void {

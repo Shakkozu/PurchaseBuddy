@@ -60,7 +60,7 @@ internal class UserShopControllerTests : ControllersTestsFixture
 		var userShops = GetUserShops();
 		Assert.AreEqual(1, userShops.Count);
 		// when user removes existing shop
-		DeleteUserShop(userShops[0].Guid);
+		DeleteUserShop(userShops[0].Guid.Value);
 		// then user shops list is empty
 		userShops = GetUserShops();
 		Assert.IsEmpty(userShops);

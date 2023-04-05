@@ -2,7 +2,6 @@
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
-using PurchaseBuddyLibrary.src.infra;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
@@ -34,18 +33,6 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
         public int Value { get; }
     }
 
-
-
-	[Test]
-	public void TestSeed()
-	{
-		var seed = new SeedSharedProductsDatabase(userProductsRepo, userCategoriesRepo);
-		seed.Seed();
-
-		var userProductsCategories = userCategoriesRepo.FindAll(UserId);
-		Assert.IsNotEmpty(userProductsCategories);
-	}
-
 	[Test]
 	public void CanAddNewProductCategory()
 	{
@@ -53,7 +40,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 
 		var createdId = userProductCategoriesService.AddNewProductCategory(UserId, createRequest);
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 		Assert.True(productCategories.Any(category => category.Guid == createdId));
 	}
 
@@ -62,7 +49,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	{
 		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 	}
@@ -74,7 +61,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
 		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child2", root));
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.AreEqual(2, productCategories.First().Children.Count);
@@ -87,7 +74,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
 		var child2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child2", child));
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 		var lastAddedChild = productCategories.First().Children.First().Children.First();
 
 		Assert.AreEqual(1, productCategories.Count);
@@ -103,8 +90,8 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child", root));
 		var grandChild = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandChild", child));
 
-		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root2);
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		userProductCategoriesService.ReassignCategory(UserId, child, root2);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.IsEmpty(productCategories.First(pc => pc.Guid == root).Children);
 		Assert.IsNotEmpty(productCategories.First(pc => pc.Guid == root2).Children);
@@ -118,8 +105,8 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var root2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("root2"));
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root1));
 
-		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root2);
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		userProductCategoriesService.ReassignCategory(UserId, child, root2);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(2, productCategories.Count);
 		Assert.IsEmpty(productCategories.First(pc => pc.Guid == root1).Children);
@@ -133,8 +120,8 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		userCategoriesRepo.Save(root);
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child"));
 
-		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root.Guid);
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		userProductCategoriesService.ReassignCategory(UserId, child, root.Guid);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.IsNotEmpty(productCategories.First().Children);
@@ -146,8 +133,8 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var root2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("root2"));
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1"));
 
-		userProductCategoriesService.ReassignUserProductCategory(UserId, child, root2);
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		userProductCategoriesService.ReassignCategory(UserId, child, root2);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.IsNotEmpty(productCategories.First(pc => pc.Guid == root2).Children);
@@ -159,7 +146,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("test", root));
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.NotNull(productCategories.First().Children);
@@ -175,7 +162,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 
 		var childUser = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("test", root.Guid));
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.AreEqual(2,productCategories.First(c => c.Guid == root.Guid).Children.Count);
@@ -195,7 +182,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 
 		productService.DefineNewUserProduct(productDto, UserId);
 
-		var categoryFromDb = userProductCategoriesService.GetUserProductCategories(UserId).First();
+		var categoryFromDb = userProductCategoriesService.GetCategories(UserId).First();
 		Assert.NotNull(categoryFromDb);
 	}
 

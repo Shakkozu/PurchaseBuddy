@@ -11,7 +11,6 @@ public class UserProductCategoriesManagementService
 {
 	private readonly IUserProductCategoriesRepository productCategoriesRepository;
 	private readonly IProductsRepository userProductsRepository;
-
 	public UserProductCategoriesManagementService(IUserProductCategoriesRepository productCategoriesRepository, IProductsRepository userProductsRepository)
 	{
 		this.productCategoriesRepository = productCategoriesRepository;
@@ -36,14 +35,14 @@ public class UserProductCategoriesManagementService
 		return upc.Guid;
 	}
 
-	public List<IProductCategory> GetUserProductCategories(Guid userId)
+	public List<IProductCategory> GetCategories(Guid userId)
 	{
 		return productCategoriesRepository.FindAll(userId)
 			.Where(cat => cat.IsRoot)
 			.ToList();
 	}
 
-	public void DeleteUserProductCategory(Guid userId, Guid categoryId)
+	public void DeleteCategory(Guid userId, Guid categoryId)
 	{
 		var category = productCategoriesRepository.FindById(userId, categoryId);
 		if (category is null)
@@ -73,7 +72,7 @@ public class UserProductCategoriesManagementService
 		productCategoriesRepository.Remove(category);
 	}
 
-	public void AssignUserProductToCategory(Guid userId, Guid productGuid, Guid categoryGuid)
+	public void AssignProductToCategory(Guid userId, Guid productGuid, Guid categoryGuid)
 	{
 		var userProduct = userProductsRepository.GetProduct(productGuid);
 		if (userProduct == null)
@@ -87,7 +86,7 @@ public class UserProductCategoriesManagementService
 		productCategoriesRepository.Save(category);
 	}
 
-	public void ReassignUserProductCategory(Guid userId, Guid productCategoryGuid, Guid newParentCategoryGuid)
+	public void ReassignCategory(Guid userId, Guid productCategoryGuid, Guid newParentCategoryGuid)
 	{
 		var category = productCategoriesRepository.FindById(userId, productCategoryGuid);
 		if(category is null)
@@ -96,7 +95,6 @@ public class UserProductCategoriesManagementService
 		var newParentCategory = productCategoriesRepository.FindById(userId, newParentCategoryGuid);
 		if (newParentCategory is null)
 			throw new ResourceNotFoundException($"user product category with id {newParentCategoryGuid} not found for user: {userId}");
-
 		
 		if(category.ParentId.HasValue)
 		{

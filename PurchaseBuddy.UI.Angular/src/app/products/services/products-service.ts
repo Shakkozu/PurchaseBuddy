@@ -36,6 +36,9 @@ export class ProductsService {
 		return this.http.get<Product[]>(this.urlBase);
 	}
 
+	getProductsAttachedToCategory(categoryId: string): Observable<Product[]> {
+		return this.http.get<Product[]>(this.urlBase + `with-category/${categoryId}`);
+	} 
 }
 
 export interface AddNewUserProductRequest {

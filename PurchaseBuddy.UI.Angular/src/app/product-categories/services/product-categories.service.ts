@@ -26,6 +26,10 @@ export class ProductCategoriesService {
 	removeUserProductCategory(guid: string): Observable<void> {
 		return this.http.delete<any>(this.urlBase + guid);
 	}
+
+	deleteProductCategory(guid: string, substituteCategoryGuid: string) {
+		return this.http.post<any>(this.urlBase + `remove/${guid}/reassign-products-to/${substituteCategoryGuid ?? ''}`, null);
+	}
 }
 
 export interface ProductCategory {
@@ -47,6 +51,7 @@ export interface CreateProductCategoryRequest {
 
 
 import { BehaviorSubject } from 'rxjs';
+import { Product } from "src/app/products/store/user-products.state";
 import { environment } from "src/environments/environment";
 
 @Injectable()
@@ -77,6 +82,6 @@ export class ProgressService {
 			const observable = observableFn();
 			observable.subscribe(() => this.hideProgressBar(), () => this.hideProgressBar());
 			return observable;
-		}, 3000);
+		}, 300);
 	}
 }

@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.catalogue.contract;
-using System.Text.Json;
 
 namespace PurchaseBuddy.API.Controllers;
 
@@ -15,18 +13,20 @@ public class UserProductCategoryController : BaseController
 {
 	public UserProductCategoryController(UserProductCategoriesManagementService categoriesManagementService,
 		ILogger<UserProductCategoryController> logger,
+		ProductsFacade productsFacade,
 		IUserAuthorizationService authorizationService)
 		: base(authorizationService)
 	{
 		this.categoriesManagementService = categoriesManagementService;
 		this.logger = logger;
+		this.productsFacade = productsFacade;
 	}
 
 	[HttpGet]
 	public async Task<IActionResult> GetUserCategories()
 	{
 		var user = await GetUserFromSessionAsync();
-		var result = categoriesManagementService.GetUserProductCategories(user.Guid);
+		var result = categoriesManagementService.GetCategories(user.Guid);
 
 		return Ok(result);
 	}
@@ -40,15 +40,31 @@ public class UserProductCategoryController : BaseController
 		return Ok(createdCategoryId);
 	
 	}
+	
+	[HttpPost("remove/{categoryId}/reassign-products-to/{newCategoryId?}")]
+	public async Task<dynamic> RemoveAndReassignProducts(Guid categoryId, Guid? newCategoryId)
+	{
+		var user = await GetUserFromSessionAsync();
+		try
+		{
+			productsFacade.RemoveCategoryAndReassignProducts(user.Guid, categoryId, newCategoryId);
+			return NoContent();
+		}
+		catch (Exception e)
+		{
+			logger.LogError($"Removing product category {categoryId} failed for used {user.Id} with exception: {e}");
+			return BadRequest(e.Message);
+		}
+	}
 
 	[HttpPost()]
-	[Route("reassign/{categoryId}/to/{newParentCategoryId}")]
+	[Route("reassign/{categoryId}/to/{newParentCategoryId?}")]
 	public async Task<dynamic> Reassign(Guid categoryId, Guid newParentCategoryId)
 	{
 		var user = await GetUserFromSessionAsync();
 		try
 		{
-			categoriesManagementService.ReassignUserProductCategory(user.Guid, categoryId, newParentCategoryId);
+			categoriesManagementService.ReassignCategory(user.Guid, categoryId, newParentCategoryId);
 		}
 		catch (Exception e )
 		{
@@ -66,7 +82,7 @@ public class UserProductCategoryController : BaseController
 		var user = await GetUserFromSessionAsync();
 		try
 		{
-			categoriesManagementService.DeleteUserProductCategory(user.Guid, categoryId);
+			categoriesManagementService.DeleteCategory(user.Guid, categoryId);
 		}
 		catch (Exception e)
 		{
@@ -93,4 +109,5 @@ public class UserProductCategoryController : BaseController
 
 	private readonly UserProductCategoriesManagementService categoriesManagementService;
 	private readonly ILogger<UserProductCategoryController> logger;
+	private readonly ProductsFacade productsFacade;
 }

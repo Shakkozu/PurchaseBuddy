@@ -1,16 +1,7 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
-using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddyLibrary.src.catalogue.App.Queries;
-
-
-public class GetUserProductsRequest
-{
-    public int? Page { get; set; }
-    public int? PageSize { get; set; }
-    public string? Filter { get; set; }
-}
 public class GetUserProductsQuery
 {
 	public GetUserProductsQuery(Guid userId, string? filter = null, int page = 1, int pageSize = 10)

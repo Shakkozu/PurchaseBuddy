@@ -4,18 +4,19 @@ using PurchaseBuddyLibrary.src.catalogue.App.Queries;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.src.catalogue.App;
-
 public class UserProductsManagementService
 {
 	private readonly IProductsRepository productsRepository;
-	private readonly GetUserProductsQueryHandler queryHandler;
+	private readonly GetUserProductsQueryHandler getUserProductsQueryHandler;
+	private readonly GetUserProductsInCategoryQueryHandler getUserProductsInCategoryQuery;
 	private readonly UserProductCategoriesManagementService userProductCategoriesManagementService;
 
 	public UserProductsManagementService(IProductsRepository userProductsRepository,
 		UserProductCategoriesManagementService userProductCategoriesManagementService)
 	{
 		this.productsRepository = userProductsRepository;
-		this.queryHandler = new GetUserProductsQueryHandler(userProductsRepository, userProductCategoriesManagementService);
+		this.getUserProductsQueryHandler = new GetUserProductsQueryHandler(userProductsRepository, userProductCategoriesManagementService);
+		this.getUserProductsInCategoryQuery = new GetUserProductsInCategoryQueryHandler(userProductsRepository, userProductCategoriesManagementService);
 		this.userProductCategoriesManagementService = userProductCategoriesManagementService;
 
 		AddSharedProducts();
@@ -83,7 +84,11 @@ public class UserProductsManagementService
 
 	public List<UserProductDto> GetUserProducts(GetUserProductsQuery query)
 	{
-		return queryHandler.Handle(query);
+		return getUserProductsQueryHandler.Handle(query);
+	}
+	public List<UserProductDto> GetUserProductsInCategory(GetUserProductsInCategoryQuery query)
+	{
+		return getUserProductsInCategoryQuery.Handle(query);
 	}
 
 	public void Modify(Guid productId, UserProductDto request, Guid userGuid)
@@ -112,5 +117,37 @@ public class UserProductsManagementService
 		product.AssignProductToCategory(category);
 		product.Name = request.Name;
 		productsRepository.Save(product);
+	}
+
+	internal void RemoveProductsFromCategory(Guid userGuid, Guid categoryId)
+	{
+		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId);
+		if(category is null)
+			throw new ResourceNotFoundException($"product category {categoryId} not found for user {userGuid}");
+
+		var products = productsRepository.GetUserProducts(userGuid).Where(x => x.CategoryId == categoryId);
+		foreach (var product in products)
+		{
+			product.RemoveProductCategory();
+			productsRepository.Save(product);
+		}
+	}
+
+	internal void ReassignProductsToNewCategory(Guid userGuid, Guid categoryId, Guid newCategoryId)
+	{
+		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId);
+		if (category is null)
+			throw new ResourceNotFoundException($"product category {categoryId} not found for user {userGuid}");
+
+		var newCategory = userProductCategoriesManagementService.GetUserProductCategory(userGuid, newCategoryId);
+		if(newCategory is null)
+			throw new ResourceNotFoundException($"product category {newCategoryId} not found for user {userGuid}");
+
+		var products = productsRepository.GetUserProducts(userGuid).Where(x => x.CategoryId == categoryId);
+		foreach (var product in products)
+		{
+			product.AssignProductToCategory(newCategory);
+			productsRepository.Save(product);
+		}
 	}
 }

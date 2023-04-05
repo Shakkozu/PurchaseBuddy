@@ -49,6 +49,16 @@ public class UserProductController : BaseController
 
 		return Ok(result);
 	}
+	
+	[HttpGet("with-category/{categoryId}")]
+	public async Task<IActionResult> GetUserProductsInCategory(Guid categoryId)
+	{
+		var user = await GetUserFromSessionAsync();
+		var query = new GetUserProductsInCategoryQuery(user.Guid, categoryId);
+		var result = productsManagementService.GetUserProductsInCategory(query);
+
+		return Ok(result);
+	}
 
 	[HttpPost]
 	public async Task<IActionResult> Create([FromBody] UserProductDto request)

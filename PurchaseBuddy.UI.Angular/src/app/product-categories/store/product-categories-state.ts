@@ -2,9 +2,13 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { ProductCategoriesService, ProductCategory } from "../services/product-categories.service";
-import { AddNewUserProductCategory, AddNewUserProductCategorySuccess, InitializeUserProductCategories, RemoveUserProductCategory } from "./product-categories.actions";
+import { AddNewUserProductCategory, AddNewUserProductCategorySuccess, InitializeUserProductCategories } from "./product-categories.actions";
+import { MatDialog } from "@angular/material/dialog";
+import { ProductsService } from "src/app/products/services/products-service";
+import { DeleteProductsCategoryDialogComponent } from "../components/delete-products-category-dialog/delete-products-category-dialog.component";
+import { firstValueFrom } from "rxjs";
 
-export interface UserProductCategoriesStateModel { 
+export interface UserProductCategoriesStateModel {
 	productCategories: ProductCategory[];
 }
 
@@ -19,7 +23,9 @@ const defaultState: UserProductCategoriesStateModel = {
 })
 export class UserProductCategoriesState {
 	constructor (private productCategoriesService: ProductCategoriesService,
-		private router: Router) {
+		private router: Router,
+		private dialog: MatDialog,
+		private productService: ProductsService) {
 	}
 
 	@Selector()
@@ -35,7 +41,7 @@ export class UserProductCategoriesState {
 			});
 		});
 	}
-	
+
 	@Action(AddNewUserProductCategory)
 	public addNewUserProductCategory(ctx: StateContext<UserProductCategoriesStateModel>, action: AddNewUserProductCategory) {
 		return this.productCategoriesService.addNewUserProductCategory(action.request)
@@ -48,13 +54,4 @@ export class UserProductCategoriesState {
 		this.router.navigate(['user-product-categories']);
 	}
 
-	@Action(RemoveUserProductCategory)
-	public removeUserProductCategory(ctx: StateContext<UserProductCategoriesStateModel>, action: RemoveUserProductCategory) {
-		return this.productCategoriesService.removeUserProductCategory(action.guid)
-			.subscribe(() => ctx.dispatch(new InitializeUserProductCategories()));
-	}
 }
-
-
-
-

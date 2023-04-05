@@ -23,11 +23,11 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 	public void UserCanRemoveProductCategory_WhenProductCategoryDoesNotHaveChildrenOrParent()
 	{
 		var category = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 		Assert.IsNotEmpty(productCategories);
 
-		userProductCategoriesService.DeleteUserProductCategory(UserId, category);
-		productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		userProductCategoriesService.DeleteCategory(UserId, category);
+		productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.IsEmpty(productCategories);
 	}
@@ -38,9 +38,9 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 		var rootCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
 		var subCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child", rootCategory));
 
-		userProductCategoriesService.DeleteUserProductCategory(UserId, subCategory);
+		userProductCategoriesService.DeleteCategory(UserId, subCategory);
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.IsEmpty(productCategories.First().Children);
 	}
@@ -52,9 +52,9 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 		var subCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child", rootCategory));
 		var subSubCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandChild", subCategory));
 
-		userProductCategoriesService.DeleteUserProductCategory(UserId, subCategory);
+		userProductCategoriesService.DeleteCategory(UserId, subCategory);
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.IsNotEmpty(productCategories.First().Children);
 		Assert.AreEqual(subSubCategory, productCategories.First().Children.First().Guid);
@@ -66,9 +66,9 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 		var rootCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
 		var subCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child", rootCategory));
 
-		userProductCategoriesService.DeleteUserProductCategory(UserId, rootCategory);
+		userProductCategoriesService.DeleteCategory(UserId, rootCategory);
 
-		var productCategories = userProductCategoriesService.GetUserProductCategories(UserId);
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.AreEqual(subCategory, productCategories.First().Guid);
 		Assert.IsEmpty(productCategories.First().Children);

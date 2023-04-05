@@ -2,9 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
-import { GetUserProducts } from 'src/app/products/store/user-products.actions';
 import { UserShop } from '../../model';
-import { ShopService } from '../../services/shop-service';
 import { GetUserShops } from '../../store/user-shops.actions';
 import { UserShopsState } from '../../store/user-shops.state';
 

@@ -3,12 +3,16 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { FormGroup } from '@angular/forms';
 import { MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
 import { Store } from '@ngxs/store';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import { ProductCategoryNode, ExampleFlatNode, ProductCategoryFlatNode } from '../../product-categories.model';
 import { UserProductCategoriesState } from '../../store/product-categories-state';
-import { InitializeUserProductCategories, RemoveUserProductCategory } from '../../store/product-categories.actions';
+import { InitializeUserProductCategories } from '../../store/product-categories.actions';
 import { OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { DeleteProductsCategoryDialogComponent } from '../delete-products-category-dialog/delete-products-category-dialog.component';
+import { ProductsService } from 'src/app/products/services/products-service';
+import { ProductCategoriesService, ProductCategory } from '../../services/product-categories.service';
 
 @Component({
   selector: 'app-product-categories-list',
@@ -20,8 +24,12 @@ export class ProductCategoriesListComponent implements OnInit {
   public dataForm!: FormGroup;
   public dataSource!: MatTreeFlatDataSource<ProductCategoryNode, ProductCategoryFlatNode>;
   private destroy$ = new Subject();
+  private productCategories: ProductCategory[] = [];
 
   constructor (private store: Store,
+    private dialog: MatDialog,
+    private productsService: ProductsService,
+    private productsCategoriesService: ProductCategoriesService,
   private router: Router) {
     this.ngOnInit();
   }
@@ -31,6 +39,7 @@ export class ProductCategoriesListComponent implements OnInit {
 
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
     this.store.select(UserProductCategoriesState.productCategories).subscribe((data) => {
+      this.productCategories = data;
       this.dataSource.data = data;
     });
   }
@@ -62,9 +71,21 @@ export class ProductCategoriesListComponent implements OnInit {
     this.router.navigate(['user-product-categories/add']);
   }
 
-  remove(node: ProductCategoryNode) {
-   this.store.dispatch(new RemoveUserProductCategory(node.guid)) 
+  async remove(node: ProductCategoryNode) {
+    const products = await firstValueFrom(this.productsService.getProductsAttachedToCategory(node.guid));
+    if (products.length > 0) {
+      this.dialog.open(DeleteProductsCategoryDialogComponent, {
+        data: {
+          products: products,
+          productCategories: this.productCategories,
+          removedProductCategory: { name: node.name, guid: node.guid },
+        }
+      });
+
+      return;
+    }
+    this.productsCategoriesService
+      .deleteProductCategory(node.guid, '')
+      .subscribe(() => this.store.dispatch(new InitializeUserProductCategories()));
   }
-
 }
-

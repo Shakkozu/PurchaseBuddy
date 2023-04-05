@@ -15,11 +15,6 @@ export class AddNewUserProductCategorySuccess {
 	constructor () { }
 }
 
-export class RemoveUserProductCategory {
-	static readonly type = '[UserProductCategories] RemoveUserProductCategory';
-	constructor (public guid: string) { }
-}
-
 export interface CreateProductCategoryRequest {
 	name: string;
 	description: string;
