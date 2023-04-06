@@ -10,10 +10,13 @@
 
   <ItemGroup>
     <Compile Remove="crm\**" />
+    <Compile Remove="e2e\**" />
     <Compile Remove="purchases\Integration\**" />
     <EmbeddedResource Remove="crm\**" />
+    <EmbeddedResource Remove="e2e\**" />
     <EmbeddedResource Remove="purchases\Integration\**" />
     <None Remove="crm\**" />
+    <None Remove="e2e\**" />
     <None Remove="purchases\Integration\**" />
   </ItemGroup>
 
@@ -56,7 +59,6 @@
 
   <ItemGroup>
     <Folder Include="catalogue\Unit\" />
-    <Folder Include="e2e\" />
   </ItemGroup>
 
 </Project>

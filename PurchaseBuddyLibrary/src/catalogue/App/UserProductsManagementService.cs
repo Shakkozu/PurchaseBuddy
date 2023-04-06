@@ -9,17 +9,15 @@ public class UserProductsManagementService
 	private readonly IProductsRepository productsRepository;
 	private readonly GetUserProductsQueryHandler getUserProductsQueryHandler;
 	private readonly GetUserProductsInCategoryQueryHandler getUserProductsInCategoryQuery;
-	private readonly UserProductCategoriesManagementService userProductCategoriesManagementService;
+	private readonly IUserProductCategoriesManagementService userProductCategoriesManagementService;
 
 	public UserProductsManagementService(IProductsRepository userProductsRepository,
-		UserProductCategoriesManagementService userProductCategoriesManagementService)
+		IUserProductCategoriesManagementService userProductCategoriesManagementService)
 	{
 		this.productsRepository = userProductsRepository;
 		this.getUserProductsQueryHandler = new GetUserProductsQueryHandler(userProductsRepository, userProductCategoriesManagementService);
 		this.getUserProductsInCategoryQuery = new GetUserProductsInCategoryQueryHandler(userProductsRepository, userProductCategoriesManagementService);
 		this.userProductCategoriesManagementService = userProductCategoriesManagementService;
-
-		AddSharedProducts();
 	}
 
 	private void AddSharedProducts()
@@ -46,7 +44,7 @@ public class UserProductsManagementService
 		if (product.CategoryId.GetValueOrDefault() == categoryId)
 			return;
 
-		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId);
+		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId.GetValueOrDefault());
 		if(category is null)
 			throw new ResourceNotFoundException("Category not found");
 

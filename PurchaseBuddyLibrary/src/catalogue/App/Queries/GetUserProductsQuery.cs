@@ -20,10 +20,10 @@ public class GetUserProductsQuery
 public class GetUserProductsQueryHandler
 {
 	private readonly IProductsRepository productsRepository;
-	private readonly UserProductCategoriesManagementService userProductCategoriesManagementService;
+	private readonly IUserProductCategoriesManagementService userProductCategoriesManagementService;
 
 	public GetUserProductsQueryHandler(IProductsRepository productsRepository,
-		UserProductCategoriesManagementService userProductCategoriesManagementService)
+		IUserProductCategoriesManagementService userProductCategoriesManagementService)
 	{
 		this.productsRepository = productsRepository;
 		this.userProductCategoriesManagementService = userProductCategoriesManagementService;

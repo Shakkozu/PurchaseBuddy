@@ -5,11 +5,11 @@ namespace PurchaseBuddyLibrary.src.catalogue.App.Queries;
 
 public class GetUserProductsInCategoryQueryHandler
 {
-	private IProductsRepository productsRepository;
-	private UserProductCategoriesManagementService userProductCategoriesManagementService;
+	private readonly IProductsRepository productsRepository;
+	private readonly IUserProductCategoriesManagementService userProductCategoriesManagementService;
 
 	public GetUserProductsInCategoryQueryHandler(IProductsRepository productsRepository,
-	UserProductCategoriesManagementService userProductCategoriesManagementService)
+	IUserProductCategoriesManagementService userProductCategoriesManagementService)
 	{
 		this.productsRepository = productsRepository;
 		this.userProductCategoriesManagementService = userProductCategoriesManagementService;

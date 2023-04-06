@@ -1,15 +1,20 @@
-﻿namespace PurchaseBuddy.src.catalogue.App;
+﻿using PurchaseBuddyLibrary.src.stores.app;
 
-public class ProductsFacade
+namespace PurchaseBuddy.src.catalogue.App;
+
+public class CategoryFacade
 {
-	private readonly UserProductCategoriesManagementService categoriesManagementService;
+	private readonly IUserProductCategoriesManagementService categoriesManagementService;
 	private readonly UserProductsManagementService productsManagementService;
+	private readonly IShopCategoryListManagementService categoryListManagementService;
 
-	public ProductsFacade(UserProductCategoriesManagementService categoriesManagementService,
-		UserProductsManagementService productsManagementService)
+	public CategoryFacade(IUserProductCategoriesManagementService categoriesManagementService,
+		UserProductsManagementService productsManagementService,
+		IShopCategoryListManagementService categoryListManagementService)
     {
 		this.categoriesManagementService = categoriesManagementService;
 		this.productsManagementService = productsManagementService;
+		this.categoryListManagementService = categoryListManagementService;
 	}
     public void RemoveCategoryAndReassignProducts(Guid userId, Guid categoryId, Guid? newCategory = null)
 	{
@@ -18,6 +23,7 @@ public class ProductsFacade
 		else
 			productsManagementService.ReassignProductsToNewCategory(userId, categoryId, newCategory.Value);
 
+		categoryListManagementService.RemoveCategoryFromAllMaps(userId, categoryId);
 		categoriesManagementService.DeleteCategory(userId, categoryId);
 	}
 }

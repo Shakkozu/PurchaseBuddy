@@ -5,6 +5,8 @@ using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.persistance;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.auth.persistance;
+using PurchaseBuddyLibrary.src.stores.app;
+using PurchaseBuddyLibrary.src.stores.persistance;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,9 +46,11 @@ builder.Services.AddSingleton<UserShopService, UserShopService>();
 builder.Services.AddSingleton<IUserShopRepository, InMemoryUserShopRepository>();
 builder.Services.AddSingleton<IProductsRepository, InMemoryProductsRepository>();
 builder.Services.AddSingleton<IUserProductCategoriesRepository, InMemoryUserProductCategoriesRepository>();
-builder.Services.AddSingleton<UserProductCategoriesManagementService>();
+builder.Services.AddSingleton<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
+builder.Services.AddSingleton<IShopMapRepository, InMemoryShopMapRepository>();
+builder.Services.AddSingleton<IShopCategoryListManagementService, ShopCategoryListManagementService>();
 builder.Services.AddSingleton<UserProductsManagementService>();
-builder.Services.AddSingleton<ProductsFacade>();
+builder.Services.AddSingleton<CategoryFacade>();
 
 builder.Services.AddAuthentication("CustomHeaderAuthentication")
     .AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(

@@ -1,13 +1,19 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.infra;
+using PurchaseBuddy.src.stores.app;
+using PurchaseBuddy.src.stores.domain;
+using PurchaseBuddy.src.stores.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.stores.app;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 
 internal class ProductsFacadeTests : CatalogueTestsFixture
 {
-	private ProductsFacade facade;
+	private CategoryFacade facade;
+	private UserShopService userShopService;
+	private ShopCategoryListManagementService shopListService;
 	private UserProductCategoriesManagementService userProductCategoriesService;
 	private UserProductsManagementService productService;
 
@@ -16,9 +22,25 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 	{
 		var userProductsRepo = new InMemoryProductsRepository();
 		var userCategoriesRepo = new InMemoryUserProductCategoriesRepository();
+		var shopRepo = new InMemoryUserShopRepository();
+		var shopMapRepo = new InMemoryShopMapRepository();
 		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
+		shopListService = new ShopCategoryListManagementService(shopRepo, userCategoriesRepo, shopMapRepo);
 		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
-		facade = new ProductsFacade(userProductCategoriesService, productService);
+		facade = new CategoryFacade(userProductCategoriesService, productService, shopListService);
+		userShopService = new UserShopService(shopRepo);
+	}
+
+	[Test]
+	public void RemoveCategoryAndReassignProducts_WhenThereIsShopListWithCategoryBeingRemoved_RemoveCategoryFromShopLists()
+	{
+		var category = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		var shop = userShopService.AddNewUserShop(UserId, UserShopDescription.CreateNew("test"));
+		ShopMapWithCategoryCreated(category, shop);
+
+		facade.RemoveCategoryAndReassignProducts(UserId, category);
+
+		AssertThatCategoryWasRemovedFromShopMap(category, shop);
 	}
 
 	[Test]
@@ -73,6 +95,17 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 
 		var userCategories = userProductCategoriesService.GetCategories(UserId);
 		Assert.AreEqual(0, userCategories.Count);
+	}
+
+	private void ShopMapWithCategoryCreated(Guid category, Guid shop)
+	{
+		shopListService.DefineNewCategoryMap(new CreateOrUpdateCategoriesMapCommand { ShopId = shop, CategoriesMap = new[] { category }.ToList(), UserId = UserId });
+	}
+	private void AssertThatCategoryWasRemovedFromShopMap(Guid category, Guid shopId)
+	{
+		var shopMap = shopListService.GetShopMap(UserId, shopId);
+
+		Assert.False(shopMap.Categories.Contains(category));
 	}
 
 	private IProduct AProduct(string name, Guid categoryID)
