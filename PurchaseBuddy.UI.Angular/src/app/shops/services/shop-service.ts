@@ -18,7 +18,8 @@ export class ShopService {
 				city: request.city,
 				street: request.street,
 				localNumber: request.localNumber
-			}
+			},
+			categoriesMap: request.categoriesMap
 		}
 		return this.http.put(environment.apiUrl + `shops/${id}`, body);
 	}
@@ -35,7 +36,8 @@ export class ShopService {
 				city: request.city,
 				street: request.street,
 				localNumber: request.localNumber
-			}
+			},
+			categoriesMap: request.categoriesMap
 		}
 		return this.http.post(`${ environment.apiUrl }shops`, body);
 	}

@@ -44,6 +44,38 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 			.ToList();
 	}
 
+	public IEnumerable<IProductCategory> GetCategoriesAsFlatList(Guid userId)
+	{
+		var result = new List<IProductCategory>();
+		var categories = productCategoriesRepository.FindAll(userId);
+		if (!categories.Any())
+			return result;
+		// Use a hash set to keep track of visited categories
+		var visited = new HashSet<Guid>();
+		var rootCategories = categories.Where(c => c.IsRoot);
+
+		// Recursively get all categories
+		foreach (var category in rootCategories)
+			result.AddRange(GetAllCategoriesRecursive(category, visited));
+
+		return result;
+	}
+
+	private static IEnumerable<IProductCategory> GetAllCategoriesRecursive(IProductCategory category, HashSet<Guid> visited)
+	{
+		if (visited.Contains(category.Guid))
+			return Enumerable.Empty<IProductCategory>();
+
+		visited.Add(category.Guid);
+		var result = new List<IProductCategory> { category };
+
+		// Recursively get all child categories
+		foreach (var child in category.Children)
+			result.AddRange(GetAllCategoriesRecursive(child, visited));
+
+		return result;
+	}
+
 	public void DeleteCategory(Guid userId, Guid categoryId)
 	{
 		var category = productCategoriesRepository.FindById(userId, categoryId);

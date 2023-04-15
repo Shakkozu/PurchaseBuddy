@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
@@ -6,9 +6,9 @@ import { Subject, takeUntil } from 'rxjs';
 import { ProgressService } from 'src/app/product-categories/services/product-categories.service';
 import { FormErrorHandler } from 'src/app/shared/error-handling/form-error-handler';
 import { UserShop, UserShopDto } from '../../model';
-import { AddNewUserShop, DeleteUserShop, UpdateUserShop } from '../../store/user-shops.actions';
+import { AddNewUserShop, DeleteUserShop, InitializeConfigurator, UpdateUserShop } from '../../store/user-shops.actions';
 import { UserShopsState } from '../../store/user-shops.state';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { CategoriesConfiguratorComponent } from '../categories-configurator/categories-configurator.component';
 
 @Component({
   selector: 'app-user-shop-details',
@@ -22,6 +22,8 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
   private shop: UserShop | undefined;
   private shopId: string | null = null;
+  @ViewChild(CategoriesConfiguratorComponent)
+  public categoriesConfigurator!: CategoriesConfiguratorComponent;
 
   constructor (private route: ActivatedRoute,
     private router: Router,
@@ -57,24 +59,41 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
       city: this.dataForm.get('city')?.value,
       street: this.dataForm.get('street')?.value,
       localNumber: this.dataForm.get('localNumber')?.value,
+      categoriesMap: this.categoriesConfigurator.categories.map(c => c.guid)
     }
 
     if (this.shopId)
-      this.store.dispatch(new UpdateUserShop(this.shopId, request)).pipe(takeUntil(this.destroy$)).subscribe(() => {});
+      this.store.dispatch(new UpdateUserShop(this.shopId, request))
+        .pipe(takeUntil(this.destroy$));
     else
-      this.store.dispatch(new AddNewUserShop(request)).pipe(takeUntil(this.destroy$)).subscribe(() => {});
+      this.store.dispatch(new AddNewUserShop(request)).pipe(takeUntil(this.destroy$))
+        .pipe(takeUntil(this.destroy$));
   }
 
   public ngOnInit(): void {
     this.initForm();
     this.shopId = this.route.snapshot.paramMap.get('id');
-    if (this.shopId) {
+    if (this.isInEditMode()) {
       this.header = 'Edit Shop';
-      this.shop = this.store
-        .selectSnapshot(UserShopsState.shops)
-        .find((shop) => shop.guid === this.shopId);
-      this.refreshForm();
+      this.store.select(UserShopsState.shops).subscribe(shops => {
+        this.shop = shops.find((_shop) => _shop.guid === this.shopId);
+        if (this.shop) {
+          this.refreshForm();
+          this.initializeConfigurator(this.shop?.categoriesMap);
+        }
+      })
+    } else {
+      this.initializeConfigurator([]);
     }
+  }
+
+  public isInEditMode() {
+    return this.shopId !== undefined && this.shopId !== null;
+  }
+
+  private initializeConfigurator(categoriesMap: Array<string> | undefined) {
+    if (!categoriesMap) return;
+    this.store.dispatch(new InitializeConfigurator(categoriesMap))
   }
 
   private refreshForm() {
@@ -95,15 +114,6 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
       city: [''],
       street: [''],
       localNumber: [''],
-    });
-
-    this.dataForm.get('city')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
-      if (value) {
-        this.dataForm.get('street')?.setValidators(Validators.required);
-      } else {
-        this.dataForm.get('street')?.clearValidators();
-      }
-      this.dataForm.get('street')?.updateValueAndValidity();
     });
   }
 }

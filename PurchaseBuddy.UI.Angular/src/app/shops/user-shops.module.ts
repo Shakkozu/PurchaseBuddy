@@ -9,13 +9,16 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxsModule } from '@ngxs/store';
 import { UserShopsState } from './store/user-shops.state';
+import { CategoriesConfiguratorComponent } from './components/categories-configurator/categories-configurator.component';
+import { ProductCategoriesModule } from '../product-categories/product-categories/product-categories.module';
 
 
 
 @NgModule({
   declarations: [
     UserShopsListComponent,
-    UserShopDetailsComponent
+    UserShopDetailsComponent,
+    CategoriesConfiguratorComponent
   ],
   imports: [
     CommonModule,
@@ -24,6 +27,7 @@ import { UserShopsState } from './store/user-shops.state';
     FormsModule,
     ReactiveFormsModule,
     NgxDatatableModule,
+    ProductCategoriesModule,
     RouterModule,
     NgxsModule.forFeature([UserShopsState]),
   ]

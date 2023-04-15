@@ -9,10 +9,14 @@ public class UserShopDto
 	}
 	public static UserShopDto FromModel(UserShop userShop)
 	{
-		return new UserShopDto(userShop.Guid, userShop.Description.Name, userShop.Description.Description, userShop.Description.Address);
+		return new UserShopDto(userShop.Guid,
+						 userShop.Description.Name,
+						 userShop.Description.Description,
+						 userShop.Description.Address,
+						 userShop.ConfigurationEntries);
 	}
 
-	private UserShopDto(Guid guid, string name, string? description, Address? address)
+	private UserShopDto(Guid guid, string name, string? description, Address? address, List<UserShopConfigurationEntry> entries)
 	{
 		Guid = guid;
 		Name = name;
@@ -26,10 +30,12 @@ public class UserShopDto
 			LocalNumber = address.LocalNumber,
 			Street = address.Street
 		};
+		CategoriesMap = entries.Select(entry => entry.CategoryGuid).ToList();
 	}
 
 	public Guid? Guid { get; set; }
 	public string Name { get; set; }
 	public string? Description { get; set; }
 	public AddressDto Address { get; set; }
+	public List<Guid> CategoriesMap { get; set; } = new();
 }

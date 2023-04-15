@@ -25,3 +25,9 @@ export class DeleteUserShop {
 	constructor (public id: string) {
 	}
 }
+
+export class InitializeConfigurator {
+	static readonly type = '[UserShops] Initialize user shop configurator';
+	constructor (public categoriesMap: Array<string>) {
+	}
+}

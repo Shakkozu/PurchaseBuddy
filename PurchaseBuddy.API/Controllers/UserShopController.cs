@@ -50,7 +50,7 @@ public class UserShopController : BaseController
 		var user = await GetUserFromSessionAsync();
 		var address = Address.From(userShopDto.Address);
 		var userShopDescription = UserShopDescription.CreateNew(userShopDto.Name, userShopDto.Description, address);
-		var createdUserShopId = userShopService.AddNewUserShop(user.Guid, userShopDescription);
+		userShopService.AddNew(user.Guid, userShopDescription, userShopDto.CategoriesMap);
 
 		return NoContent();
 	}
@@ -61,7 +61,7 @@ public class UserShopController : BaseController
 		var user = await GetUserFromSessionAsync();
 		var address = Address.From(userShopDto.Address);
 		var userShopDescription = UserShopDescription.CreateNew(userShopDto.Name, userShopDto.Description, address);
-		userShopService.UpdateShopDescription(userShopDescription, user.Guid, shopId);
+		userShopService.Update(userShopDescription, user.Guid, shopId, userShopDto.CategoriesMap);
 
 		return NoContent();
 	}

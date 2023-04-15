@@ -1,4 +1,6 @@
-﻿using PurchaseBuddy.src.infra;
+﻿using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddy.src.catalogue.Persistance;
+using PurchaseBuddy.src.infra;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddy.src.stores.persistance;
 
@@ -7,15 +9,26 @@ namespace PurchaseBuddy.src.stores.app;
 public class UserShopService : IUserShopService
 {
 	private readonly IUserShopRepository userShopRepository;
+	private readonly IUserProductCategoriesManagementService categoriesManagementService;
 
-	public UserShopService(IUserShopRepository userShopRepository)
+	public UserShopService(IUserShopRepository userShopRepository,
+		IUserProductCategoriesManagementService categoriesManagementService)
 	{
 		this.userShopRepository = userShopRepository;
+		this.categoriesManagementService = categoriesManagementService;
 	}
 
-	public Guid AddNewUserShop(Guid userId, UserShopDescription userShopDescription)
+	public Guid AddNew(Guid userId, UserShopDescription userShopDescription, List<Guid>? categoriesMap = null)
 	{
-		var userShop = UserShop.CreateNew(userId, userShopDescription);
+		var categories = categoriesManagementService.GetCategoriesAsFlatList(userId);
+		if(categoriesMap == null)
+			categoriesMap = new List<Guid>();
+
+		foreach (var category in categoriesMap)
+			if (!categories.Any(c => c.Guid == category))
+				throw new ArgumentException($"category {category} not found");
+
+		var userShop = UserShop.CreateNew(userId, userShopDescription, categories.Where(c => categoriesMap.Contains(c.Guid)).ToList());
 		userShopRepository.Save(userShop);
 
 		return userShop.Guid;
@@ -31,13 +44,23 @@ public class UserShopService : IUserShopService
 		return userShopRepository.GetAllUserShops(userId);
 	}
 
-	public void UpdateShopDescription(UserShopDescription userShopDescription, Guid userGuid, Guid shopId)
+	public void Update(UserShopDescription userShopDescription, Guid userGuid, Guid shopId, List<Guid>? categoriesMap = null)
 	{
 		var shop = GetUserShopById(userGuid, shopId);
 		if (shop == null)
 			throw new ResourceNotFoundException("Shop not found");
 
 		shop.ChangeDescriptionTo(userShopDescription);
+		if(categoriesMap != null && categoriesMap.Any())
+		{
+			var categories = categoriesManagementService.GetCategoriesAsFlatList(userGuid);
+			var userCategoriesMap = categories.Where(c => categoriesMap.Contains(c.Guid)).ToList();
+			if (userCategoriesMap.Count != categoriesMap.Count)
+				throw new Exception("not all categories were found");
+
+			shop.ModifyShopConfiguration(userCategoriesMap);
+		}
+
 		userShopRepository.Save(shop);
 	}
 
@@ -46,6 +69,7 @@ public class UserShopService : IUserShopService
 		var shop = GetUserShopById(userGuid, shopId);
 		if (shop == null)
 			throw new ResourceNotFoundException("Shop not found");
+
 
 		userShopRepository.Delete(shop);
 	}

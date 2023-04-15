@@ -4,9 +4,9 @@ namespace PurchaseBuddy.src.stores.app;
 
 public interface IUserShopService
 {
-	Guid AddNewUserShop(Guid userId, UserShopDescription userShopDescription);
+	Guid AddNew(Guid userId, UserShopDescription userShopDescription, List<Guid>? categoriesMap = null);
 	void DeleteUserShop(Guid userGuid, Guid shopId);
 	List<UserShop> GetAllUserShops(Guid userId);
 	UserShop? GetUserShopById(Guid userId, Guid userShopId);
-	void UpdateShopDescription(UserShopDescription userShopDescription, Guid userGuid, Guid shopId);
+	void Update(UserShopDescription userShopDescription, Guid userGuid, Guid shopId, List<Guid>? categoriesMap = null);
 }

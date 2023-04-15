@@ -186,11 +186,29 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		Assert.NotNull(categoryFromDb);
 	}
 
+	[Test]
+	public void ShouldReturnCategoriesInFlatStructureCorrectlyWithoutDuplicates()
+	{
+		var root1 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("root1"));
+		var child11 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest( "child1", root1));
+		var child12 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest( "child2", root1));
+		var grandchild111 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandchild111", child11));
+		var root2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("root2"));
+		var child21 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child21", root2));
+		var createdCategoriesGuids = new HashSet<Guid> { root1, child11, child21, grandchild111, root2, child21 };
+
+		var categories = userProductCategoriesService.GetCategoriesAsFlatList(UserId).ToList();
+
+		Assert.AreEqual(6, categories.Count());
+		Assert.True(createdCategoriesGuids.All(createdCategoryGuid => categories.Any(category => category.Guid == createdCategoryGuid)));
+	}
+
 	private IProductCategory ProductCategoryCreated(string name)
 	{
 		var category = UserProductCategory.CreateNew(name, UserId);
 		return userCategoriesRepo.Save(category);
 	}
+
 
 	private IProduct ProductCreated(string name)
 	{

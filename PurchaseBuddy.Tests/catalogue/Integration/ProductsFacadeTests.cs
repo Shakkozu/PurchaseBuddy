@@ -28,15 +28,14 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 		shopListService = new ShopCategoryListManagementService(shopRepo, userCategoriesRepo, shopMapRepo);
 		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
 		facade = new CategoryFacade(userProductCategoriesService, productService, shopListService);
-		userShopService = new UserShopService(shopRepo);
+		userShopService = new UserShopService(shopRepo, userProductCategoriesService);
 	}
 
 	[Test]
 	public void RemoveCategoryAndReassignProducts_WhenThereIsShopListWithCategoryBeingRemoved_RemoveCategoryFromShopLists()
 	{
 		var category = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
-		var shop = userShopService.AddNewUserShop(UserId, UserShopDescription.CreateNew("test"));
-		ShopMapWithCategoryCreated(category, shop);
+		var shop = userShopService.AddNew(UserId, UserShopDescription.CreateNew("test"), new[] { category}.ToList());
 
 		facade.RemoveCategoryAndReassignProducts(UserId, category);
 
@@ -97,15 +96,11 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 		Assert.AreEqual(0, userCategories.Count);
 	}
 
-	private void ShopMapWithCategoryCreated(Guid category, Guid shop)
-	{
-		shopListService.DefineNewCategoryMap(new CreateOrUpdateCategoriesMapCommand { ShopId = shop, CategoriesMap = new[] { category }.ToList(), UserId = UserId });
-	}
 	private void AssertThatCategoryWasRemovedFromShopMap(Guid category, Guid shopId)
 	{
-		var shopMap = shopListService.GetShopMap(UserId, shopId);
+		var shop = userShopService.GetUserShopById(UserId, shopId);
 
-		Assert.False(shopMap.Categories.Contains(category));
+		Assert.False(shop.ConfigurationEntries.Any(c => c.CategoryGuid == category));
 	}
 
 	private IProduct AProduct(string name, Guid categoryID)

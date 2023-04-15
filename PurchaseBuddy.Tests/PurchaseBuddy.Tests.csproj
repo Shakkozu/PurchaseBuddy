@@ -59,6 +59,7 @@
 
   <ItemGroup>
     <Folder Include="catalogue\Unit\" />
+    <Folder Include="stores\categories-maps\" />
   </ItemGroup>
 
 </Project>

@@ -5,40 +5,6 @@ namespace PurchaseBuddy.Tests.stores.unit;
 internal class UserShopTests
 {
 	[Test]
-	public void ModifyShopConfiguration_WhenSingleConfigurationEntryIsAdded()
-	{
-		var dairyCategory = AUserProductCategory("dairy");
-		var userShop = AUserShop();
-		var categories = new List<Guid> { dairyCategory.Guid };
-
-		userShop.ModifyShopConfiguration(categories);
-
-		Assert.AreEqual(dairyCategory.Guid, userShop.ConfigurationEntries.First().CategoryGuid);
-		Assert.AreEqual(1, userShop.ConfigurationEntries.First().Index);
-	}
-
-	[Test]
-	public void ModifyShopConfiguration_WhenMultipleConfigurationsAreAdded_AssertIndexesAreAssignedInOrder()
-	{
-		var dairyCategory = AUserProductCategory("dairy");
-		var meatCategory = AUserProductCategory("meat");
-		var fruitsCategory = AUserProductCategory("fruits");
-		var userShop = AUserShop();
-		var configurationEntries = new List<Guid> { dairyCategory.Guid, meatCategory.Guid, fruitsCategory.Guid };
-
-		userShop.ModifyShopConfiguration(configurationEntries);
-
-		Assert.AreEqual(dairyCategory.Guid, userShop.ConfigurationEntries.ToArray()[0].CategoryGuid);
-		Assert.AreEqual(1, userShop.ConfigurationEntries.ToArray()[0].Index);
-
-		Assert.AreEqual(meatCategory.Guid, userShop.ConfigurationEntries.ToArray()[1].CategoryGuid);
-		Assert.AreEqual(2, userShop.ConfigurationEntries.ToArray()[1].Index);
-
-		Assert.AreEqual(fruitsCategory.Guid, userShop.ConfigurationEntries.ToArray()[2].CategoryGuid);
-		Assert.AreEqual(3, userShop.ConfigurationEntries.ToArray()[2].Index);
-	}
-
-	[Test]
 	public void WhenDescriptionModified_AssertModifiedCorrectly()
 	{
 		var userShop = AUserShop();
@@ -48,10 +14,30 @@ internal class UserShopTests
 		Assert.AreEqual("desc", userShop.Description.Description);
 		Assert.Null(userShop.Description.Address);
 	}
-
-	private UserShop AUserShop()
+	
+	[Test]
+	public void AssertCOnfigurationModificationWorksCorrectly()
 	{
-		return UserShop.CreateNew(Fixture.UserId, UserShopDescription.CreateNew("shop1", null, null));
+		var g1 = UserProductCategory.CreateNew("test2", Fixture.UserId);
+		var g2 = UserProductCategory.CreateNew("test", Fixture.UserId);
+		var productCategories = new List<IProductCategory> { g1, g2 };
+		var userShop = AUserShop();
+
+		userShop.ModifyShopConfiguration(productCategories);
+
+		Assert.AreEqual(g1.Guid, userShop.ConfigurationEntries.First().CategoryGuid);
+		Assert.AreEqual(1, userShop.ConfigurationEntries.First().Index);
+		Assert.AreEqual(g2.Guid, userShop.ConfigurationEntries.Last().CategoryGuid);
+		Assert.AreEqual(2, userShop.ConfigurationEntries.Last().Index);
+		Assert.AreEqual(2, userShop.ConfigurationEntries.Count);
+	}
+
+	private UserShop AUserShop(List<IProductCategory>? productCategories = null)
+	{
+		var guids = new[] {  Guid.NewGuid() };
+		if(productCategories == null)
+			productCategories = new List<IProductCategory> { UserProductCategory.CreateNew("testName", Fixture.UserId) };
+		return UserShop.CreateNew(Fixture.UserId, UserShopDescription.CreateNew("shop1", null, null), productCategories);
 	}
 
 	public UserProductCategory AUserProductCategory(string name)

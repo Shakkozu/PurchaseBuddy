@@ -15,11 +15,6 @@ public class ShopMap
     public Guid ShopId { get; }
 	public IList<Guid> Categories { get; private set; } = new List<Guid>();
 
-	internal void RemoveCategory(IProductCategory category)
-	{
-		Categories.Remove(category.Guid);
-	}
-
 	internal void UpdateCategoriesMap(List<Guid> categoriesMap)
 	{
 		Categories = categoriesMap.Distinct().ToList();

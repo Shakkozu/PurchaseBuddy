@@ -16,3 +16,8 @@ export interface ProductCategoryFlatNode {
 	guid: string;
 	expandable: boolean;
 }
+
+export interface MicroProductCategory {
+	name: string;
+	guid: string;	
+}

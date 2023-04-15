@@ -41,6 +41,11 @@ export interface ProductCategory {
 	isRoot: boolean;
 	parentId: string;
 }
+export interface ProductCategoryFlat {
+	guid: string;
+	name: string;
+	description: string;
+}
 
 
 export interface CreateProductCategoryRequest {

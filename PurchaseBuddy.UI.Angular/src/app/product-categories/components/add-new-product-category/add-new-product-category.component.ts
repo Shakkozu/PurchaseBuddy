@@ -2,8 +2,8 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
-import { Store } from '@ngxs/store';
-import { Subject, takeUntil } from 'rxjs';
+import { Select, Store } from '@ngxs/store';
+import { Observable, Subject, takeUntil, tap } from 'rxjs';
 import { FormErrorHandler } from 'src/app/shared/error-handling/form-error-handler';
 import { ExampleFlatNode, ProductCategoryNode } from '../../product-categories.model';
 import { UserProductCategoriesState } from '../../store/product-categories-state';
@@ -19,9 +19,7 @@ import { ProgressService } from '../../services/product-categories.service';
   providers: [ProgressService]
 })
 export class AddNewProductCategoryComponent implements OnInit {
-
   private destroy$ = new Subject();
-
   checklistSelection = new SelectionModel<ProductCategoryNode>(true);
   dataForm!: FormGroup;
   public selectedNode!: ProductCategoryNode;
@@ -52,13 +50,27 @@ export class AddNewProductCategoryComponent implements OnInit {
     private formErrorHandler: FormErrorHandler,
     public progressService: ProgressService,
     private store: Store) {
-    this.store.dispatch(new InitializeUserProductCategories()).pipe(takeUntil(this.destroy$));
-    this.dataSource.data = this.store.selectSnapshot(UserProductCategoriesState.productCategories);
+    this.reload$.subscribe(() => this.initialize());
   }
 
+  @Select(UserProductCategoriesState.productCategories)
+  private reload$!: Observable<boolean>;
+
   ngOnInit(): void {
+    this.store.dispatch(new InitializeUserProductCategories()).pipe(takeUntil(this.destroy$));
+    this.initialize();
+  }
+
+  private initialize() {
+    this.dataSource.data = this.store.selectSnapshot(UserProductCategoriesState.productCategories);
+    this.treeControl.expandAll();
     this.initForm();
     this.progressService.resetProgressBar();
+    this.isSubmitting = false;
+  }
+
+  public isNodeSelected(node: ProductCategoryNode): boolean {
+    return this.selectedNodeGuid === node.guid;
   }
 
   public onClose: EventEmitter<void> = new EventEmitter();
@@ -68,33 +80,48 @@ export class AddNewProductCategoryComponent implements OnInit {
     this.dataForm = this.formBuilder.group({
       categoryName: new FormControl('', [Validators.required, Validators.minLength(3)]),
       categoryDescription: new FormControl('', [Validators.minLength(5)]),
-      parentCategory: new FormControl({ value: '', disabled: true }, []),
+      parentCategory: new FormControl({value: '', disabled: true}, []),
     });
   }
 
   onNodeSelect(node: ProductCategoryNode) {
     this.dataForm.get('parentCategory')?.setValue(node.name);
     this.selectedNodeGuid = node.guid;
-    this.treeControl.collapseAll();
   }
-
 
   hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
 
   save() {
+    const request = this.getRequest();
+    if (!request) return;
+
+    this.progressService.executeWithProgress(
+      () => this.store.dispatch(new AddNewUserProductCategory(request, false)));
+  }
+  
+  public saveAndAddNext() {
+    const request = this.getRequest();
+    if (!request) return;
+
+    this.progressService.executeWithProgress(
+      () =>
+        this.store.dispatch(new AddNewUserProductCategory(request, true))
+          .pipe(
+          tap(() => this.ngOnInit())
+        ));
+  }
+
+  private getRequest(): CreateProductCategoryRequest | undefined {
     if (this.dataForm.invalid || this.isSubmitting) {
       return;
     }
 
     this.isSubmitting = true;
-    const request : CreateProductCategoryRequest = {
+    return {
       name: this.dataForm.get('categoryName')?.value,
       description: this.dataForm.get('categoryDescription')?.value,
       parentId: this.selectedNodeGuid,
     };
-
-    this.progressService.executeWithProgress(
-      () => this.store.dispatch(new AddNewUserProductCategory(request)));
   }
 
   public getErrorMessage(formControlName: string): string {

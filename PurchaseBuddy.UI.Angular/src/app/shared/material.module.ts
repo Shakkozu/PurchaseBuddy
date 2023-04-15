@@ -30,6 +30,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 const materialModules = [
   CdkTreeModule,
@@ -66,6 +67,7 @@ const materialModules = [
   MatCardModule,
   MatRadioModule,
   MatProgressBarModule,
+  DragDropModule,
 ];
 
 @NgModule({

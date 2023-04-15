@@ -1,16 +1,18 @@
-import { UserShopDto, UserShop } from "../model";
+import { UserShop } from "../model";
 import { Injectable } from "@angular/core";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { ShopService } from "../services/shop-service";
-import { AddNewUserShop, DeleteUserShop, GetUserShops, UpdateUserShop, UserShopSavedSuccessfully } from "./user-shops.actions";
+import { AddNewUserShop, DeleteUserShop, GetUserShops, InitializeConfigurator, UpdateUserShop, UserShopSavedSuccessfully } from "./user-shops.actions";
 import { Router } from "@angular/router";
 
 export interface UserShopsStateModel {
-	  shops: UserShop[];
+	shops: UserShop[];
+	currentStoreConfiguration: Array<string>;
 }
 
 const defaultState: UserShopsStateModel = {
-	shops: []
+	shops: [],
+	currentStoreConfiguration: []
 }
 
 @Injectable()
@@ -32,10 +34,16 @@ export class UserShopsState {
 	public static shop(state: UserShopsStateModel) {
 		return (id: string) => state.shops.find(s => s.guid === id);
 	}
+	
+	@Selector()
+	public static currentStoreConfig(state: UserShopsStateModel) {
+		return state.currentStoreConfiguration;
+	}
 
 	@Action(GetUserShops)
 	public getUserShops(ctx: StateContext<UserShopsStateModel>) {
 		return this.shopsService.getUserShops().subscribe(shops => {
+			console.log(shops);
 			ctx.patchState({
 				shops: shops
 			});
@@ -52,7 +60,7 @@ export class UserShopsState {
 	@Action(UpdateUserShop)
 	public updateUserShop(ctx: StateContext<UserShopsStateModel>, action: UpdateUserShop) {
 		return this.shopsService.updateUserShop(action.id, action.request).subscribe(() => {
-			ctx.dispatch(new GetUserShops());
+			ctx.dispatch(new UserShopSavedSuccessfully());
 		});
 	}
 
@@ -62,7 +70,13 @@ export class UserShopsState {
 			this.router.navigate(['/user-shops'])
 		);
 	}
-	
+
+	@Action(InitializeConfigurator)
+	public initializeConfigurator(ctx: StateContext<UserShopsStateModel>, action: InitializeConfigurator) {
+		ctx.patchState({
+			currentStoreConfiguration: action.categoriesMap
+		});
+	}
 	
 	@Action(DeleteUserShop)
 	public deleteUserShop(ctx: StateContext<UserShopsStateModel>, action: DeleteUserShop) {

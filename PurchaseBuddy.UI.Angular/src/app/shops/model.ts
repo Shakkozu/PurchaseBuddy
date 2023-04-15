@@ -3,6 +3,7 @@ export interface UserShop {
 	name: string;
 	description: string;
 	address: ShopAddressDto;
+	categoriesMap: Array<string>;
 }
 
 export interface ShopAddressDto {
@@ -16,6 +17,7 @@ export interface UserShopDto {
 	city: string;
 	street: string;
 	localNumber: string;
+	categoriesMap: Array<string>;
 }
 
 export interface UpdateUserShopRequest {

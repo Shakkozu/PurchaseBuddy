@@ -1,20 +1,41 @@
-﻿namespace PurchaseBuddy.src.stores.domain;
+﻿using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
-public class UserShopConfiguration
+namespace PurchaseBuddy.src.stores.domain;
+
+public record UserShopConfiguration
 {
 	internal static UserShopConfiguration CreateNew(Guid shopId)
 	{
 		return new UserShopConfiguration(shopId, new List<UserShopConfigurationEntry>());
 	}
 
-	internal static UserShopConfiguration CreateNew(Guid shopId, List<Guid> configurationGuids)
+	internal static UserShopConfiguration CreateNew(Guid shopId, IList<IProductCategory>? categories)
+	{
+		if (categories == null)
+			return UserShopConfiguration.CreateNew(shopId);
+
+		var categoriesGuids = categories.Select(c => c.Guid).ToList();
+		return CreateNew(shopId, categoriesGuids);
+	}
+
+	private static UserShopConfiguration CreateNew(Guid shopId, List<Guid> categoriesGuids)
 	{
 		var index = 1;
-		var configurationEntries = configurationGuids
-			.Select(configurationGuid => new UserShopConfigurationEntry(index++, configurationGuid))
+		var configurationEntries = categoriesGuids
+			.Select(categoryGuid => new UserShopConfigurationEntry(index++, categoryGuid))
 			.ToList();
 
 		return new UserShopConfiguration(shopId, configurationEntries);
+	}
+
+	internal UserShopConfiguration Remove(IProductCategory category)
+	{
+		var entries = ConfigurationEntries
+			.Where(c => c.CategoryGuid != category.Guid)
+			.Select(c => c.CategoryGuid)
+			.ToList();
+
+		return CreateNew(ShopId, entries);
 	}
 
 	private UserShopConfiguration(Guid shopId, List<UserShopConfigurationEntry> configurationEntries)

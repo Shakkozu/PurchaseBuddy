@@ -86,4 +86,8 @@ mat-tree-node {
   background-color: #e0f2f1;
 }
 
-
+.selected-node {
+  border-radius: 12px;
+  font-weight: 600;
+  background-color: #e3c9ab;
+}

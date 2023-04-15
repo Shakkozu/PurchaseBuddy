@@ -1,30 +1,26 @@
-﻿using PurchaseBuddyLibrary.src.catalogue.contract;
+﻿using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddyLibrary.src.catalogue.contract;
 using System.Net.Http.Json;
 using System.Text;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration.controllers;
-internal class UserProductCategoryControllerTests : ControllersTestsFixture
+
+internal class UserProductControllerTests : ControllersTestsFixture
 {
 	[Test]
-	public async Task UserCanAddCategory()
+	public async Task UserCategoriesAreReturnesCorrectly()
 	{
-		await AddNewCategory();
-		var categories = await GetProductCategories();
-		Assert.AreEqual(1, categories.Count);
-
-		await AddNewCategory();
-		await AddNewCategory();
-		categories = await GetProductCategories();
-		Assert.AreEqual(3, categories.Count);
+		var products = await GetProducts();
+		Assert.IsEmpty(products);
 	}
 
-	private async Task<List<ProductCategoryDto>> GetProductCategories()
+	private async Task<List<UserProductDto>> GetProducts()
 	{
-		var response = await httpClient.GetAsync("categories");
+		var response = await httpClient.GetAsync("products");
 		if (!response.IsSuccessStatusCode)
 			throw new InvalidOperationException();
 
-		return (await response.Content.ReadFromJsonAsync<List<ProductCategoryDto>>()) ?? new List<ProductCategoryDto>();
+		return (await response.Content.ReadFromJsonAsync<List<UserProductDto>>()) ?? new List<UserProductDto>();
 	}
 
 	private async Task AddNewCategory()

@@ -8,6 +8,7 @@ import { NgxsModule } from '@ngxs/store';
 import { UserProductCategoriesState } from '../store/product-categories-state';
 import { ProductCategoriesListComponent } from '../components/product-categories-list/product-categories-list.component';
 import { DeleteProductsCategoryDialogComponent } from '../components/delete-products-category-dialog/delete-products-category-dialog.component';
+import { ProductCategoriesTreeComponent } from '../components/product-categories-tree/product-categories-tree.component';
 
 
 
@@ -16,6 +17,7 @@ import { DeleteProductsCategoryDialogComponent } from '../components/delete-prod
     AddNewProductCategoryComponent,
     ProductCategoriesListComponent,
     DeleteProductsCategoryDialogComponent,
+    ProductCategoriesTreeComponent,
   ],
   imports: [
     ProductCategoriesRoutingModule,
@@ -24,6 +26,9 @@ import { DeleteProductsCategoryDialogComponent } from '../components/delete-prod
     ReactiveFormsModule,
     FormsModule,
     NgxsModule.forFeature([UserProductCategoriesState]),
+  ],
+  exports: [
+    ProductCategoriesTreeComponent,
   ]
 })
 export class ProductCategoriesModule { }

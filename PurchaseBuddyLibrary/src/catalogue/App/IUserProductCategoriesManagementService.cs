@@ -8,6 +8,7 @@ public interface IUserProductCategoriesManagementService
 	void AssignProductToCategory(Guid userId, Guid productGuid, Guid categoryGuid);
 	void DeleteCategory(Guid userId, Guid categoryId);
 	List<IProductCategory> GetCategories(Guid userId);
+	IEnumerable<IProductCategory> GetCategoriesAsFlatList(Guid userId);
 	IProductCategory? GetUserProductCategory(Guid userId, Guid value);
 	void ReassignCategory(Guid userId, Guid productCategoryGuid, Guid newParentCategoryGuid);
 }

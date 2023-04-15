@@ -1,12 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
-import { ProductCategoriesService, ProductCategory } from "../services/product-categories.service";
-import { AddNewUserProductCategory, AddNewUserProductCategorySuccess, InitializeUserProductCategories } from "./product-categories.actions";
-import { MatDialog } from "@angular/material/dialog";
-import { ProductsService } from "src/app/products/services/products-service";
-import { DeleteProductsCategoryDialogComponent } from "../components/delete-products-category-dialog/delete-products-category-dialog.component";
-import { firstValueFrom } from "rxjs";
+import { ProductCategoriesService, ProductCategory, ProductCategoryFlat } from "../services/product-categories.service";
+import { AddNewUserProductCategory, AddNewUserProductCategorySuccess, InitializeUserProductCategories, ResetAddCategoryComponent } from "./product-categories.actions";
 
 export interface UserProductCategoriesStateModel {
 	productCategories: ProductCategory[];
@@ -23,14 +19,17 @@ const defaultState: UserProductCategoriesStateModel = {
 })
 export class UserProductCategoriesState {
 	constructor (private productCategoriesService: ProductCategoriesService,
-		private router: Router,
-		private dialog: MatDialog,
-		private productService: ProductsService) {
+		private router: Router) {
 	}
 
 	@Selector()
 	public static productCategories(state: UserProductCategoriesStateModel): ProductCategory[] {
 		return state.productCategories;
+	}
+
+	@Selector()
+	public static productCategoriesFlat(state: UserProductCategoriesStateModel): ProductCategoryFlat[] {
+		return this.flattenCategories(state.productCategories);
 	}
 
 	@Action(InitializeUserProductCategories)
@@ -45,13 +44,33 @@ export class UserProductCategoriesState {
 	@Action(AddNewUserProductCategory)
 	public addNewUserProductCategory(ctx: StateContext<UserProductCategoriesStateModel>, action: AddNewUserProductCategory) {
 		return this.productCategoriesService.addNewUserProductCategory(action.request)
-			.subscribe(response => ctx.dispatch(new AddNewUserProductCategorySuccess()));
+			.subscribe(response => ctx.dispatch(new AddNewUserProductCategorySuccess(action.addNext)));
 	}
 
 	@Action(AddNewUserProductCategorySuccess)
-	public addNewUserProductCategorySuccess(ctx: StateContext<UserProductCategoriesStateModel>) {
+	public addNewUserProductCategorySuccess(ctx: StateContext<UserProductCategoriesStateModel>, { addNext }: AddNewUserProductCategory) {
 		ctx.dispatch(new InitializeUserProductCategories());
-		this.router.navigate(['user-product-categories']);
+		this.initializeUserProductCategories
+		if (addNext)
+			ctx.dispatch(new ResetAddCategoryComponent());
+		else
+			this.router.navigate(['user-product-categories']);
 	}
 
+	@Action(ResetAddCategoryComponent)
+	public resetAddCategoryComponent(ctx: StateContext<UserProductCategoriesStateModel>) {
+		ctx.patchState(defaultState);
+	}
+
+	private static flattenCategories(categories: ProductCategory[], result: ProductCategory[] = []): ProductCategory[] {
+		categories.forEach(category => {
+			if (!result.some(item => item.guid === category.guid)) {
+				result.push(category);
+				if (category.children && category.children.length > 0) {
+					this.flattenCategories(category.children, result);
+				}
+			}
+		});
+		return result;
+	}
 }

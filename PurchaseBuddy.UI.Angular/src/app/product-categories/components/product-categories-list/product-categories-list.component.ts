@@ -41,6 +41,7 @@ export class ProductCategoriesListComponent implements OnInit {
     this.store.select(UserProductCategoriesState.productCategories).subscribe((data) => {
       this.productCategories = data;
       this.dataSource.data = data;
+      this.treeControl.expandAll();
     });
   }
 
