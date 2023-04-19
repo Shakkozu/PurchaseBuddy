@@ -1,15 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { Logout } from './auth/store/authorization.actions';
 import { AuthorizationState } from './auth/store/authorization.state';
+import { InitializeState } from './store/app.actions';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   public isUserLoggedIn$: Observable<boolean | undefined>;
   public userSessionId$: Observable<string | undefined>;
   public username$: Observable<string | undefined>;
@@ -19,6 +20,10 @@ export class AppComponent {
     this.isUserLoggedIn$ = this.store.select(AuthorizationState.isAuthenticated);
     this.userSessionId$ = this.store.select(AuthorizationState.userSessionId);
     this.username$ = this.store.select(AuthorizationState.username);
+  }
+
+  ngOnInit(): void {
+    this.store.dispatch(new InitializeState());
   }
 
   logout() {

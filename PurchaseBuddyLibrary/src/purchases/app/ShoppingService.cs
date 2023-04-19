@@ -55,7 +55,7 @@ public class ShoppingService
 		if (shoppingList is null)
 			throw new ArgumentException($"There is no shopping list with id: {shoppingListId}");
 
-		shoppingList.Close();
+		shoppingList.Complete();
 		shoppingListRepository.Save(shoppingList);
 	}
 }

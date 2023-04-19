@@ -10,8 +10,6 @@ import { UserProductCategoriesState } from '../../store/product-categories-state
 import { AddNewUserProductCategory, CreateProductCategoryRequest, InitializeUserProductCategories } from '../../store/product-categories.actions';
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { ProgressService } from '../../services/product-categories.service';
-
-
 @Component({
   selector: 'app-add-new-product-category',
   templateUrl: './add-new-product-category.component.html',
@@ -22,7 +20,7 @@ export class AddNewProductCategoryComponent implements OnInit {
   private destroy$ = new Subject();
   checklistSelection = new SelectionModel<ProductCategoryNode>(true);
   dataForm!: FormGroup;
-  public selectedNode!: ProductCategoryNode;
+  public selectedNode: ProductCategoryNode | undefined;
   public selectedNodeGuid: string = '';
   private _transformer = (node: ProductCategoryNode, level: number) => {
     return {
@@ -67,6 +65,8 @@ export class AddNewProductCategoryComponent implements OnInit {
     this.initForm();
     this.progressService.resetProgressBar();
     this.isSubmitting = false;
+    this.selectedNode = undefined;
+    this.selectedNodeGuid = '';
   }
 
   public isNodeSelected(node: ProductCategoryNode): boolean {

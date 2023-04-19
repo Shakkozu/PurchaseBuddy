@@ -6,19 +6,13 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { ExampleFlatNode, ProductCategoryFlatNode, ProductCategoryNode } from 'src/app/product-categories/product-categories.model';
-import { ProductCategoriesService } from 'src/app/product-categories/services/product-categories.service';
+import { ProductCategoriesService, ProgressService } from 'src/app/product-categories/services/product-categories.service';
 import { FormErrorHandler } from 'src/app/shared/error-handling/form-error-handler';
 import { AddNewUserProduct, UpdateUserProduct } from '../../store/user-products.actions';
 import { OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { UserProductsState } from '../../store/user-products.state';
+import { Subscription, tap } from 'rxjs';
 import { ProductsService } from '../../services/products-service';
 
-
-
-/**
- * @title Tree with flat nodes
- */
 @Component({
   selector: 'app-product-details',
   templateUrl: 'product-details.component.html',
@@ -43,15 +37,17 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private formErrorHandler: FormErrorHandler,
     private store: Store,
+    public progressService: ProgressService,
     private activatedRoute: ActivatedRoute) {
       this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
       this.productCategoriesService
         .getCategories()
         .subscribe(categories => this.dataSource.data = categories);
-      this.initForm();
   }
 
   ngOnInit(): void {
+    this.saveOccured = false;
+    this.initForm();
     this.routeParamsSubscription = this.activatedRoute.params.subscribe((params: Params) => {
       if (params['id']) {
         this.productId = params['id'];
@@ -67,6 +63,9 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  public get isInEditMode() : boolean {
+    return this.productId !== null && this.productId !== undefined;
+  }
   ngOnDestroy(): void {
     if (this.routeParamsSubscription) {
       this.routeParamsSubscription.unsubscribe();
@@ -81,7 +80,6 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   onNodeSelect(node: ProductCategoryNode) {
-    console.log(node);
     this.selectedNodeGuid = node.guid;
     this.dataForm.get('productCategory')?.setValue(node.name);
     this.treeControl.collapseAll();
@@ -118,10 +116,28 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
     this.saveOccured = true;
     const productName = this.dataForm.get('productName')?.value;
     if (this.productId) {
-      this.store.dispatch(new UpdateUserProduct(this.productId, productName, this.selectedNodeGuid));
+      this.progressService.executeWithProgress(
+        () => this.store.dispatch(new UpdateUserProduct(this.productId, productName, this.selectedNodeGuid)));
     } else {      
-      this.store.dispatch(new AddNewUserProduct(productName, this.selectedNodeGuid));
+      this.progressService.executeWithProgress(() =>
+      this.store.dispatch(new AddNewUserProduct(productName, this.selectedNodeGuid)));
     }
+  }
+
+  public saveAndAddNext() {
+    if (this.dataForm.invalid || this.saveOccured) {
+      return;
+    }
+
+    this.saveOccured = true;
+    const productName = this.dataForm.get('productName')?.value;
+    this.progressService.executeWithProgress(
+      () => this.store.dispatch(new AddNewUserProduct(productName, this.selectedNodeGuid, true))
+        .pipe(
+          tap(() => this.ngOnInit())
+        )
+    );
+    
   }
 
   public getErrorMessage(formControlName: string): string {

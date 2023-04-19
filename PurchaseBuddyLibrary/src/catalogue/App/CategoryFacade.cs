@@ -5,11 +5,11 @@ namespace PurchaseBuddy.src.catalogue.App;
 public class CategoryFacade
 {
 	private readonly IUserProductCategoriesManagementService categoriesManagementService;
-	private readonly UserProductsManagementService productsManagementService;
+	private readonly IUserProductsManagementService productsManagementService;
 	private readonly IShopCategoryListManagementService categoryListManagementService;
 
 	public CategoryFacade(IUserProductCategoriesManagementService categoriesManagementService,
-		UserProductsManagementService productsManagementService,
+		IUserProductsManagementService productsManagementService,
 		IShopCategoryListManagementService categoryListManagementService)
     {
 		this.categoriesManagementService = categoriesManagementService;

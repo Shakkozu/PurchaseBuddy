@@ -1,3 +1,4 @@
+<mat-progress-bar *ngIf="progressService.visible" mode="indeterminate"></mat-progress-bar>
 <h2>{{getHeader()}}</h2>
 <div class="grid">
   <form mat-form [formGroup]="dataForm">
@@ -15,8 +16,7 @@
       </mat-form-field>
     </div>
   </form>
-  <div class="grid grid__cell">
-
+  <div class="grid grid__cell 1/3">
     <h3>Categories:</h3>
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
@@ -39,6 +39,11 @@
 
     <button mat-flat-button class="save-button" color="primary" (click)="save()">
       Save
+    </button>
+
+    <button *ngIf="!isInEditMode" mat-flat-button class="save-button" style="margin-left: 8px;" color="primary"
+      (click)="saveAndAddNext()">
+      Save And Add New
     </button>
   </div>
 </div>

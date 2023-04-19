@@ -52,6 +52,7 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
     this.dataForm.markAllAsTouched();
     if (!this.dataForm.valid)
       return;
+    const categories = this.categoriesConfigurator.categories;
 
     const request: UserShopDto = {
       name: this.dataForm.get('name')?.value,
@@ -59,7 +60,7 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
       city: this.dataForm.get('city')?.value,
       street: this.dataForm.get('street')?.value,
       localNumber: this.dataForm.get('localNumber')?.value,
-      categoriesMap: this.categoriesConfigurator.categories.map(c => c.guid)
+      categoriesMap: this.categoriesConfigurator.categories.map(c => c.guid),
     }
 
     if (this.shopId)

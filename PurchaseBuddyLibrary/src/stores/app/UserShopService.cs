@@ -3,6 +3,7 @@ using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.infra;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddy.src.stores.persistance;
+using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.src.stores.app;
 
@@ -24,11 +25,7 @@ public class UserShopService : IUserShopService
 		if(categoriesMap == null)
 			categoriesMap = new List<Guid>();
 
-		foreach (var category in categoriesMap)
-			if (!categories.Any(c => c.Guid == category))
-				throw new ArgumentException($"category {category} not found");
-
-		var userShop = UserShop.CreateNew(userId, userShopDescription, categories.Where(c => categoriesMap.Contains(c.Guid)).ToList());
+		var userShop = UserShop.CreateNew(userId, userShopDescription, GetNewCategoryMap(categoriesMap, categories));
 		userShopRepository.Save(userShop);
 
 		return userShop.Guid;
@@ -54,14 +51,27 @@ public class UserShopService : IUserShopService
 		if(categoriesMap != null && categoriesMap.Any())
 		{
 			var categories = categoriesManagementService.GetCategoriesAsFlatList(userGuid);
-			var userCategoriesMap = categories.Where(c => categoriesMap.Contains(c.Guid)).ToList();
-			if (userCategoriesMap.Count != categoriesMap.Count)
-				throw new Exception("not all categories were found");
-
-			shop.ModifyShopConfiguration(userCategoriesMap);
+			shop.ModifyShopConfiguration(GetNewCategoryMap(categoriesMap, categories));
 		}
 
 		userShopRepository.Save(shop);
+	}
+
+	private static List<IProductCategory> GetNewCategoryMap(List<Guid>? categoriesMap, IEnumerable<IProductCategory> categories)
+	{
+		var result = new List<IProductCategory>();
+		if (categoriesMap == null || !categoriesMap.Any())
+			return result;
+
+		categoriesMap.ForEach(categoryGuid =>
+		{
+			var category = categories.FirstOrDefault(cat => cat.Guid == categoryGuid);
+			if (category == null)
+				throw new Exception($"Category with guid {categoryGuid} was not found");
+
+			result.Add(category);
+		});
+		return result;
 	}
 
 	public void DeleteUserShop(Guid userGuid, Guid shopId)

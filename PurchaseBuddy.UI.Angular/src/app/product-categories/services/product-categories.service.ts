@@ -59,7 +59,10 @@ import { BehaviorSubject } from 'rxjs';
 import { Product } from "src/app/products/store/user-products.state";
 import { environment } from "src/environments/environment";
 
-@Injectable()
+@Injectable({
+	providedIn: 'root'
+}
+)
 export class ProgressService {
 	private progressBarSource = new BehaviorSubject<boolean | null>(null);
 	public progressBar$ = this.progressBarSource.asObservable();

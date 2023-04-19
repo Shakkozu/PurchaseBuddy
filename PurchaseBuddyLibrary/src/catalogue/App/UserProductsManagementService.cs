@@ -4,7 +4,7 @@ using PurchaseBuddyLibrary.src.catalogue.App.Queries;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.src.catalogue.App;
-public class UserProductsManagementService
+public class UserProductsManagementService : IUserProductsManagementService
 {
 	private readonly IProductsRepository productsRepository;
 	private readonly GetUserProductsQueryHandler getUserProductsQueryHandler;
@@ -19,33 +19,17 @@ public class UserProductsManagementService
 		this.getUserProductsInCategoryQuery = new GetUserProductsInCategoryQueryHandler(userProductsRepository, userProductCategoriesManagementService);
 		this.userProductCategoriesManagementService = userProductCategoriesManagementService;
 	}
-
-	private void AddSharedProducts()
-	{
-		var sampleProductsNames = new[]
-		{
-			"Banana",
-			"Apple",
-			"Peach",
-			"Kiwi",
-			"Milk"
-		};
-		foreach(var productName in sampleProductsNames)
-		{
-			productsRepository.Save(SharedProduct.CreateNew(productName));
-		}
-	}
 	public void AssignProductToCategory(Guid userGuid, Guid productId, Guid? categoryId)
 	{
 		var product = productsRepository.GetProduct(productId);
-		if(product == null)
+		if (product == null)
 			throw new ResourceNotFoundException($"Product {productId} not found for user {userGuid}");
 
 		if (product.CategoryId.GetValueOrDefault() == categoryId)
 			return;
 
 		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId.GetValueOrDefault());
-		if(category is null)
+		if (category is null)
 			throw new ResourceNotFoundException("Category not found");
 
 		if (product is SharedProduct)
@@ -55,7 +39,7 @@ public class UserProductsManagementService
 		}
 		else
 			product.AssignProductToCategory(category);
-		
+
 
 		productsRepository.Save(product);
 	}
@@ -66,10 +50,10 @@ public class UserProductsManagementService
 	}
 	public IProduct DefineNewUserProduct(UserProductDto productDto, Guid userId)
 	{
-		if(productDto.CategoryId.HasValue)
+		if (productDto.CategoryId.HasValue)
 		{
 			var category = userProductCategoriesManagementService.GetUserProductCategory(userId, productDto.CategoryId.Value);
-			if(category is null)
+			if (category is null)
 				throw new ResourceNotFoundException($"product category {productDto.CategoryId.Value} not found for user {userId}");
 		}
 
@@ -92,7 +76,7 @@ public class UserProductsManagementService
 	public void Modify(Guid productId, UserProductDto request, Guid userGuid)
 	{
 		var product = productsRepository.GetProduct(productId);
-		if(product is null)
+		if (product is null)
 			throw new ResourceNotFoundException($"Product {productId} not found for user {userGuid}");
 
 		product.Name = request.Name;
@@ -102,7 +86,7 @@ public class UserProductsManagementService
 			return;
 		}
 
-		if(!request.CategoryId.HasValue)
+		if (!request.CategoryId.HasValue)
 		{
 			product.RemoveProductCategory();
 			productsRepository.Save(product);
@@ -117,10 +101,10 @@ public class UserProductsManagementService
 		productsRepository.Save(product);
 	}
 
-	internal void RemoveProductsFromCategory(Guid userGuid, Guid categoryId)
+	public void RemoveProductsFromCategory(Guid userGuid, Guid categoryId)
 	{
 		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId);
-		if(category is null)
+		if (category is null)
 			throw new ResourceNotFoundException($"product category {categoryId} not found for user {userGuid}");
 
 		var products = productsRepository.GetUserProducts(userGuid).Where(x => x.CategoryId == categoryId);
@@ -131,14 +115,14 @@ public class UserProductsManagementService
 		}
 	}
 
-	internal void ReassignProductsToNewCategory(Guid userGuid, Guid categoryId, Guid newCategoryId)
+	public void ReassignProductsToNewCategory(Guid userGuid, Guid categoryId, Guid newCategoryId)
 	{
 		var category = userProductCategoriesManagementService.GetUserProductCategory(userGuid, categoryId);
 		if (category is null)
 			throw new ResourceNotFoundException($"product category {categoryId} not found for user {userGuid}");
 
 		var newCategory = userProductCategoriesManagementService.GetUserProductCategory(userGuid, newCategoryId);
-		if(newCategory is null)
+		if (newCategory is null)
 			throw new ResourceNotFoundException($"product category {newCategoryId} not found for user {userGuid}");
 
 		var products = productsRepository.GetUserProducts(userGuid).Where(x => x.CategoryId == categoryId);

@@ -19,17 +19,17 @@ internal class UserShopControllerTests : ControllersTestsFixture
 	[Test]
 	public void WhenUserDidNotAddAnyShop_ReturnEmptyList()
 	{
-		// when user did not add any shop
-		// then user does not have any shop
+		// when user did not add any shopId
+		// then user does not have any shopId
 		Assert.IsEmpty(GetUserShops());
 	}
 
 	[Test]
 	public void TestUserShopsManagement()
 	{
-		// when user adds new shop
+		// when user adds new shopId
 		AddNewUserShop();
-		// then user shops list contains new shop
+		// then user shops list contains new shopId
 		var userShops = GetUserShops();
 		Assert.AreEqual(1, userShops.Count);
 	}
@@ -37,14 +37,14 @@ internal class UserShopControllerTests : ControllersTestsFixture
 	[Test]
 	public void TestUserShopModification()
 	{
-		// when user adds new shop
+		// when user adds new shopId
 		AddNewUserShop();
-		// then user shops list contains new shop
+		// then user shops list contains new shopId
 		var userShops = GetUserShops();
 		Assert.AreEqual(1, userShops.Count);
-		// when user modifies existing shop
+		// when user modifies existing shopId
 		ModifyUserShop(userShops[0], "testNewName");
-		// then shop is modified
+		// then shopId is modified
 		// thenshops count not changed
 		userShops = GetUserShops();
 		Assert.AreEqual(1, userShops.Count);
@@ -54,12 +54,12 @@ internal class UserShopControllerTests : ControllersTestsFixture
 	[Test]
 	public void TestUserShopRemoving()
 	{
-		// when user adds new shop
+		// when user adds new shopId
 		AddNewUserShop();
-		// then user shops list contains new shop
+		// then user shops list contains new shopId
 		var userShops = GetUserShops();
 		Assert.AreEqual(1, userShops.Count);
-		// when user removes existing shop
+		// when user removes existing shopId
 		DeleteUserShop(userShops[0].Guid.Value);
 		// then user shops list is empty
 		userShops = GetUserShops();

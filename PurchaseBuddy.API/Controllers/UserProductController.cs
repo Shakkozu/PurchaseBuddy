@@ -11,7 +11,7 @@ namespace PurchaseBuddy.API.Controllers;
 [Route("products")]
 public class UserProductController : BaseController
 {
-	public UserProductController(UserProductsManagementService productsManagementService,
+	public UserProductController(IUserProductsManagementService productsManagementService,
 		ILogger<UserProductController> logger,
 		IUserAuthorizationService authorizationService)
 		: base(authorizationService)
@@ -94,6 +94,6 @@ public class UserProductController : BaseController
 		return NoContent();
 	}
 
-	private readonly UserProductsManagementService productsManagementService;
+	private readonly IUserProductsManagementService productsManagementService;
 	private readonly ILogger<UserProductController> logger;
 }

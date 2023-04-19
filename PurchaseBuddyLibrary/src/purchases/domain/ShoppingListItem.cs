@@ -29,6 +29,15 @@ public class ShoppingListItem
 		Purchased = false;
 	}
 
+	internal void MarkAsNotPurchased()
+	{
+		if (!Purchased)
+			return;
+
+		Purchased = false;
+		Unavailable = false;
+	}
+
 	public Guid ProductId { get; }
 	public int Quantity { get; private set; }
 	public bool Purchased { get; private set; }

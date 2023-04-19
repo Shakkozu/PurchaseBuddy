@@ -1,0 +1,55 @@
+<div style="display: flex; align-items: center; width: 100%;">
+<span style="align-self: flex-start;">
+	<h2>Shopping List {{this.shoppingListDetails?.guid}}</h2>
+</span>
+</div>
+<div class="grid 2/5">
+  <div class="grid__cell">
+      <mat-form-field appearance="fill" style="width: 300px;">
+        <mat-label>Assigned shop</mat-label>
+        <input matInput readonly value="{{assignedShopName}}">
+      </mat-form-field>
+    <div *ngIf="shoppingCompleted" class="shopping-completed">
+      <span>
+        <div style="display: flex; align-items: center; width: 100%;">
+          <span style="align-self: flex-start;">
+            <h2>Shopping completed</h2>
+          </span>
+		  <button mat-icon-button class="material-icons" disabled>
+		    <mat-icon>mood</mat-icon>
+		  </button>
+		  <button mat-icon-button class="material-icons" (click)="returnToList()">
+		    <mat-icon>arrow_back</mat-icon>
+		  </button>
+        </div>
+      </span>
+    </div>
+    <mat-list>
+      <mat-list-item *ngFor="let listItem of notPurchased" class="not-purchased-item">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <span style="align-self: flex-start;">{{getListItemDescription(listItem)}}</span>
+          <div>
+            <button (click)="markAsPurchased(listItem)" mat-icon-button>
+              <mat-icon>done</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-list-item>
+    </mat-list>
+
+    <mat-list *ngIf="purchased.length > 0">
+      <h4>Purchased</h4>
+      <mat-list-item *ngFor="let listItem of purchased" class="purchased-item">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-decoration: line-through;">
+          <span style="align-self: flex-start;">{{getListItemDescription(listItem)}}</span>
+          <div>
+            <button (click)="markAsNotPurchased(listItem)" mat-icon-button>
+              <mat-icon>block</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+</div>

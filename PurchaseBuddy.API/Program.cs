@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using PurchaseBuddy.API;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.stores.app;
@@ -16,61 +17,48 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
-{
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter session id in field below",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-{
-{
-    new OpenApiSecurityScheme
-    {
-        Reference = new OpenApiReference
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
-    },
-    new string[] {}
-}
+	{
+		c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+		{
+			In = ParameterLocation.Header,
+			Description = "Please enter session id in field below",
+			Name = "Authorization",
+			Type = SecuritySchemeType.ApiKey
+		});
+		c.AddSecurityRequirement(new OpenApiSecurityRequirement
+		{{
+			new OpenApiSecurityScheme
+			{
+				Reference = new OpenApiReference
+				{
+					Type = ReferenceType.SecurityScheme,
+					Id = "Bearer"
+				}
+			},
+			new string[] {}
+		}
+	});
 });
-});
-
-builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
-builder.Services.AddSingleton<IUserAuthorizationService, AuthorizationService>();
-builder.Services.AddSingleton<UserShopService, UserShopService>();
-builder.Services.AddSingleton<IUserShopRepository, InMemoryUserShopRepository>();
-builder.Services.AddSingleton<IProductsRepository, InMemoryProductsRepository>();
-builder.Services.AddSingleton<IUserProductCategoriesRepository, InMemoryUserProductCategoriesRepository>();
-builder.Services.AddSingleton<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
-builder.Services.AddSingleton<IShopMapRepository, InMemoryShopMapRepository>();
-builder.Services.AddSingleton<IShopCategoryListManagementService, ShopCategoryListManagementService>();
-builder.Services.AddSingleton<UserProductsManagementService>();
-builder.Services.AddSingleton<CategoryFacade>();
-
+PurchaseBuddyFixture.RegisterDependencies(builder.Services);
 builder.Services.AddAuthentication("CustomHeaderAuthentication")
-    .AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(
-        "CustomHeaderAuthentication", options =>
-        {
-            options.HeaderName = "Authorization";
-        });
+	.AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(
+		"CustomHeaderAuthentication", options =>
+		{
+			options.HeaderName = "Authorization";
+		});
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                        policy =>
-                        {
-                            //policy.WithOrigins("http://localhost:4200");
-                            policy.AllowAnyOrigin();
-                            policy.AllowAnyHeader();
-                            policy.AllowAnyMethod();
-                        });
+	options.AddPolicy(name: MyAllowSpecificOrigins,
+						policy =>
+						{
+							//policy.WithOrigins("http://localhost:4200");
+							policy.AllowAnyOrigin();
+							policy.AllowAnyHeader();
+							policy.AllowAnyMethod();
+						});
 });
 
 var app = builder.Build();
@@ -78,8 +66,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 
 }
 

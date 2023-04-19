@@ -7,8 +7,11 @@ public class UserShopDto
 	{
 
 	}
-	public static UserShopDto FromModel(UserShop userShop)
+	public static UserShopDto FromModel(UserShop? userShop)
 	{
+		if (userShop == null)
+			return null;
+
 		return new UserShopDto(userShop.Guid,
 						 userShop.Description.Name,
 						 userShop.Description.Description,

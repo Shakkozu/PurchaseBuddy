@@ -12,6 +12,7 @@ export interface ShopAddressDto {
 	localNumber: string;
 }
 export interface UserShopDto {
+	address?: ShopAddressDto;
 	name: string;
 	description: string;
 	city: string;

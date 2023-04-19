@@ -51,4 +51,40 @@ internal class UserShopServiceTests
 		Assert.AreEqual(parent, usershop.ConfigurationEntries.First().CategoryGuid);
 		Assert.AreEqual(child, usershop.ConfigurationEntries.Last().CategoryGuid);
 	}
+
+	[Test]
+	public void WhenShopWithConfigurationIsCreated_AssertCategoriesAreSavedInValidOrder()
+	{
+		var cat1 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat2 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat3 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+
+		var shop = userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test"), new[] {cat3, cat2, cat1}.ToList());
+
+		var usershop = userShopService.GetUserShopById(Fixture.UserId, shop);
+		Assert.AreEqual(cat3, usershop.ConfigurationEntries[0].CategoryGuid);
+		Assert.AreEqual(cat2, usershop.ConfigurationEntries[1].CategoryGuid);
+		Assert.AreEqual(cat1, usershop.ConfigurationEntries[2].CategoryGuid);
+	}
+
+	[Test]
+	public void WhenShopWithConfigurationIsUpdated_AssertCategoriesAreSavedInValidOrder()
+	{
+		var cat1 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat2 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat3 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+
+		var shop = userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test"), new[] {cat1, cat2, cat3}.ToList());
+		userShopService.Update(AUserShopDescription(), Fixture.UserId, shop, new[] { cat3, cat2, cat1 }.ToList());
+
+		var usershop = userShopService.GetUserShopById(Fixture.UserId, shop);
+		Assert.AreEqual(cat3, usershop.ConfigurationEntries[0].CategoryGuid);
+		Assert.AreEqual(cat2, usershop.ConfigurationEntries[1].CategoryGuid);
+		Assert.AreEqual(cat1, usershop.ConfigurationEntries[2].CategoryGuid);
+	}
+
+	private UserShopDescription AUserShopDescription()
+	{
+		return UserShopDescription.CreateNew("blabla");
+	}
 }

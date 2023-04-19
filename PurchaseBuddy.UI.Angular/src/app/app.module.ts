@@ -6,8 +6,6 @@ import { AppComponent } from './app.component';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from './shared/material.module';
-import { EmployeeModule } from './employee/employee.module';
-import { DepartmentModule } from './department/department.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpAuthorizationInterceptor } from './auth/http/http-authorization.interceptor';
@@ -19,6 +17,8 @@ import { ProductCategoriesModule } from './product-categories/product-categories
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UserShopsModule } from './shops/user-shops.module';
+import { ShoppingListsModule } from './shopping-lists/shopping-lists.module';
+import { AppState } from './store/app.store';
 
 @NgModule({
   declarations: [
@@ -26,15 +26,13 @@ import { UserShopsModule } from './shops/user-shops.module';
     GenericDialogComponent,
   ],
   imports: [
-    NgxsModule.forRoot(),
+    NgxsModule.forRoot([AppState]),
     CommonModule,
     BrowserModule,
     AppRoutingModule,
     MaterialModule,
     AuthModule,
     ProductsModule,
-    EmployeeModule,
-    DepartmentModule,
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
@@ -42,6 +40,7 @@ import { UserShopsModule } from './shops/user-shops.module';
     NgxDatatableModule,
     BrowserAnimationsModule,
     UserShopsModule,
+    ShoppingListsModule,
   ],
   exports: [
     CommonModule,
