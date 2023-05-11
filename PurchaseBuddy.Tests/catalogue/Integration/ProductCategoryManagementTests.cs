@@ -1,7 +1,16 @@
-﻿using PurchaseBuddy.src.catalogue.App;
+﻿using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using PurchaseBuddy.Database;
+using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
+using PurchaseBuddyLibrary.src.auth.app;
+using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProductCategories;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
@@ -10,9 +19,27 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	public void SetUp()
 	{
 		userProductsRepo = new InMemoryProductsRepository();
-		userCategoriesRepo = new InMemoryUserProductCategoriesRepository();
+		userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
 		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
 		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
+
+		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
+		authService = new AuthorizationService(userRepository, null);
+		UserId = AUserCreated();
+	}
+
+	[TearDown]
+	public override void TearDown()
+	{
+		base.TearDown();
+	}
+
+	[OneTimeSetUp]
+	public void OneTimeSetUp()
+	{
+		var servicesCollection = new ServiceCollection();
+		MigrationsRunner.ClearDatabase(servicesCollection, TestConfigurationHelper.GetConnectionString());
+		MigrationsRunner.RunMigrations(servicesCollection, TestConfigurationHelper.GetConnectionString());
 	}
 
 	public class TestValidation
@@ -34,7 +61,25 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
     }
 
 	[Test]
-	public void CanAddNewProductCategory()
+	public void UserProductCategoriesWithGranchildrenAreReturnedCorrectly()
+	{
+		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		var child1 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
+		var child2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child2", root));
+		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandchild11", child1));
+		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandchild12", child1));
+		var handler = new GetUserProductCategoriesQueryHandler(userCategoriesRepo);
+
+		var rootCategory = userProductCategoriesService.GetUserProductCategories(UserId).Categories.First();
+
+		Assert.NotNull(rootCategory);
+		Assert.AreEqual(2, rootCategory.Children.Count);
+		Assert.AreEqual(2, rootCategory.Children.First(pc => pc.Name == "child1").Children.Count);
+		Assert.AreEqual(0, rootCategory.Children.First(pc => pc.Name == "child2").Children.Count);
+	}
+
+	[Test]
+	public void UserCanAddNewProductCategory()
 	{
 		var createRequest = AUserProductCategoryCreateRequest();
 
@@ -45,26 +90,17 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	}
 
 	[Test]
-	public void UserCanAddNewProductCategory_WhenNewCategoryIsOnRootLeve()
+	public void UserCanAddNewProductCategoryWithParentCategory()
 	{
 		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
+		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandchild", child));
 
 		var productCategories = userProductCategoriesService.GetCategories(UserId);
 
 		Assert.AreEqual(1, productCategories.Count);
-	}
-
-	[Test]
-	public void UserCanAddNewProductCategory_WhenNewCategoryHasParent()
-	{
-		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
-		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
-		userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child2", root));
-
-		var productCategories = userProductCategoriesService.GetCategories(UserId);
-
-		Assert.AreEqual(1, productCategories.Count);
-		Assert.AreEqual(2, productCategories.First().Children.Count);
+		Assert.AreEqual(1, productCategories.First().Children.Count);
+		Assert.AreEqual(1, productCategories.First().Children.First().Children.Count);
 	}
 	
 	[Test]
@@ -72,7 +108,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	{
 		var root = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
 		var child = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child1", root));
-		var child2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child2", child));
+		var grandchild = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandchild", child));
 
 		var productCategories = userProductCategoriesService.GetCategories(UserId);
 		var lastAddedChild = productCategories.First().Children.First().Children.First();
@@ -191,7 +227,7 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	{
 		var root1 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("root1"));
 		var child11 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest( "child1", root1));
-		var child12 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest( "child2", root1));
+		var child12 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest( "grandchild", root1));
 		var grandchild111 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandchild111", child11));
 		var root2 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("root2"));
 		var child21 = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child21", root2));
@@ -218,7 +254,10 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 
 
 	private InMemoryProductsRepository userProductsRepo;
-	private InMemoryUserProductCategoriesRepository userCategoriesRepo;
+	private IUserProductCategoriesRepository userCategoriesRepo;
 	private UserProductCategoriesManagementService userProductCategoriesService;
 	private UserProductsManagementService productService;
+	private string? databaseConnectionString;
+	private AuthorizationService authService;
+	private Guid createdUserGuid;
 }

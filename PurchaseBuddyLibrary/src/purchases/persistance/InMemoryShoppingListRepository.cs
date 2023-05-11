@@ -1,5 +1,4 @@
 ﻿using PurchaseBuddy.src.purchases.domain;
-using PurchaseBuddyLibrary.src.purchases.contract;
 
 namespace PurchaseBuddy.src.purchases.persistance;
 
@@ -23,7 +22,7 @@ public class InMemoryShoppingListRepository : IShoppingListRepository
 	public ShoppingList GetShoppingList(Guid userId, Guid shoppingListGuid)
 	{
 		if (!cache.ContainsKey(shoppingListGuid))
-			return null;
+			throw new ArgumentException("Not found");
 
 		return cache[shoppingListGuid];
 	}

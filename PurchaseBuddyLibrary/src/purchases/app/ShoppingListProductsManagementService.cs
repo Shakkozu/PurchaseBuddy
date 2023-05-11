@@ -4,9 +4,9 @@ using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.purchases.persistance;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
-using PurchaseBuddyLibrary.src.catalogue.App.Queries;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
-using PurchaseBuddyLibrary.src.purchases.contract;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
+using PurchaseBuddyLibrary.src.purchases.app.contract;
 using PurchaseBuddyLibrary.src.stores.contract;
 
 namespace PurchaseBuddy.src.purchases.app;

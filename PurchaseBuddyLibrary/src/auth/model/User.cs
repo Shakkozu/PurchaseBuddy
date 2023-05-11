@@ -1,4 +1,6 @@
-﻿namespace PurchaseBuddyLibrary.src.auth.model;
+﻿using PurchaseBuddyLibrary.src.auth.persistance;
+
+namespace PurchaseBuddyLibrary.src.auth.model;
 public class User
 {
 	public Guid Guid { get; }
@@ -10,10 +12,15 @@ public class User
 
 	internal static User CreateNew(string login, string email, string passwordHash, string salt)
 	{
-		return new User(Guid.NewGuid(), login, email, passwordHash, salt);
+		return new User(null, Guid.NewGuid(), login, email, passwordHash, salt);
 	}
 
-	private User(Guid guid, string login, string email, string passwordHash, string salt)
+	internal static User LoadFrom(UserDao userDao)
+	{
+		return new User(userDao.Id, Guid.Parse(userDao.Guid), userDao.Login, userDao.Email, userDao.PasswordHash, userDao.Salt);
+	}
+
+	private User(int? id, Guid guid, string login, string email, string passwordHash, string salt)
 	{
 		Guid = guid;
 		Login = login;

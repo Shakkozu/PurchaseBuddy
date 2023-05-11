@@ -1,4 +1,9 @@
-﻿using PurchaseBuddyLibrary.src.catalogue.contract;
+﻿using Dapper;
+using Npgsql;
+using PurchaseBuddyLibrary.src.auth.app;
+using PurchaseBuddyLibrary.src.auth.contract;
+using PurchaseBuddyLibrary.src.auth.persistance;
+using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.Tests.catalogue;
@@ -31,5 +36,23 @@ internal class CatalogueTestsFixture
 		return child;
 	}
 
-	protected Guid UserId = Guid.Parse("8FFEE1B4-ADDF-4C5A-B773-16C4830FC278");
+
+	public virtual void TearDown()
+	{
+		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
+		{
+			connection.Execute("delete from product_categories_hierarchy");
+			connection.Execute("delete from product_categories");
+			connection.Execute("delete from users");
+		}
+	}
+	protected Guid AUserCreated()
+	{
+		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
+		var authService = new AuthorizationService(userRepository, null);
+		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
+		return UserId;
+	}
+
+    protected Guid UserId = Guid.Parse("8FFEE1B4-ADDF-4C5A-B773-16C4830FC278");
 }

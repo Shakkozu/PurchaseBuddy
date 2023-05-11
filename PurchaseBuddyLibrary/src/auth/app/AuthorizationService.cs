@@ -30,10 +30,10 @@ public class AuthorizationService : IUserAuthorizationService
         if (!ValidateIfEmailIsCorrect(userDto.Email))
             throw new ArgumentException("Email is incorrect");
 
-        //if (!ValidateIfPasswordIsCorrect(userDto.Password))
-        //    throw new ArgumentException("Password is incorrect");
+		if (!ValidateIfPasswordIsCorrect(userDto.Password))
+			throw new ArgumentException("Password is incorrect");
 
-        var salt = GetHash(Guid.NewGuid().ToString("N"));
+		var salt = GetHash(Guid.NewGuid().ToString("N"));
         var passwordHash = GetHash(userDto.Password, salt);
 
         var user = User.CreateNew(userDto.Login, userDto.Email, passwordHash, salt);

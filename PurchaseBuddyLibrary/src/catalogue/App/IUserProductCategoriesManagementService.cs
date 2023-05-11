@@ -1,5 +1,6 @@
 ﻿using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProductCategories;
 
 namespace PurchaseBuddy.src.catalogue.App;
 public interface IUserProductCategoriesManagementService
@@ -11,4 +12,5 @@ public interface IUserProductCategoriesManagementService
 	IEnumerable<IProductCategory> GetCategoriesAsFlatList(Guid userId);
 	IProductCategory? GetUserProductCategory(Guid userId, Guid value);
 	void ReassignCategory(Guid userId, Guid productCategoryGuid, Guid newParentCategoryGuid);
+	GetUserProductCategoriesResponse GetUserProductCategories(Guid userId);
 }

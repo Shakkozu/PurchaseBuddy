@@ -1,6 +1,7 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class UserCanManageProductsTests : CatalogueTestsFixture

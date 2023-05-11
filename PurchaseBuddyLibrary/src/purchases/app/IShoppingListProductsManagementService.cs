@@ -1,6 +1,6 @@
 ﻿using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
-using PurchaseBuddyLibrary.src.purchases.contract;
+using PurchaseBuddyLibrary.src.purchases.app.contract;
 
 namespace PurchaseBuddy.src.purchases.app;
 public interface IShoppingListService

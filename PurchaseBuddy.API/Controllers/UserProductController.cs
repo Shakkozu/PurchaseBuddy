@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddyLibrary.src.auth.app;
-using PurchaseBuddyLibrary.src.catalogue.App.Queries;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 
 namespace PurchaseBuddy.API.Controllers;
 

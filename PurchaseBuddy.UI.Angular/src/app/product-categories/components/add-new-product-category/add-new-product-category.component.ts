@@ -131,5 +131,4 @@ export class AddNewProductCategoryComponent implements OnInit {
   hide() {
     this.progressService.hideProgressBar();
   }
-
 }

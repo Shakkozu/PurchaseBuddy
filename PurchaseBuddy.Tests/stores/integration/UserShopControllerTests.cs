@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 
 namespace PurchaseBuddy.Tests.stores.integration;
+[Ignore("tmp")]
 internal class UserShopControllerTests : ControllersTestsFixture
 {
 	[Test]

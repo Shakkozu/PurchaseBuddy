@@ -8,7 +8,6 @@ public class SessionExpiredException : Exception
 }
 public class Session
 {
-
 	public Guid SessionId { get; }
 	public Guid UserId { get; }
 	public bool IsExpired => expiresAt < DateTime.Now;

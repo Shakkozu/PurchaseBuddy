@@ -1,7 +1,7 @@
 ﻿using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.infra;
-using PurchaseBuddyLibrary.src.catalogue.App.Queries;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 
 namespace PurchaseBuddy.src.catalogue.App;
 public class UserProductsManagementService : IUserProductsManagementService
@@ -39,7 +39,6 @@ public class UserProductsManagementService : IUserProductsManagementService
 		}
 		else
 			product.AssignProductToCategory(category);
-
 
 		productsRepository.Save(product);
 	}

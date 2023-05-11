@@ -2,6 +2,7 @@
 using PurchaseBuddy.src.infra;
 using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProductCategories;
 using PurchaseBuddyLibrary.src.infra;
 
 namespace PurchaseBuddy.src.catalogue.App;
@@ -10,6 +11,7 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 {
 	private readonly IUserProductCategoriesRepository productCategoriesRepository;
 	private readonly IProductsRepository userProductsRepository;
+	private GetUserProductCategoriesQueryHandler getUserProductCategoriesQueryHandler;
 
 	public UserProductCategoriesManagementService(
 		IUserProductCategoriesRepository productCategoriesRepository,
@@ -18,7 +20,13 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 		this.productCategoriesRepository = productCategoriesRepository;
 		this.userProductsRepository = userProductsRepository;
 		var seed = new SeedSharedProductsDatabase(userProductsRepository, productCategoriesRepository);
+		getUserProductCategoriesQueryHandler = new GetUserProductCategoriesQueryHandler(productCategoriesRepository);
 		seed.Seed();
+	}
+
+	public GetUserProductCategoriesResponse GetUserProductCategories(Guid userID)
+	{
+		return getUserProductCategoriesQueryHandler.Handle(userID);
 	}
 	public Guid AddNewProductCategory(Guid userID, CreateUserCategoryRequest request)
 	{
@@ -31,7 +39,7 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 			: UserProductCategory.CreateNewWithParent(request.Name, userID, parent, request.Description);
 
 		if (parent != null)
-			productCategoriesRepository.Save(parent);
+			productCategoriesRepository.Update(parent);
 
 		productCategoriesRepository.Save(upc);
 		return upc.Guid;
@@ -81,6 +89,8 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 		var category = productCategoriesRepository.FindById(userId, categoryId);
 		if (category is null)
 			throw new ResourceNotFoundException($"user product category with id {categoryId} not found for user: {userId}");
+		if (category is SharedProductCategory)
+			throw new InvalidOperationException();
 
 		if (category.ParentId.HasValue)
 		{
@@ -92,16 +102,17 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 			{
 				category.RemoveChild(child);
 				parentCategory.AddChild(child);
+				productCategoriesRepository.Update(child);
 			}
 			parentCategory.RemoveChild(category);
-			productCategoriesRepository.Save(parentCategory);
+			productCategoriesRepository.Remove(category);
 			return;
 		}
 
 		foreach (var child in category.Children.ToList())
 		{
 			child.RemoveParent();
-			productCategoriesRepository.Save(child);
+			productCategoriesRepository.Update(child);
 		}
 		productCategoriesRepository.Remove(category);
 	}
@@ -122,27 +133,29 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 
 	public void ReassignCategory(Guid userId, Guid productCategoryGuid, Guid newParentCategoryGuid)
 	{
+		var categories = productCategoriesRepository.FindAll(userId);
 		var category = productCategoriesRepository.FindById(userId, productCategoryGuid);
+		var categoryToReassign = categories.FirstOrDefault(c => c.Guid == productCategoryGuid);
 		if (category is null)
 			throw new ResourceNotFoundException($"user product category with id {productCategoryGuid} not found for user: {userId}");
 
-		var newParentCategory = productCategoriesRepository.FindById(userId, newParentCategoryGuid);
+		var newParentCategory = categories.FirstOrDefault(c => c.Guid == newParentCategoryGuid);
 		if (newParentCategory is null)
 			throw new ResourceNotFoundException($"user product category with id {newParentCategoryGuid} not found for user: {userId}");
 
 		if (category.ParentId.HasValue)
 		{
-			var currentParentCategory = productCategoriesRepository.FindById(userId, category.ParentId.Value);
+			var currentParentCategory = categories.FirstOrDefault(c => c.Guid == category.ParentId.Value);
 			if (currentParentCategory is null)
 				throw new ResourceNotFoundException($"user product category with id {category.ParentId.Value} not found for user: {userId}");
 
 			currentParentCategory.RemoveChild(category);
-			productCategoriesRepository.Save(currentParentCategory);
+			productCategoriesRepository.Update(currentParentCategory);
 		}
 		newParentCategory.AddChild(category);
 
-		productCategoriesRepository.Save(newParentCategory);
-		productCategoriesRepository.Save(category);
+		productCategoriesRepository.Update(newParentCategory);
+		productCategoriesRepository.Update(category);
 	}
 
 	public IProductCategory? GetUserProductCategory(Guid userId, Guid categoryId)

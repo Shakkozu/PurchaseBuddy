@@ -1,7 +1,7 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
-using PurchaseBuddy.src.catalogue.Persistance;
-using PurchaseBuddyLibrary.src.catalogue.App.Queries;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 

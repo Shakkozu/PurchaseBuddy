@@ -1,4 +1,5 @@
-﻿using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
@@ -35,12 +36,22 @@ public class SharedProductCategory : BaseProductCategory
 		productsInCategory.Add(product.Guid);
 	}
 
+	internal static SharedProductCategory LoadFrom(int id, Guid guid, string name, string description)
+	{
+		return new SharedProductCategory(
+			guid, 
+			name,
+			description,
+			null, 
+			new List<IProductCategory>(), 
+			new List<Guid>());
+	}
+
 	private SharedProductCategory(Guid guid, string name, string? description, IProductCategory? parent, List<IProductCategory> children, List<Guid> productsInCategory)
 	{
 		Guid = guid;
 		Name = name;
 		Description = description;
-		IsRoot = parent == null;
 		this.children = children;
 		this.productsInCategory = productsInCategory;
 		if(parent != null)

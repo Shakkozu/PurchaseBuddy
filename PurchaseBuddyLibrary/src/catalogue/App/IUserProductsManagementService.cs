@@ -1,5 +1,5 @@
-﻿using PurchaseBuddyLibrary.src.catalogue.App.Queries;
-using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+﻿using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 
 namespace PurchaseBuddy.src.catalogue.App;
 public interface IUserProductsManagementService

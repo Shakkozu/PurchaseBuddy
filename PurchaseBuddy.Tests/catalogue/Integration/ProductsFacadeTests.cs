@@ -5,6 +5,8 @@ using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddy.src.stores.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 using PurchaseBuddyLibrary.src.stores.app;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
@@ -65,7 +67,7 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 
 		facade.RemoveCategoryAndReassignProducts(UserId, category);
 
-		var products = productService.GetUserProducts(new PurchaseBuddyLibrary.src.catalogue.App.Queries.GetUserProductsQuery(UserId));
+		var products = productService.GetUserProducts(new GetUserProductsQuery(UserId));
 		Assert.AreEqual(2, products.Count);
 		Assert.True(products.All(p => p.CategoryId == null));
 	}
@@ -80,7 +82,7 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 
 		facade.RemoveCategoryAndReassignProducts(UserId, category, substituteCategory);
 
-		var products = productService.GetUserProducts(new PurchaseBuddyLibrary.src.catalogue.App.Queries.GetUserProductsQuery(UserId));
+		var products = productService.GetUserProducts(new GetUserProductsQuery(UserId));
 		Assert.AreEqual(2, products.Count);
 		Assert.True(products.All(p => p.CategoryId == substituteCategory));
 	}

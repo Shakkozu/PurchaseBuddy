@@ -14,7 +14,7 @@ public abstract class BaseProductCategory : IProductCategory
 	public Guid? ParentId { get; protected set; }
 	public IReadOnlyCollection<IProductCategory> Children => new ReadOnlyCollection<IProductCategory>(children);
 
-	public bool IsRoot { get; protected set; }
+	public bool IsRoot { get => !ParentId.HasValue; }
 
 	public List<Guid> GetProductsInCategory()
 	{
@@ -33,8 +33,8 @@ public abstract class BaseProductCategory : IProductCategory
 	public void AddChild(IProductCategory child)
 	{
 		children.Add(child);
-		((BaseProductCategory)child).IsRoot = false;
 		((BaseProductCategory)child).ParentId = Guid;
+		((BaseProductCategory)child).Parent = this;
 	}
 	public void RemoveChild(IProductCategory child)
 	{
@@ -52,7 +52,7 @@ public abstract class BaseProductCategory : IProductCategory
 	{
 		ParentId = null;
 		Parent = null;
-		IsRoot = true;
+		//IsRoot = true;
 	}
 
 	protected List<Guid> productsInCategory = new List<Guid>();

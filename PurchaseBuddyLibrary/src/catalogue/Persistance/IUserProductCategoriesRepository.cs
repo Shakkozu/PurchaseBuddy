@@ -8,4 +8,5 @@ public interface IUserProductCategoriesRepository
 	List<IProductCategory> FindAll(Guid userId);
 	IProductCategory? FindById(Guid userId, Guid categoryGuid);
 	void Remove(IProductCategory category);
+	void Update(IProductCategory parent);
 }

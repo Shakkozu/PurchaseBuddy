@@ -4,7 +4,6 @@ namespace PurchaseBuddyLibrary.src.auth.persistance;
 
 public class InMemoryUserRepository : IUserRepository
 {
-    private Dictionary<Guid, User> cache = new();
     public void Add(User user)
     {
         if (cache.ContainsKey(user.Guid))
@@ -30,4 +29,6 @@ public class InMemoryUserRepository : IUserRepository
     {
         return cache.Values.FirstOrDefault(u => u.Login == login);
     }
+
+	private readonly Dictionary<Guid, User> cache = new();
 }

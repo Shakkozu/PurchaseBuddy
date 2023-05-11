@@ -1,5 +1,6 @@
 ﻿using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 
 namespace PurchaseBuddyLibrary.src.catalogue.Model.Product;
 public class UserProduct : IProduct
@@ -26,6 +27,11 @@ public class UserProduct : IProduct
 	public void RemoveProductCategory()
 	{
 		CategoryId = null;
+	}
+
+	internal static IProduct? LoadFrom(ProductDao result)
+	{
+		throw new NotImplementedException();
 	}
 
 	private UserProduct(int? id, Guid userID, string name, Guid guid, Guid? categoryId)

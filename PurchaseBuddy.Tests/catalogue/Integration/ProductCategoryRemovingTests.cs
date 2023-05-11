@@ -1,22 +1,47 @@
-﻿using PurchaseBuddy.src.catalogue.App;
+﻿using Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using PurchaseBuddy.Database;
+using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 
 internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 {
 	private InMemoryProductsRepository userProductsRepo;
-	private InMemoryUserProductCategoriesRepository userCategoriesRepo;
+	private IUserProductCategoriesRepository userCategoriesRepo;
 	private UserProductCategoriesManagementService userProductCategoriesService;
-	private UserProductsManagementService productService;
 
 	[SetUp]
 	public void SetUp()
 	{
 		userProductsRepo = new InMemoryProductsRepository();
-		userCategoriesRepo = new InMemoryUserProductCategoriesRepository();
+		userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
 		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
-		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
+
+		UserId = AUserCreated();
+	}
+
+	[TearDown]
+	public void TearDown()
+	{
+		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
+		{
+			connection.Execute("delete from product_categories_hierarchy");
+			connection.Execute("delete from product_categories");
+			connection.Execute("delete from users");
+		}
+	}
+
+	[OneTimeSetUp]
+	public void OneTimeSetUp()
+	{
+		var servicesCollection = new ServiceCollection();
+		MigrationsRunner.ClearDatabase(servicesCollection, TestConfigurationHelper.GetConnectionString());
+		MigrationsRunner.RunMigrations(servicesCollection, TestConfigurationHelper.GetConnectionString());
 	}
 
 	[Test]

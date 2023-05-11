@@ -26,9 +26,9 @@ public class UserProductCategoryController : BaseController
 	public async Task<IActionResult> GetUserCategories()
 	{
 		var user = await GetUserFromSessionAsync();
-		var result = categoriesManagementService.GetCategories(user.Guid);
+		var result = categoriesManagementService.GetUserProductCategories(user.Guid);
 
-		return Ok(result);
+		return Ok(result.Categories);
 	}
 
 	[HttpPost]

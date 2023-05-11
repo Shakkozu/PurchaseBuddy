@@ -36,10 +36,8 @@ export interface ProductCategory {
 	guid: string;
 	name: string;
 	description: string;
-	parent: ProductCategory;
 	children: ProductCategory[];
 	isRoot: boolean;
-	parentId: string;
 }
 export interface ProductCategoryFlat {
 	guid: string;

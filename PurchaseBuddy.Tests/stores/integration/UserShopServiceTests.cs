@@ -1,12 +1,13 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
-using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddy.src.stores.persistance;
+using PurchaseBuddy.Tests.catalogue;
 using PurchaseBuddyLibrary.src.catalogue.contract;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 
 namespace PurchaseBuddy.Tests.stores.integration;
-internal class UserShopServiceTests
+internal class UserShopServiceTests : CatalogueTestsFixture
 {
 	private InMemoryUserShopRepository userShopRepository;
 	private UserShopService userShopService;
@@ -18,35 +19,42 @@ internal class UserShopServiceTests
 		userShopRepository = new InMemoryUserShopRepository();
 		categoriesManagementService = new UserProductCategoriesManagementService(new InMemoryUserProductCategoriesRepository(), new InMemoryProductsRepository());
 		userShopService = new UserShopService(userShopRepository, categoriesManagementService);
+		UserId = AUserCreated();
+	}
+
+	[TearDown]
+	public override void TearDown()
+	{
+		base.TearDown();
 	}
 
 	[Test]
 	public void GetUserShop_AssertCorrectIsReturned()
 	{
-		var addedShopId = userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test"));
+		var addedShopId = userShopService.AddNew(UserId, UserShopDescription.CreateNew("test"));
 
-		Assert.NotNull(userShopService.GetUserShopById(Fixture.UserId, addedShopId));
+		Assert.NotNull(userShopService.GetUserShopById(UserId, addedShopId));
 	}
 
 	[Test]
 	public void GetAllUserShops_AssertAllUserShopsAreReturned()
 	{
-		userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test"));
-		userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test2"));
+		userShopService.AddNew(UserId, UserShopDescription.CreateNew("test"));
+		userShopService.AddNew(UserId, UserShopDescription.CreateNew("test2"));
 
-		Assert.AreEqual(2, userShopService.GetAllUserShops(Fixture.UserId).Count);
+		Assert.AreEqual(2, userShopService.GetAllUserShops(UserId).Count);
 	}
 	
 	[Test]
 	public void UpdateUserShopCategoriesMap_WhenCategoriesAreNested()
 	{
-		var parent = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
-		var child = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, parent));
-		var shop = userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test"));
+		var parent = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, null));
+		var child = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, parent));
+		var shop = userShopService.AddNew(UserId, UserShopDescription.CreateNew("test"));
 
-		userShopService.Update(UserShopDescription.CreateNew("test"), Fixture.UserId, shop, new List<Guid> { parent, child });
+		userShopService.Update(UserShopDescription.CreateNew("test"), UserId, shop, new List<Guid> { parent, child });
 
-		var usershop = userShopService.GetUserShopById(Fixture.UserId, shop);
+		var usershop = userShopService.GetUserShopById(UserId, shop);
 		Assert.AreEqual(2, usershop.ConfigurationEntries.Count);
 		Assert.AreEqual(parent, usershop.ConfigurationEntries.First().CategoryGuid);
 		Assert.AreEqual(child, usershop.ConfigurationEntries.Last().CategoryGuid);
@@ -55,13 +63,13 @@ internal class UserShopServiceTests
 	[Test]
 	public void WhenShopWithConfigurationIsCreated_AssertCategoriesAreSavedInValidOrder()
 	{
-		var cat1 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
-		var cat2 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
-		var cat3 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat1 = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat2 = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat3 = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, null));
 
-		var shop = userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test"), new[] {cat3, cat2, cat1}.ToList());
+		var shop = userShopService.AddNew(UserId, UserShopDescription.CreateNew("test"), new[] {cat3, cat2, cat1}.ToList());
 
-		var usershop = userShopService.GetUserShopById(Fixture.UserId, shop);
+		var usershop = userShopService.GetUserShopById(UserId, shop);
 		Assert.AreEqual(cat3, usershop.ConfigurationEntries[0].CategoryGuid);
 		Assert.AreEqual(cat2, usershop.ConfigurationEntries[1].CategoryGuid);
 		Assert.AreEqual(cat1, usershop.ConfigurationEntries[2].CategoryGuid);
@@ -70,14 +78,14 @@ internal class UserShopServiceTests
 	[Test]
 	public void WhenShopWithConfigurationIsUpdated_AssertCategoriesAreSavedInValidOrder()
 	{
-		var cat1 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
-		var cat2 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
-		var cat3 = categoriesManagementService.AddNewProductCategory(Fixture.UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat1 = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat2 = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, null));
+		var cat3 = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("test", null, null));
 
-		var shop = userShopService.AddNew(Fixture.UserId, UserShopDescription.CreateNew("test"), new[] {cat1, cat2, cat3}.ToList());
-		userShopService.Update(AUserShopDescription(), Fixture.UserId, shop, new[] { cat3, cat2, cat1 }.ToList());
+		var shop = userShopService.AddNew(UserId, UserShopDescription.CreateNew("test"), new[] {cat1, cat2, cat3}.ToList());
+		userShopService.Update(AUserShopDescription(), UserId, shop, new[] { cat3, cat2, cat1 }.ToList());
 
-		var usershop = userShopService.GetUserShopById(Fixture.UserId, shop);
+		var usershop = userShopService.GetUserShopById(UserId, shop);
 		Assert.AreEqual(cat3, usershop.ConfigurationEntries[0].CategoryGuid);
 		Assert.AreEqual(cat2, usershop.ConfigurationEntries[1].CategoryGuid);
 		Assert.AreEqual(cat1, usershop.ConfigurationEntries[2].CategoryGuid);

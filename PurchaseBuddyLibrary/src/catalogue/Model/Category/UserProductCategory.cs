@@ -1,4 +1,5 @@
 ﻿using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
 
 namespace PurchaseBuddyLibrary.src.catalogue.Model.Category;
 public class UserProductCategory : BaseProductCategory
@@ -21,7 +22,6 @@ public class UserProductCategory : BaseProductCategory
         Description = description;
         this.children = children;
         this.productsInCategory = productsInCategory;
-        IsRoot = parent == null;
 		if(parent != null)
 		{
 			ParentId = parent.Guid;
@@ -63,4 +63,29 @@ public class UserProductCategory : BaseProductCategory
         // todo: If it's possible to fetch products from children categories, removing a product from child via root should be possible
         productsInCategory.Remove(product.Guid);
     }
+
+	internal static IProductCategory LoadFrom(ProductCategoryDao pcd, ProductCategoryDao? parentCategory = null, List<ProductCategoryDao>? children = null)
+	{
+		//var parent = 
+		return new UserProductCategory(
+			Guid.Parse(pcd.Guid),
+			Guid.Parse(pcd.UserGuid),
+			pcd.Name,
+			pcd.Description,
+			null,
+			null,
+			null);
+	}
+
+	internal static IProductCategory LoadFrom(int id, Guid guid, Guid userGuid, string name, string description)
+	{
+		return new UserProductCategory(
+			guid,
+			userGuid,
+			name,
+			description,
+			null,
+			new List<IProductCategory>(),
+			new List<Guid>());
+	}
 }

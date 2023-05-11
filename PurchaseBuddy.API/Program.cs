@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using PurchaseBuddy.API;
+using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.stores.app;
@@ -39,7 +40,17 @@ builder.Services.AddSwaggerGen(c =>
 		}
 	});
 });
-PurchaseBuddyFixture.RegisterDependencies(builder.Services);
+
+var configBuilder = new ConfigurationBuilder()
+	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+var configuration = configBuilder.Build();
+var databaseConnectionString = configuration.GetConnectionString("Database");
+if (databaseConnectionString == null)
+	throw new ArgumentException("databsae connection string is invalid");
+
+MigrationsRunner.RunMigrations(builder.Services, databaseConnectionString);
+
+PurchaseBuddyFixture.RegisterDependencies(builder.Services, databaseConnectionString);
 builder.Services.AddAuthentication("CustomHeaderAuthentication")
 	.AddScheme<CustomHeaderAuthenticationOptions, CustomHeaderAuthenticationHandler>(
 		"CustomHeaderAuthentication", options =>
@@ -68,7 +79,6 @@ if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
-
 }
 
 app.UseCors(MyAllowSpecificOrigins);

@@ -1,11 +1,114 @@
-﻿using PurchaseBuddy.src.catalogue.App;
+﻿using Dapper;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.infra;
-using PurchaseBuddyLibrary.src.catalogue.App.Queries;
+using PurchaseBuddyLibrary.src.auth.app;
+using PurchaseBuddyLibrary.src.auth.contract;
+using PurchaseBuddyLibrary.src.auth.persistance;
+using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
+
+internal class PRoductManagementIntegrationTEsts : CatalogueIntegrationTestsFixture
+{
+	private AuthorizationService authService;
+	private UserRepository userRepo;
+	private IUserProductCategoriesRepository userCategoriesRepo;
+	private UserProductCategoriesManagementService userProductCategoriesService;
+	private IProductsRepository userProductsRepository;
+
+	[SetUp]
+    public void Setup()
+	{
+		base.SetUp();
+		var connectionString = TestConfigurationHelper.GetConnectionString();
+		userRepo = new UserRepository(connectionString);
+		authService = new AuthorizationService(userRepo, Configuration);
+		userCategoriesRepo = new ProductCategoriesRepository(connectionString);
+		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepository);
+	}
+
+    [Test]
+	public void UserCanAddNewProductCategory()
+	{
+		var createdUserGuid = CreateUser();
+
+		var productCategoryParent = userProductCategoriesService.AddNewProductCategory(createdUserGuid, AUserProductCategoryCreateRequest());
+
+		var userCategories = userProductCategoriesService.GetCategoriesAsFlatList(createdUserGuid);
+		Assert.That(userCategories, Is.Not.Empty);
+		Assert.AreEqual(productCategoryParent, userCategories.FirstOrDefault().Guid);
+	}
+
+
+	protected CreateUserCategoryRequest AUserProductCategoryCreateRequest(string? name = null, Guid? parentId = null, string? description = null)
+	{
+		return new CreateUserCategoryRequest(name ?? "dairy", description, parentId);
+	}
+	private Guid CreateUser()
+	{
+		return authService.Register(AUser());
+	}
+}
+
+internal class IntegrationTestsFixture
+{
+	[OneTimeSetUp]
+	public void OneTimeSetup()
+	{
+		MigrateDatabaseSchema();
+	}
+
+	private static void MigrateDatabaseSchema()
+	{
+		var serviceCollection = new ServiceCollection();
+		Database.MigrationsRunner.RunMigrations(serviceCollection, API.Config.TestConnectionString);
+	}
+}
+
+internal class CatalogueIntegrationTestsFixture : IntegrationTestsFixture
+{
+	[SetUp]
+	public void SetUp()
+	{
+		ClearDatabase();
+		var builder = new ConfigurationBuilder();
+		builder.AddJsonFile("appsettings.json");
+		Configuration = builder.Build();
+	}
+
+	private static void ClearDatabase()
+	{
+		using (var connection = new NpgsqlConnection(API.Config.TestConnectionString))
+		{
+			connection.Execute("delete from user_products");
+			connection.Execute("delete from shared_products_customization");
+			connection.Execute("delete from shared_products");
+			connection.Execute("delete from product_categories");
+		}
+	}
+
+	protected IConfiguration Configuration { get; private set; }
+
+	protected UserDto AUser()
+	{
+		return new UserDto
+		{
+			Email = "john.doe@example.com",
+			Login = "johnDoe",
+			Password = "zaq1@WSX"
+		};
+	}
+}
+
 internal class ProductManagementTests : CatalogueTestsFixture
 {
 	[SetUp]

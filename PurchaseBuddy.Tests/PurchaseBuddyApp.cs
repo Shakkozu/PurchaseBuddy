@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PurchaseBuddy.API;
 using PurchaseBuddyLibrary.src.auth.app;
 
 namespace PurchaseBuddy.Tests;
@@ -17,9 +19,11 @@ internal class PurchaseBuddyApp : WebApplicationFactory<Program>
         _scope = base.Services.CreateAsyncScope();
     }
 
-    public static PurchaseBuddyApp CreateInstance()
+    public static PurchaseBuddyApp CreateInstance(string? databaseConnectionString)
     {
-        var app = new PurchaseBuddyApp(_ => { });
+        var app = new PurchaseBuddyApp(collection => {
+			
+		});
         return app;
     }
 
@@ -31,7 +35,18 @@ internal class PurchaseBuddyApp : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureServices(collection => collection.AddTransient<Fixtures>());
+		var configBuilder = new ConfigurationBuilder()
+			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+		var configuration = configBuilder.Build();
+		var databaseConnectionString = configuration.GetConnectionString("Database");
+
+		builder.ConfigureServices(collection => {
+			collection.AddTransient<Fixtures>();
+			PurchaseBuddyFixture.RegisterDependencies(collection, databaseConnectionString);
+
+
+			}
+		);
         builder.ConfigureServices(_customization);
     }
 

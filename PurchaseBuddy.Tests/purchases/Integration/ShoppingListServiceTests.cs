@@ -1,10 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dapper;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using PurchaseBuddy.API;
+using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
+using PurchaseBuddyLibrary.src.auth.app;
+using PurchaseBuddyLibrary.src.auth.contract;
+using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.Tests.purchases.Integration;
@@ -20,14 +27,38 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	public void SetUp()
 	{
 		var services = new ServiceCollection();
-		PurchaseBuddyFixture.RegisterDependencies(services);
+		var configBuilder = new ConfigurationBuilder()
+			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+		var configuration = configBuilder.Build();
+		var databaseConnectionString = configuration.GetConnectionString("Database");
+		PurchaseBuddyFixture.RegisterDependencies(services, databaseConnectionString);
 
 		var serviceProvider = services.BuildServiceProvider();
 		productsManagementService = serviceProvider.GetRequiredService<IUserProductsManagementService>();
 		shopService = serviceProvider.GetRequiredService<IUserShopService>();
 		categoriesManagementService = serviceProvider.GetRequiredService<IUserProductCategoriesManagementService>();
 		shoppingListProductsManagementService = serviceProvider.GetRequiredService<IShoppingListService>();
+		UserId = AUserCreated();
 		InitializeTestContext();
+	}
+
+	[TearDown]
+	public void TearDown()
+	{
+		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
+		{
+			connection.Execute("delete from product_categories_hierarchy");
+			connection.Execute("delete from product_categories");
+			connection.Execute("delete from users");
+		}
+	}
+
+	[OneTimeSetUp]
+	public void OneTimeSetUp()
+	{
+		var servicesCollection = new ServiceCollection();
+		MigrationsRunner.ClearDatabase(servicesCollection, TestConfigurationHelper.GetConnectionString());
+		MigrationsRunner.RunMigrations(servicesCollection, TestConfigurationHelper.GetConnectionString());
 	}
 
 	[Test]
@@ -304,8 +335,15 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	{
 		return shopService.AddNew(UserId, UserShopDescription.CreateNew("test"), categories.ToList());
 	}
+	private Guid AUserCreated()
+	{
+		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
+		var authService = new AuthorizationService(userRepository, null);
+		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
+		return UserId;
+	}
 
-    private List<IProduct> products;
+	private List<IProduct> products;
     private List<Guid> categoriesGuids;
     private Guid shopId;
     private Guid shopId2;
