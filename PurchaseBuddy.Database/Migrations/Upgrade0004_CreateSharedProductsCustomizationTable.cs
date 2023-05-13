@@ -14,9 +14,9 @@ public class Upgrade0004_CreateSharedProductsCustomization: Migration
 	{		
 		Create.Table(SharedProductsCustomizationTable)
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
-			.WithColumn("product_guid").AsFixedLengthString(36).NotNullable().ForeignKey("shared_products", "guid")
-			.WithColumn("user_guid").AsFixedLengthString(36).NotNullable().ForeignKey("users", "guid")
-			.WithColumn("category_guid").AsFixedLengthString(36).Nullable().WithDefaultValue(null).ForeignKey("product_categories", "guid")
+			.WithColumn("product_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable().ForeignKey("shared_products", "guid")
+			.WithColumn("user_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable().ForeignKey("users", "guid")
+			.WithColumn("category_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).Nullable().WithDefaultValue(null).ForeignKey("product_categories", "guid")
 			.WithColumn("name").AsString(255).NotNullable();
 	}
 

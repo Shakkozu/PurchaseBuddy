@@ -43,6 +43,7 @@ internal class CatalogueTestsFixture
 		{
 			connection.Execute("delete from shared_products_customization");
 			connection.Execute("delete from user_products");
+			connection.Execute("delete from shops");
 			connection.Execute("delete from shared_products");
 			connection.Execute("delete from product_categories_hierarchy");
 			connection.Execute("delete from product_categories");

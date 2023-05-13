@@ -1,4 +1,5 @@
-﻿using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+﻿using PurchaseBuddy.src.stores.persistance;
+using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.src.stores.domain;
 public class UserShop
@@ -31,6 +32,18 @@ public class UserShop
 	internal void RemoveCategoryFromConfiguration(IProductCategory category)
 	{
 		configuration = configuration.Remove(category);
+	}
+
+	internal static UserShop LoadFrom(ShopDao dao)
+	{
+		var shopGuid = Guid.Parse(dao.Guid);
+		return new UserShop(
+			shopGuid,
+			Guid.Parse(dao.UserGuid),
+			UserShopDescription.CreateNew(dao.Name, dao.Description,
+				new Address(dao.Street, dao.City, dao.LocalNumber)),
+			UserShopConfiguration.LoadFrom(shopGuid, dao.GetConfiguration())
+			);
 	}
 
 	private UserShop(Guid guid, Guid userId, UserShopDescription userShopDescription, UserShopConfiguration configuration)

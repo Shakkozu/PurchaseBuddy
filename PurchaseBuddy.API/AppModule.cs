@@ -25,7 +25,7 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<IUserRepository>(new UserRepository(connectionString));
 		serviceCollection.AddSingleton<IUserAuthorizationService, AuthorizationService>();
 		serviceCollection.AddSingleton<UserShopService, UserShopService>();
-		serviceCollection.AddSingleton<IUserShopRepository, InMemoryUserShopRepository>();
+		serviceCollection.AddSingleton<IUserShopRepository>(new ShopsRepository(connectionString));
 		serviceCollection.AddSingleton<IUserShopService, UserShopService>();
 		serviceCollection.AddSingleton<IProductsRepository>(new ProductsRepository(connectionString));
 		serviceCollection.AddSingleton<ISharedProductRepository>(new SharedProductRepository(connectionString));

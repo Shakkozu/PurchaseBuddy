@@ -14,7 +14,7 @@ public class Upgrade0001_InitializeUsers : Migration
 	{
 		Create.Table("users")
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
-			.WithColumn("guid").AsFixedLengthString(36).NotNullable().Unique()
+			.WithColumn("guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable().Unique()
 			.WithColumn("email").AsString(255).NotNullable().Unique()
 			.WithColumn("login").AsString(255).NotNullable()
 			.WithColumn("salt").AsString().NotNullable()

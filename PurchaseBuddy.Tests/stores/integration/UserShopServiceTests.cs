@@ -9,14 +9,14 @@ using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 namespace PurchaseBuddy.Tests.stores.integration;
 internal class UserShopServiceTests : CatalogueTestsFixture
 {
-	private InMemoryUserShopRepository userShopRepository;
+	private IUserShopRepository userShopRepository;
 	private UserShopService userShopService;
 	private IUserProductCategoriesManagementService categoriesManagementService;
 
 	[SetUp]
 	public void SetUp()
 	{
-		userShopRepository = new InMemoryUserShopRepository();
+		userShopRepository = new ShopsRepository(TestConfigurationHelper.GetConnectionString());
 		categoriesManagementService = new UserProductCategoriesManagementService(new InMemoryUserProductCategoriesRepository(), new InMemoryProductsRepository());
 		userShopService = new UserShopService(userShopRepository, categoriesManagementService);
 		TearDown();
@@ -27,6 +27,7 @@ internal class UserShopServiceTests : CatalogueTestsFixture
 	public override void TearDown()
 	{
 		base.TearDown();
+
 	}
 
 	[Test]

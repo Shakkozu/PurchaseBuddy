@@ -1,4 +1,6 @@
-﻿using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+﻿using PurchaseBuddy.src.stores.persistance;
+using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using System.Runtime.CompilerServices;
 
 namespace PurchaseBuddy.src.stores.domain;
 
@@ -36,6 +38,17 @@ public record UserShopConfiguration
 			.ToList();
 
 		return CreateNew(ShopId, entries);
+	}
+
+	internal static UserShopConfiguration LoadFrom(Guid shopId, ShopDao.ShopConfigurationDao configuration)
+	{
+		if (configuration == null)
+			return CreateNew(shopId);
+
+		var entries = configuration.Entries
+			.Select(entryDao => new UserShopConfigurationEntry(entryDao.Index, Guid.Parse(entryDao.CategoryGuid)))
+			.ToList();
+		return new UserShopConfiguration(shopId, entries);
 	}
 
 	private UserShopConfiguration(Guid shopId, List<UserShopConfigurationEntry> configurationEntries)

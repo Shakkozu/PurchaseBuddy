@@ -54,7 +54,7 @@ public class UserShopService : IUserShopService
 			shop.ModifyShopConfiguration(GetNewCategoryMap(categoriesMap, categories));
 		}
 
-		userShopRepository.Save(shop);
+		userShopRepository.Update(shop);
 	}
 
 	private static List<IProductCategory> GetNewCategoryMap(List<Guid>? categoriesMap, IEnumerable<IProductCategory> categories)

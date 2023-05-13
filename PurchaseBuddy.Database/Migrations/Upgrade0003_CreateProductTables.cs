@@ -15,8 +15,8 @@ public class Upgrade0003_CreateProductTables : Migration
 	{
 		Create.Table(SharedProductsTableName)
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
-			.WithColumn("guid").AsFixedLengthString(36).NotNullable().Unique()
-			.WithColumn("category_guid").AsFixedLengthString(36).Nullable().WithDefaultValue(null)
+			.WithColumn("guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable().Unique()
+			.WithColumn("category_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).Nullable().WithDefaultValue(null)
 			.WithColumn("name").AsString(255).NotNullable();
 		
 		Create.ForeignKey("FK_SharedProducts_CategoryGuid_ProductCategories_Guid")
@@ -25,9 +25,9 @@ public class Upgrade0003_CreateProductTables : Migration
 
 		Create.Table(UserProductsTableName)
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
-			.WithColumn("guid").AsFixedLengthString(36).NotNullable().Unique()
-			.WithColumn("category_guid").AsFixedLengthString(36).Nullable().WithDefaultValue(null)
-			.WithColumn("user_guid").AsFixedLengthString(36).NotNullable()
+			.WithColumn("guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable().Unique()
+			.WithColumn("category_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).Nullable().WithDefaultValue(null)
+			.WithColumn("user_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable()
 			.WithColumn("name").AsString(255).NotNullable();
 
 		Create.ForeignKey("FK_UserProducts_CategoryGuid_ProductCategories_Guid")
