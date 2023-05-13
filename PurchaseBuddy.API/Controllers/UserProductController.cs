@@ -29,7 +29,7 @@ public class UserProductController : BaseController
 
 		try
 		{
-			productsManagementService.AssignProductToCategory(user.Guid, productId.Value, categoryId.Value);
+			productsManagementService.ChangeProductCategory(user.Guid, productId.Value, categoryId.Value);
 		}
 		catch (Exception e)
 		{
@@ -87,7 +87,7 @@ public class UserProductController : BaseController
 		}
 		catch (Exception e )
 		{
-			logger.LogError($"Creating product {System.Text.Json.JsonSerializer.Serialize(request)} for user {user.Id} failed with exception: {e}");
+			logger.LogError($"Updating product {System.Text.Json.JsonSerializer.Serialize(request)} for user {user.Id} failed with exception: {e}");
 			return BadRequest(e.Message);
 		}
 

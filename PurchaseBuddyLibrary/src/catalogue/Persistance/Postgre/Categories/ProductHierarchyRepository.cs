@@ -4,7 +4,7 @@ using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.utils;
 using System.Text;
 
-namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 
 internal class ProductHierarchyRepository
 {

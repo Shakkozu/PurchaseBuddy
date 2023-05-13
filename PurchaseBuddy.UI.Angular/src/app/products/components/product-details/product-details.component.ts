@@ -23,7 +23,7 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
   checklistSelection = new SelectionModel<ProductCategoryNode>(true);
   dataForm!: FormGroup;
   public selectedNode!: ProductCategoryNode;
-  public selectedNodeGuid: string = '';
+  public selectedCategoryGuid: string = '';
   public saveOccured: boolean = false;
   private routeParamsSubscription!: Subscription;
   private header = 'New Product';
@@ -31,6 +31,7 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
 
 
   public dataSource!: MatTreeFlatDataSource<ProductCategoryNode, ProductCategoryFlatNode>;
+  private originalProductCategory: string = '';
 
   constructor (private productCategoriesService: ProductCategoriesService,
     private productService: ProductsService,
@@ -57,7 +58,7 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
           const product = products.find((p) => p.guid === this.productId);
           this.dataForm.get('productName')?.setValue(product?.name);
           this.dataForm.get('productCategory')?.setValue(product?.categoryName);
-          this.selectedNodeGuid = product?.categoryId ?? '';
+          this.selectedCategoryGuid = product?.categoryId ?? '';
         });
       }
     });
@@ -80,7 +81,7 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   onNodeSelect(node: ProductCategoryNode) {
-    this.selectedNodeGuid = node.guid;
+    this.selectedCategoryGuid = node.guid;
     this.dataForm.get('productCategory')?.setValue(node.name);
     this.treeControl.collapseAll();
   }
@@ -117,10 +118,10 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
     const productName = this.dataForm.get('productName')?.value;
     if (this.productId) {
       this.progressService.executeWithProgress(
-        () => this.store.dispatch(new UpdateUserProduct(this.productId, productName, this.selectedNodeGuid)));
+        () => this.store.dispatch(new UpdateUserProduct(this.productId, productName, this.selectedCategoryGuid)));
     } else {      
       this.progressService.executeWithProgress(() =>
-      this.store.dispatch(new AddNewUserProduct(productName, this.selectedNodeGuid)));
+      this.store.dispatch(new AddNewUserProduct(productName, this.selectedCategoryGuid)));
     }
   }
 
@@ -132,7 +133,7 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
     this.saveOccured = true;
     const productName = this.dataForm.get('productName')?.value;
     this.progressService.executeWithProgress(
-      () => this.store.dispatch(new AddNewUserProduct(productName, this.selectedNodeGuid, true))
+      () => this.store.dispatch(new AddNewUserProduct(productName, this.selectedCategoryGuid, true))
         .pipe(
           tap(() => this.ngOnInit())
         )

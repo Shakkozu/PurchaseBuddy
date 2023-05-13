@@ -27,7 +27,7 @@ public class UserRepository : IUserRepository
 
 	public User? GetByEmail(string email)
 	{
-		var sql = @"select guid, email, login, salt, password_hash from users where email like @Email";
+		var sql = @"select guid, email, login, salt, password_hash, is_administrator as IsAdministrator from users where email like @Email";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			var result = connection.QuerySingleOrDefault<UserDao>(sql, new { Email = email});
@@ -40,7 +40,7 @@ public class UserRepository : IUserRepository
 
 	public User GetByGuid(Guid guid)
 	{
-		var sql = @"select guid, email, login, salt, password_hash from users where guid like @Guid";
+		var sql = @"select guid, email, login, salt, password_hash, is_administrator as IsAdministrator from users where guid like @Guid";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			var result = connection.QuerySingleOrDefault<UserDao>(sql, new { Guid = guid.ToDatabaseStringFormat() });
@@ -53,15 +53,23 @@ public class UserRepository : IUserRepository
 
 	public User? GetByLogin(string login)
 	{
-		var sql = @"select guid, email, login, salt, password_hash as PasswordHash from users where login like @Login";
+		var sql = @"select guid, email, login, salt, password_hash as PasswordHash, is_administrator as IsAdministrator from users where login like @Login";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			var result = connection.QuerySingleOrDefault<UserDao>(sql, new { Login = login });
 			if (result == null)
 				return null;
-			Console.WriteLine($"User Id: {result.Id}, Email: {result.Email}, Password Hash: {result.PasswordHash}");
 
 			return result.ToUser();
+		}
+	}
+
+	public void GrantAdministratorAccessRights(Guid userId)
+	{
+		const string sql = @"update users set is_administrator = true where guid like @UserId";
+		using (var connection = new NpgsqlConnection(connectionString))
+		{
+			var result = connection.ExecuteScalar(sql, new { UserId = userId.ToDatabaseStringFormat() });
 		}
 	}
 }

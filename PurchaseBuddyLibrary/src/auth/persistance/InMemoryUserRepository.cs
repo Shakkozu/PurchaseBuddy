@@ -30,5 +30,10 @@ public class InMemoryUserRepository : IUserRepository
         return cache.Values.FirstOrDefault(u => u.Login == login);
     }
 
+	public void GrantAdministratorAccessRights(Guid userId)
+	{
+		throw new NotImplementedException();
+	}
+
 	private readonly Dictionary<Guid, User> cache = new();
 }

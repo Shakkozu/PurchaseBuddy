@@ -10,6 +10,7 @@ using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProductCategories;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;

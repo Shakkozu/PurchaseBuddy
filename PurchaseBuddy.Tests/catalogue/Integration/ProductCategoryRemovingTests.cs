@@ -6,6 +6,7 @@ using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 

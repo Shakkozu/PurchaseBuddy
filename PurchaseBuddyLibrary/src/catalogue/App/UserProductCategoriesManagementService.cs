@@ -119,7 +119,7 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 
 	public void AssignProductToCategory(Guid userId, Guid productGuid, Guid categoryGuid)
 	{
-		var userProduct = userProductsRepository.GetProduct(productGuid);
+		var userProduct = userProductsRepository.GetProduct(productGuid, userId);
 		if (userProduct == null)
 			throw new ResourceNotFoundException($"user product with categoryId {productGuid} not found for user: {userId}");
 

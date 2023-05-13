@@ -1,4 +1,4 @@
-﻿namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+﻿namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 
 public class ProductCategoryHierarchyDao
 {

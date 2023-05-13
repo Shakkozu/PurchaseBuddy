@@ -14,6 +14,7 @@ public class UserDao
 			Email = user.Email,
 			Login = user.Login,
 			PasswordHash = user.PasswordHash,
+			IsAdministrator = user.IsAdministrator,
 			Salt = user.Salt
 		};
 	}
@@ -30,5 +31,6 @@ public class UserDao
     public string? Salt { get; set; }
 
 	public string? PasswordHash { get; set; }
+	public bool? IsAdministrator { get; set; }
 }
 

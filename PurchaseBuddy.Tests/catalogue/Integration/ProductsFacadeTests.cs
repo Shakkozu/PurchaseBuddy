@@ -6,6 +6,8 @@ using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddy.src.stores.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 using PurchaseBuddyLibrary.src.stores.app;
 
@@ -22,8 +24,8 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 	[SetUp]
 	public void SetUp()
 	{
-		var userProductsRepo = new InMemoryProductsRepository();
-		var userCategoriesRepo = new InMemoryUserProductCategoriesRepository();
+		var userProductsRepo = new ProductsRepository(TestConfigurationHelper.GetConnectionString());
+		var userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
 		var shopRepo = new InMemoryUserShopRepository();
 		var shopMapRepo = new InMemoryShopMapRepository();
 		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
@@ -31,6 +33,14 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
 		facade = new CategoryFacade(userProductCategoriesService, productService, shopListService);
 		userShopService = new UserShopService(shopRepo, userProductCategoriesService);
+
+		UserId = AUserCreated();
+	}
+
+	[TearDown]
+	public void Teardown()
+	{
+		base.TearDown();
 	}
 
 	[Test]

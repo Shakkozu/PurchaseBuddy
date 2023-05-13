@@ -1,5 +1,5 @@
 ﻿using PurchaseBuddyLibrary.src.catalogue.Model.Product;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 
 namespace PurchaseBuddyLibrary.src.catalogue.Model.Category;
 public class UserProductCategory : BaseProductCategory

@@ -103,7 +103,7 @@ public class ShoppingListProductsManagementService : IShoppingListService
 	public void AddProductToList(Guid userId, Guid shoppingListId, UserProduct userProduct)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		var savedProduct = userProductsRepository.GetProduct(userProduct.Guid);
+		var savedProduct = userProductsRepository.GetProduct(userProduct.Guid, userId);
 		if (savedProduct is null)
 			savedProduct = userProductsRepository.Save(userProduct);
 

@@ -1,65 +1,15 @@
-﻿using Dapper;
-using Npgsql;
-using PurchaseBuddy.src.catalogue.Persistance;
+﻿using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using System.Data.Common;
 
 namespace PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 
-public class ProductDao
-{
-
-}
-public class ProductsRepository : IProductsRepository
-{
-    private readonly string connectionString;
-
-    public ProductsRepository(string connectionString)
-    {
-        this.connectionString = connectionString;
-    }
-    public IProduct? GetProduct(Guid productGuid)
-    {
-        const string sql = @"select id, guid, categoryGuid, userGuid, name from user_products where guid like @ProductGuid";
-        using (var connection = new NpgsqlConnection(connectionString))
-        {
-            var result = connection.QuerySingleOrDefault<ProductDao>(sql, new { ProductGuid = productGuid });
-            if (result != null)
-                return UserProduct.LoadFrom(result);
-
-
-
-            return null;
-        }
-    }
-
-    public List<IProduct> GetSharedProducts()
-    {
-        throw new NotImplementedException();
-    }
-
-    public List<IProduct> GetUserProducts(Guid userID)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IProduct Save(IProduct product)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void SaveSharedProductCustomization(SharedProductCustomization customization)
-    {
-        throw new NotImplementedException();
-    }
-}
-
 public class InMemoryProductsRepository : IProductsRepository
 {
     private readonly Dictionary<Guid, IProduct> products = new();
     private readonly Dictionary<Guid, List<SharedProductCustomization>> sharedProductsCustomizations = new();
-    public IProduct? GetProduct(Guid productGuid)
+    public IProduct? GetProduct(Guid productGuid, Guid userId)
     {
         if (products.ContainsKey(productGuid))
             return products[productGuid];
@@ -126,4 +76,9 @@ public class InMemoryProductsRepository : IProductsRepository
 
         return product;
     }
+
+	public void Update(IProduct product, Guid UserId)
+	{
+		throw new NotImplementedException();
+	}
 }

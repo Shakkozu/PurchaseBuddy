@@ -16,26 +16,26 @@ public class Upgrade0003_CreateProductTables : Migration
 		Create.Table(SharedProductsTableName)
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
 			.WithColumn("guid").AsFixedLengthString(36).NotNullable().Unique()
-			.WithColumn("categoryGuid").AsFixedLengthString(36).Nullable().WithDefaultValue(null)
+			.WithColumn("category_guid").AsFixedLengthString(36).Nullable().WithDefaultValue(null)
 			.WithColumn("name").AsString(255).NotNullable();
 		
 		Create.ForeignKey("FK_SharedProducts_CategoryGuid_ProductCategories_Guid")
-			.FromTable(SharedProductsTableName).ForeignColumn("categoryGuid")
+			.FromTable(SharedProductsTableName).ForeignColumn("category_guid")
 			.ToTable(ProductCategoriesTableName).PrimaryColumn("guid");
 
 		Create.Table(UserProductsTableName)
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
 			.WithColumn("guid").AsFixedLengthString(36).NotNullable().Unique()
-			.WithColumn("categoryGuid").AsFixedLengthString(36).Nullable().WithDefaultValue(null)
-			.WithColumn("userGuid").AsFixedLengthString(36).NotNullable()
+			.WithColumn("category_guid").AsFixedLengthString(36).Nullable().WithDefaultValue(null)
+			.WithColumn("user_guid").AsFixedLengthString(36).NotNullable()
 			.WithColumn("name").AsString(255).NotNullable();
 
 		Create.ForeignKey("FK_UserProducts_CategoryGuid_ProductCategories_Guid")
-			.FromTable(UserProductsTableName).ForeignColumn("categoryGuid")
+			.FromTable(UserProductsTableName).ForeignColumn("category_guid")
 			.ToTable(ProductCategoriesTableName).PrimaryColumn("guid");
 
 		Create.ForeignKey("FK_UserProducts_UserGuid_Users_Guid")
-			.FromTable(UserProductsTableName).ForeignColumn("userGuid")
+			.FromTable(UserProductsTableName).ForeignColumn("user_guid")
 			.ToTable("users").PrimaryColumn("guid");
 	}
 

@@ -4,7 +4,7 @@ using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.utils;
 
-namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 
 public class ProductCategoriesRepository : IUserProductCategoriesRepository
 {
@@ -90,7 +90,6 @@ name = @Name,
 description = @Description
 where guid = @Guid";
             hierarchyRepository.Update(productCategory);
-
         }
     }
 }

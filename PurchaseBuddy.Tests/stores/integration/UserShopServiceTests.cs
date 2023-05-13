@@ -19,6 +19,7 @@ internal class UserShopServiceTests : CatalogueTestsFixture
 		userShopRepository = new InMemoryUserShopRepository();
 		categoriesManagementService = new UserProductCategoriesManagementService(new InMemoryUserProductCategoriesRepository(), new InMemoryProductsRepository());
 		userShopService = new UserShopService(userShopRepository, categoriesManagementService);
+		TearDown();
 		UserId = AUserCreated();
 	}
 

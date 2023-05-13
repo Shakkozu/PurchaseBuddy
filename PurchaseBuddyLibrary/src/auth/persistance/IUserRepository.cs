@@ -7,4 +7,5 @@ public interface IUserRepository
 	public User? GetByEmail(string email);
 	public User GetByGuid(Guid guid);
 	public void Add(User user);
+	void GrantAdministratorAccessRights(Guid userId);
 }

@@ -41,6 +41,9 @@ internal class CatalogueTestsFixture
 	{
 		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
 		{
+			connection.Execute("delete from shared_products_customization");
+			connection.Execute("delete from user_products");
+			connection.Execute("delete from shared_products");
 			connection.Execute("delete from product_categories_hierarchy");
 			connection.Execute("delete from product_categories");
 			connection.Execute("delete from users");
@@ -51,6 +54,15 @@ internal class CatalogueTestsFixture
 		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
 		var authService = new AuthorizationService(userRepository, null);
 		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
+		return UserId;
+	}
+	
+	protected Guid AdministratorCreated()
+	{
+		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
+		var authService = new AuthorizationService(userRepository, null);
+		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "admin", Email = "admin@example.com" });
+		authService.GrantAdministratorAccessRights(UserId);
 		return UserId;
 	}
 

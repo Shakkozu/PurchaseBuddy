@@ -1,5 +1,5 @@
 ﻿using PurchaseBuddyLibrary.src.catalogue.Model.Category;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 

@@ -1,13 +1,13 @@
 ﻿using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
-namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
+namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 
 public class ProductCategoriesFactory
 {
     public List<IProductCategory> Load(List<ProductCategoryDao> categories)
     {
         var result = GetCategories(categories);
-		FillHierarchiesInfo(result, categories);
+        FillHierarchiesInfo(result, categories);
 
         return result;
     }

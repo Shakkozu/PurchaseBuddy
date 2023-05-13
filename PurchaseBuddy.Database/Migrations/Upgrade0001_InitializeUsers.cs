@@ -18,6 +18,7 @@ public class Upgrade0001_InitializeUsers : Migration
 			.WithColumn("email").AsString(255).NotNullable().Unique()
 			.WithColumn("login").AsString(255).NotNullable()
 			.WithColumn("salt").AsString().NotNullable()
+			.WithColumn("is_administrator").AsBoolean().Nullable()
 			.WithColumn("password_hash").AsString().NotNullable();
 	}
 }

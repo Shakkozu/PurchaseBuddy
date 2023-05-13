@@ -145,6 +145,11 @@ public class AuthorizationService : IUserAuthorizationService
         return hash;
     }
 
-    private readonly IUserRepository userRepository;
+	public void GrantAdministratorAccessRights(Guid userId)
+	{
+		userRepository.GrantAdministratorAccessRights(userId);
+	}
+
+	private readonly IUserRepository userRepository;
     private readonly IConfiguration configuration;
 }

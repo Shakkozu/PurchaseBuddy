@@ -4,7 +4,7 @@ using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 namespace PurchaseBuddy.src.catalogue.App;
 public interface IUserProductsManagementService
 {
-	void AssignProductToCategory(Guid userGuid, Guid productId, Guid? categoryId);
+	void ChangeProductCategory(Guid userGuid, Guid productId, Guid? categoryId);
 	IProduct DefineNewUserProduct(UserProduct product);
 	IProduct DefineNewUserProduct(UserProductDto productDto, Guid userId);
 	List<UserProductDto> GetUserProducts(GetUserProductsQuery query);

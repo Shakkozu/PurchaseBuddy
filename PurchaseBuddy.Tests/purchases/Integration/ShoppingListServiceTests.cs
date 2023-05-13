@@ -38,6 +38,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		shopService = serviceProvider.GetRequiredService<IUserShopService>();
 		categoriesManagementService = serviceProvider.GetRequiredService<IUserProductCategoriesManagementService>();
 		shoppingListProductsManagementService = serviceProvider.GetRequiredService<IShoppingListService>();
+		TearDown();
 		UserId = AUserCreated();
 		InitializeTestContext();
 	}
@@ -47,6 +48,9 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	{
 		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
 		{
+			connection.Execute("delete from user_products");
+			connection.Execute("delete from shared_products_customization");
+			connection.Execute("delete from shared_products");
 			connection.Execute("delete from product_categories_hierarchy");
 			connection.Execute("delete from product_categories");
 			connection.Execute("delete from users");
