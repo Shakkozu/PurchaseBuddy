@@ -1,14 +1,28 @@
-﻿namespace PurchaseBuddy.src.purchases.domain;
+﻿using PurchaseBuddy.src.purchases.persistance;
+
+namespace PurchaseBuddy.src.purchases.domain;
 
 public class ShoppingListItem
 {
-	public ShoppingListItem(Guid productId, int quantity = 1)
+	public static ShoppingListItem CreateNew(Guid productId, int quantity = 1)
 	{
-		ProductId = productId;
-		Quantity = quantity;
+		return new ShoppingListItem(productId, quantity, false, false);
 	}
 
-	public void ChangeQuantityTo(int quantity)
+	internal static ShoppingListItem LoadFrom(ShoppingListDao.ShoppingListItemDao item)
+	{
+		return new ShoppingListItem(Guid.Parse(item.ItemGuid), item.Quantity, item.Purchased, item.Unavailable);
+	}
+
+    private ShoppingListItem(Guid productId, int quantity, bool purchased, bool unavailable)
+    {
+		ProductId = productId;
+		Quantity = quantity;
+		Purchased = purchased;
+		Unavailable = unavailable;
+	}
+
+    public void ChangeQuantityTo(int quantity)
 	{
 		Quantity = quantity;
 	}

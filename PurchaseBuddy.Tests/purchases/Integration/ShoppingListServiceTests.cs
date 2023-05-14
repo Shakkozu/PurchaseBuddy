@@ -51,6 +51,8 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 			connection.Execute("delete from user_products");
 			connection.Execute("delete from shared_products_customization");
 			connection.Execute("delete from shared_products");
+			connection.Execute("delete from shopping_lists");
+			connection.Execute("delete from shops");
 			connection.Execute("delete from product_categories_hierarchy");
 			connection.Execute("delete from product_categories");
 			connection.Execute("delete from users");
@@ -149,13 +151,11 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	public void ShouldContainInformationAboutAssignedShop()
 	{
 		var productGuid = products.First().Guid;
+
 		var list = shoppingListProductsManagementService.CreateNewList(UserId, AListItems(), shopId);
 
-		shoppingListProductsManagementService.MarkProductAsPurchased(UserId, list, productGuid);
-		shoppingListProductsManagementService.MarkProductAsNotPurchased(UserId, list, productGuid);
-
-		var listItem = shoppingListProductsManagementService.GetShoppingList(UserId, list).ShoppingListItems.First(li => li.ProductDto.Guid == productGuid);
-		Assert.False(listItem.Purchased);
+		var listFromDb = shoppingListProductsManagementService.GetShoppingList(UserId, list);
+		Assert.AreEqual("test1", listFromDb.AssignedShop.Name);
 	}
 
 	[Test]
@@ -298,12 +298,12 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
     private List<ShoppingListItem> AListItems(IEnumerable<Guid> _products = null)
     {
 		if(_products != null)
-			return _products.Select(product => new ShoppingListItem(product)).ToList();
+			return _products.Select(product => ShoppingListItem.CreateNew(product)).ToList();
 
         return new List<ShoppingListItem>
         {
-            new ShoppingListItem(products.First().Guid, 1),
-            new ShoppingListItem(products.Last().Guid, 2),
+            ShoppingListItem.CreateNew(products.First().Guid, 1),
+            ShoppingListItem.CreateNew(products.Last().Guid, 2),
         };
     }
 
@@ -311,7 +311,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
     {
         return new List<ShoppingListItem>
         {
-            new ShoppingListItem(products.First().Guid, 1),
+            ShoppingListItem.CreateNew(products.First().Guid, 1),
         };
     }
 

@@ -62,7 +62,7 @@ public class ShoppingListsController : BaseController
 	public async Task<IActionResult> CreateNew([FromBody] CreateNewShoppingListRequest request)
 	{
 		var user = await GetUserFromSessionAsync();
-		var shoppingListItems = request.ListItems.Select(guid => new ShoppingListItem(guid)).ToList();
+		var shoppingListItems = request.ListItems.Select(guid => ShoppingListItem.CreateNew(guid)).ToList();
 		var list = shoppingListService.CreateNewList(user.Guid, shoppingListItems, request.AssignedShop);
 
 		return Ok(list);

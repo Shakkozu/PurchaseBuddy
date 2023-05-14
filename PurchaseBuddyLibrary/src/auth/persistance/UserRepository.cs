@@ -66,10 +66,10 @@ public class UserRepository : IUserRepository
 
 	public void GrantAdministratorAccessRights(Guid userId)
 	{
-		const string sql = @"update users set is_administrator = true where guid like @UserId";
+		const string sql = @"update users set is_administrator = true where guid like @UserGuid";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
-			var result = connection.ExecuteScalar(sql, new { UserId = userId.ToDatabaseStringFormat() });
+			var result = connection.ExecuteScalar(sql, new { UserGuid = userId.ToDatabaseStringFormat() });
 		}
 	}
 }

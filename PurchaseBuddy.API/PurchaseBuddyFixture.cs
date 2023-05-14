@@ -34,7 +34,7 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<IShopMapRepository, InMemoryShopMapRepository>();
 		serviceCollection.AddSingleton<IShopCategoryListManagementService, ShopCategoryListManagementService>();
 		serviceCollection.AddSingleton<IShoppingListService, ShoppingListProductsManagementService>();
-		serviceCollection.AddSingleton<IShoppingListRepository, InMemoryShoppingListRepository>();
+		serviceCollection.AddSingleton<IShoppingListRepository>(new ShoppingListRepository(connectionString));
 		serviceCollection.AddSingleton<IUserProductsManagementService, UserProductsManagementService>();
 		serviceCollection.AddSingleton<UserProductsManagementService>();
 		serviceCollection.AddSingleton<CategoryFacade>();

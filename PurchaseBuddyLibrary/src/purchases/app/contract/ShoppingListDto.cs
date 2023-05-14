@@ -25,6 +25,8 @@ public class ShoppingListDto
         foreach (var categoryGuid in categoriesMap)
             result.AddRange(listItems.Where(item => item.ProductDto.CategoryId == categoryGuid));
 
+		result.AddRange(listItems.Where(listItem => !categoriesMap.Any(mapEntry => mapEntry == listItem.ProductDto.CategoryId)));
+
         return result;
     }
 

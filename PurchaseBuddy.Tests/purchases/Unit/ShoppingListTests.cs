@@ -8,7 +8,7 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId);
         shoppingList.AddNew(shoppingListItem);
 
         shoppingList.MarkProductAsPurchased(productId);
@@ -22,7 +22,7 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId);
         shoppingList.AddNew(shoppingListItem);
 
         shoppingList.MarkProductAsUnavailable(productId);
@@ -36,7 +36,7 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId);
 
         shoppingList.AddNew(shoppingListItem);
 
@@ -48,8 +48,8 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId);
-        var shoppingListItem2 = new ShoppingListItem(productId);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId);
+        var shoppingListItem2 = ShoppingListItem.CreateNew(productId);
 
         shoppingList.AddNew(shoppingListItem);
         shoppingList.AddNew(shoppingListItem2);
@@ -62,7 +62,7 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId, 5);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId, 5);
 
         shoppingList.AddNew(shoppingListItem);
 
@@ -75,8 +75,8 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId, 5);
-        var shoppingListItem2 = new ShoppingListItem(Guid.NewGuid(), 5);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId, 5);
+        var shoppingListItem2 = ShoppingListItem.CreateNew(Guid.NewGuid(), 5);
 
         shoppingList.AddNew(shoppingListItem);
         shoppingList.AddNew(shoppingListItem2);
@@ -89,7 +89,7 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId, 5);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId, 5);
 
         shoppingList.AddNew(shoppingListItem);
         shoppingList.ChangeQuantityOf(shoppingListItem.ProductId, 10);
@@ -102,7 +102,7 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId, 5);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId, 5);
 
         Assert.DoesNotThrow(() => shoppingList.ChangeQuantityOf(productId, 10));
     }
@@ -113,8 +113,8 @@ internal class ShoppingListTests : Fixture
     {
         var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = new ShoppingListItem(productId, 5);
-        var shoppingListItem2 = new ShoppingListItem(Guid.NewGuid(), 5);
+        var shoppingListItem = ShoppingListItem.CreateNew(productId, 5);
+        var shoppingListItem2 = ShoppingListItem.CreateNew(Guid.NewGuid(), 5);
 
         shoppingList.AddNew(shoppingListItem);
         shoppingList.AddNew(shoppingListItem2);

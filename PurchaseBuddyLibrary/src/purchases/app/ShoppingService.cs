@@ -25,7 +25,7 @@ public class ShoppingService
 		if (shoppingList is null)
 			throw new ArgumentException($"There is no shopping list with id: {shoppingListId}");
 
-		shoppingList.AddNew(new ShoppingListItem(productId, quantity));
+		shoppingList.AddNew(ShoppingListItem.CreateNew(productId, quantity));
 		shoppingListRepository.Save(shoppingList);
 	}
 

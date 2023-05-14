@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using PurchaseBuddy.src.purchases.persistance;
+using System.Collections.ObjectModel;
 
 namespace PurchaseBuddy.src.purchases.domain;
 
@@ -11,9 +12,7 @@ public class ShoppingList
 	public Guid Guid { get; }
 	public Guid? ShopId { get; }
 	public DateTime CreatedAt { get; }
-
 	public bool IsCompleted => CompletedAt.HasValue;
-
 	public DateTime? CompletedAt { get; private set; }
 
 
@@ -48,7 +47,7 @@ public class ShoppingList
 		if (IsCompleted)
 			return;
 
-		CompletedAt = DateTime.UtcNow;
+		CompletedAt = DateTime.Now;
 	}
 
 	public void MarkProductAsPurchased(Guid productId)
@@ -127,5 +126,18 @@ public class ShoppingList
 			Remove(itemToRemove.ProductId);
 
 		return CreateNew(UserId, notBoughtProducts, shopId);
+	}
+
+	internal static ShoppingList LoadFrom(ShoppingListDao dao)
+	{
+		var shoppingListEntries = dao.GetShoppingListEntries().Select(x => ShoppingListItem.LoadFrom(x)).ToList();
+		return new ShoppingList(
+			Guid.Parse(dao.UserGuid),
+			string.IsNullOrEmpty(dao.ShopGuid) ? (Guid?)null : Guid.Parse(dao.ShopGuid),
+			Guid.Parse(dao.Guid),
+			shoppingListEntries,
+			dao.CreatedAt,
+			dao.CompletedAt
+			);
 	}
 }

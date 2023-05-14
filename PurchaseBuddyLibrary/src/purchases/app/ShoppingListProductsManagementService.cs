@@ -32,19 +32,19 @@ public class ShoppingListProductsManagementService : IShoppingListService
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
 		shoppingList.MarkProductAsUnavailable(productId);
-		shoppingListRepository.Save(shoppingList);
+		shoppingListRepository.Update(shoppingList);
 	}
 	public void MarkProductAsPurchased(Guid userId, Guid shoppingListId, Guid productId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
 		shoppingList.MarkProductAsPurchased(productId);
-		shoppingListRepository.Save(shoppingList);
+		shoppingListRepository.Update(shoppingList);
 	}
 	public void MarkProductAsNotPurchased(Guid userId, Guid shoppingListId, Guid productId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
 		shoppingList.MarkProductAsNotPurchased(productId);
-		shoppingListRepository.Save(shoppingList);
+		shoppingListRepository.Update(shoppingList);
 	}
 	public Guid CreateNewList(Guid userId, List<ShoppingListItem> listItems, Guid? assignedShop = null)
 	{
@@ -107,28 +107,28 @@ public class ShoppingListProductsManagementService : IShoppingListService
 		if (savedProduct is null)
 			savedProduct = userProductsRepository.Save(userProduct);
 
-		var shoppingListItem = new ShoppingListItem(savedProduct.Guid);
+		var shoppingListItem = ShoppingListItem.CreateNew(savedProduct.Guid);
 		shoppingList.AddNew(shoppingListItem);
-		shoppingListRepository.Save(shoppingList);
+		shoppingListRepository.Update(shoppingList);
 	}
 	public void RemoveProductFromList(Guid userId, Guid shoppingListId, Guid productId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
 		shoppingList.Remove(productId);
-		shoppingListRepository.Save(shoppingList);
+		shoppingListRepository.Update(shoppingList);
 	}
 	public void ChangeQuantityOfProductOnList(Guid userId, Guid shoppingListId, Guid productId, int newQuantity)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
 		shoppingList.ChangeQuantityOf(productId, newQuantity);
-		shoppingListRepository.Save(shoppingList);
+		shoppingListRepository.Update(shoppingList);
 	}
 
 	public Guid CreateNewListWithNotBoughtItems(Guid userId, Guid shoppingListId, Guid shopId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
 		var newShoppingList = shoppingList.GenerateNewWithNotBoughtItems(shopId);
-		shoppingListRepository.Save(shoppingList);
+		shoppingListRepository.Update(shoppingList);
 		shoppingListRepository.Save(newShoppingList);
 
 		return newShoppingList.Guid;
