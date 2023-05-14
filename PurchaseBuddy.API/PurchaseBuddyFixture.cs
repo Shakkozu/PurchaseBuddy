@@ -7,12 +7,9 @@ using PurchaseBuddy.src.stores.persistance;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Commands.SharedProducts;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
 using PurchaseBuddyLibrary.src.stores.app;
-using PurchaseBuddyLibrary.src.stores.persistance;
 
 namespace PurchaseBuddy.API;
 
@@ -20,8 +17,6 @@ public static class PurchaseBuddyFixture
 {
 	public static void RegisterDependencies(IServiceCollection serviceCollection, string connectionString)
 	{
-		//serviceCollection.AddSingleton<IUserRepository, InMemoryUserRepository>();
-		//serviceCollection.AddSingleton<IUserProductCategoriesRepository, InMemoryUserProductCategoriesRepository>();
 		serviceCollection.AddSingleton<IUserRepository>(new UserRepository(connectionString));
 		serviceCollection.AddSingleton<IUserAuthorizationService, AuthorizationService>();
 		serviceCollection.AddSingleton<UserShopService, UserShopService>();
@@ -31,7 +26,6 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<ISharedProductRepository>(new SharedProductRepository(connectionString));
 		serviceCollection.AddSingleton<IUserProductCategoriesRepository>(new ProductCategoriesRepository(connectionString));
 		serviceCollection.AddSingleton<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
-		serviceCollection.AddSingleton<IShopMapRepository, InMemoryShopMapRepository>();
 		serviceCollection.AddSingleton<IShopCategoryListManagementService, ShopCategoryListManagementService>();
 		serviceCollection.AddSingleton<IShoppingListService, ShoppingListProductsManagementService>();
 		serviceCollection.AddSingleton<IShoppingListRepository>(new ShoppingListRepository(connectionString));

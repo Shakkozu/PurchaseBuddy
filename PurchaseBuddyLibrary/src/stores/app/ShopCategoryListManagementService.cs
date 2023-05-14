@@ -1,6 +1,5 @@
 ﻿using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.stores.persistance;
-using PurchaseBuddyLibrary.src.stores.persistance;
 
 namespace PurchaseBuddyLibrary.src.stores.app;
 
@@ -8,15 +7,12 @@ public class ShopCategoryListManagementService : IShopCategoryListManagementServ
 {
 	private readonly IUserShopRepository userShopRepository;
 	private readonly IUserProductCategoriesRepository categoriesRepository;
-	private readonly IShopMapRepository shopMapRepository;
 
 	public ShopCategoryListManagementService(IUserShopRepository userShopRepository,
-		IUserProductCategoriesRepository categoriesRepository,
-		IShopMapRepository shopMapRepository)
+		IUserProductCategoriesRepository categoriesRepository)
 	{
 		this.userShopRepository = userShopRepository;
 		this.categoriesRepository = categoriesRepository;
-		this.shopMapRepository = shopMapRepository;
 	}
 
 	public void RemoveCategoryFromAllMaps(Guid userID, Guid categoryID)

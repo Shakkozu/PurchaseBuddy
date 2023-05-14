@@ -1,14 +1,6 @@
 using Microsoft.OpenApi.Models;
 using PurchaseBuddy.API;
 using PurchaseBuddy.Database;
-using PurchaseBuddy.src.catalogue.App;
-using PurchaseBuddy.src.catalogue.Persistance;
-using PurchaseBuddy.src.stores.app;
-using PurchaseBuddy.src.stores.persistance;
-using PurchaseBuddyLibrary.src.auth.app;
-using PurchaseBuddyLibrary.src.auth.persistance;
-using PurchaseBuddyLibrary.src.stores.app;
-using PurchaseBuddyLibrary.src.stores.persistance;
 
 var builder = WebApplication.CreateBuilder(args);
 
