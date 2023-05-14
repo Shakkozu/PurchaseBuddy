@@ -26,10 +26,11 @@
       </div>
       <div class="grid__cell">
         <mat-form-field appearance="fill">
-          <mat-label>Enter your password</mat-label>
-          <input formControlName="confirmPassword" matInput [type]="hide ? 'confirmPassword' : 'text'">
-          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-            [attr.aria-pressed]="hide">
+          <mat-label>Confirm your password</mat-label>
+          <input formControlName="confirmPassword" matInput [type]="hide_confirmation ? 'password' : 'text'">
+          <button mat-icon-button matSuffix (click)="hide_confirmation = !hide_confirmation"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide_confirmation">
             <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
           </button>
         </mat-form-field>

@@ -40,7 +40,7 @@ export class AuthorizationState {
 			username: username,
 			sessionId: sessionId,
 		});
-		this.redirect();
+		this.router.navigate(['/user-products']);
 	}
 	
 	@Action(Login)

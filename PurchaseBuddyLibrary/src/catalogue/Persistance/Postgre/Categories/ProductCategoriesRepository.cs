@@ -35,7 +35,8 @@ public class ProductCategoriesRepository : IUserProductCategoriesRepository
         {
             const string sql = @"select pc.id, pc.guid, pc.user_guid as UserGuid, pc.name, pc.description, root_path as Hierarchy
 from product_categories pc
-join product_categories_hierarchy pch on  pch.category_guid like pc.guid";
+join product_categories_hierarchy pch on  pch.category_guid like pc.guid
+where pc.user_guid like @UserGuid or pc.user_guid is null";
             return connection.Query<ProductCategoryDao>(sql,
                 new
                 {

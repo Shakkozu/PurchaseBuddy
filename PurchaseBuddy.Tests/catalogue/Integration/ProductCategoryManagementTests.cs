@@ -78,6 +78,21 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		Assert.AreEqual(2, rootCategory.Children.First(pc => pc.Name == "child1").Children.Count);
 		Assert.AreEqual(0, rootCategory.Children.First(pc => pc.Name == "child2").Children.Count);
 	}
+	
+	[Test]
+	public void OnlyRequestingUserProductCategoriesAreReturned()
+	{
+		var user1 = AUserCreated("testUser1");
+		var user2 = AUserCreated("testUser2");
+		var user1Category = userProductCategoriesService.AddNewProductCategory(user1, AUserProductCategoryCreateRequest());
+		userProductCategoriesService.AddNewProductCategory(user2, AUserProductCategoryCreateRequest());
+		new GetUserProductCategoriesQueryHandler(userCategoriesRepo);
+
+		var userCategories = userProductCategoriesService.GetUserProductCategories(user1).Categories;
+
+		Assert.AreEqual(1, userCategories.Count());
+		Assert.AreEqual(user1Category, userCategories.First().Guid);
+	}
 
 	[Test]
 	public void UserCanAddNewProductCategory()

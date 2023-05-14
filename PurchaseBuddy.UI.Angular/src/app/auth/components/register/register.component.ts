@@ -11,7 +11,8 @@ import { Register } from '../../store/authorization.actions';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  public hide: boolean = false;
+  public hide: boolean = true;
+  public hide_confirmation: boolean = true;
   public form!: FormGroup;
   private destroy$: Subject<void> = new Subject();
   passwordMatchValidator: any;

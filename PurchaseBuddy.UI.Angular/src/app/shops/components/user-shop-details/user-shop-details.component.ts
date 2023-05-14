@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, Inject, ViewChild, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
@@ -9,6 +9,7 @@ import { UserShop, UserShopDto } from '../../model';
 import { AddNewUserShop, DeleteUserShop, InitializeConfigurator, UpdateUserShop } from '../../store/user-shops.actions';
 import { UserShopsState } from '../../store/user-shops.state';
 import { CategoriesConfiguratorComponent } from '../categories-configurator/categories-configurator.component';
+import { ShopService } from '../../services/shop-service';
 
 @Component({
   selector: 'app-user-shop-details',
@@ -16,7 +17,7 @@ import { CategoriesConfiguratorComponent } from '../categories-configurator/cate
   styleUrls: ['./user-shop-details.component.scss'],
   providers: [ProgressService]
 })
-export class UserShopDetailsComponent implements OnInit, OnDestroy {
+export class UserShopDetailsComponent implements AfterViewInit, OnDestroy {
   public header: string = 'New Shop';
   public dataForm!: FormGroup;
   private destroy$ = new Subject();
@@ -30,6 +31,7 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private formErrorHandler: FormErrorHandler,
     private store: Store,
+    private shopService: ShopService,
     public progressService: ProgressService) { }
 
   public ngOnDestroy(): void {
@@ -76,6 +78,13 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
     this.shopId = this.route.snapshot.paramMap.get('id');
     if (this.isInEditMode()) {
       this.header = 'Edit Shop';
+      this.shopService.getUserShop(this.shopId as string)
+        .subscribe(shop => {
+          this.shop = shop;
+          this.refreshForm();
+          this.initializeConfigurator(this.shop?.categoriesMap);
+        })
+
       this.store.select(UserShopsState.shops).subscribe(shops => {
         this.shop = shops.find((_shop) => _shop.guid === this.shopId);
         if (this.shop) {
@@ -86,6 +95,10 @@ export class UserShopDetailsComponent implements OnInit, OnDestroy {
     } else {
       this.initializeConfigurator([]);
     }
+  }
+
+  public ngAfterViewInit(): void {
+
   }
 
   public isInEditMode() {

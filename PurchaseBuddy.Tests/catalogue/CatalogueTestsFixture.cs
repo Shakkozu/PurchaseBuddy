@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Npgsql;
+using NUnit.Framework.Internal;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.auth.contract;
 using PurchaseBuddyLibrary.src.auth.persistance;
@@ -43,18 +44,19 @@ internal class CatalogueTestsFixture
 		{
 			connection.Execute("delete from shared_products_customization");
 			connection.Execute("delete from user_products");
-			connection.Execute("delete from shops");
 			connection.Execute("delete from shared_products");
 			connection.Execute("delete from product_categories_hierarchy");
 			connection.Execute("delete from product_categories");
+			connection.Execute("delete from shopping_lists");
+			connection.Execute("delete from shops");
 			connection.Execute("delete from users");
 		}
 	}
-	protected Guid AUserCreated()
+	protected Guid AUserCreated(string login = "testUser")
 	{
 		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
 		var authService = new AuthorizationService(userRepository, null);
-		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
+		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = login, Email = login + "@example.com"});
 		return UserId;
 	}
 	

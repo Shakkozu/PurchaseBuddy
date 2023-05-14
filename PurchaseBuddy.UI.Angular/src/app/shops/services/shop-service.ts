@@ -27,6 +27,10 @@ export class ShopService {
 	getUserShops(): Observable<UserShop[]> {
 		return this.http.get<UserShop[]>(`${ environment.apiUrl}shops`);
 	}
+	
+	getUserShop(id: string): Observable<UserShop> {
+		return this.http.get<UserShop>(`${ environment.apiUrl}shops/${id}`);
+	}
 
 	addNewUserShop(request: UserShopDto) {
 		const body: UserShop = {

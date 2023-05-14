@@ -45,10 +45,16 @@ export class CategoriesConfiguratorComponent implements AfterViewInit, OnInit {
 
   ngOnInit(): void {
     this.currentStoreConfig = this.store.selectSnapshot(UserShopsState.currentStoreConfig);
+    console.log(this.currentStoreConfig);
     this.store.select(UserProductCategoriesState.productCategoriesFlat)
       .subscribe(categories => {
-        this.categories = categories
-            .filter(apc => this.currentStoreConfig.find(categoryGuid => apc.guid === categoryGuid)) ?? [];
+        const result: Array<ShopProductCategory> = [];
+        this.currentStoreConfig.forEach(configEntry => {
+          const _category = categories.find(x => x.guid === configEntry);
+          if (_category)
+            result.push(_category);
+        });
+        this.categories = result;
       });
   }
 }
