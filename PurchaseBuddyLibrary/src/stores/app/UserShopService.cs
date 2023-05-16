@@ -80,7 +80,7 @@ public class UserShopService : IUserShopService
 		if (shop == null)
 			throw new ResourceNotFoundException("Shop not found");
 
-
-		userShopRepository.Delete(shop);
+		shop.Disable();
+		userShopRepository.Update(shop);
 	}
 }

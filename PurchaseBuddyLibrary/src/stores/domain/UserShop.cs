@@ -10,13 +10,14 @@ public class UserShop
 
 	private UserShopConfiguration configuration;
 	public UserShopDescription Description { get; private set; }
+    public bool IsActive { get; private set; }
 
-	public static UserShop CreateNew(Guid userId, UserShopDescription userShopDescription, List<IProductCategory>? orderedShopCategories = null)
+    public static UserShop CreateNew(Guid userId, UserShopDescription userShopDescription, List<IProductCategory>? orderedShopCategories = null)
 	{
 		var guid = Guid.NewGuid();
 		var userShopConfiguration = UserShopConfiguration.CreateNew(guid, orderedShopCategories);
 
-		return new UserShop(guid, userId, userShopDescription, userShopConfiguration);
+		return new UserShop(guid, userId, userShopDescription, userShopConfiguration, true);
 	}
 
 	public void ChangeDescriptionTo(UserShopDescription userShopDescription)
@@ -42,15 +43,22 @@ public class UserShop
 			Guid.Parse(dao.UserGuid),
 			UserShopDescription.CreateNew(dao.Name, dao.Description,
 				new Address(dao.Street, dao.City, dao.LocalNumber)),
-			UserShopConfiguration.LoadFrom(shopGuid, dao.GetConfiguration())
+			UserShopConfiguration.LoadFrom(shopGuid, dao.GetConfiguration()),
+			dao.IsActive
 			);
 	}
 
-	private UserShop(Guid guid, Guid userId, UserShopDescription userShopDescription, UserShopConfiguration configuration)
+	internal void Disable()
+	{
+		IsActive = false;
+	}
+
+	private UserShop(Guid guid, Guid userId, UserShopDescription userShopDescription, UserShopConfiguration configuration, bool isActive)
 	{
 		Guid = guid;
 		UserId = userId;
 		Description = userShopDescription;
 		this.configuration = configuration;
+		IsActive = isActive;
 	}
 }

@@ -13,10 +13,6 @@ public class ShopsRepository : IUserShopRepository
     {
 		this.connectionString = connectionString;
 	}
-    public void Delete(UserShop shop)
-	{
-		throw new NotImplementedException();
-	}
 
 	public List<UserShop> GetAllUserShops(Guid userId)
 	{
@@ -28,9 +24,10 @@ description,
 city,
 street,
 local_number as LocalNumber,
-configuration as ConfigurationString
+configuration as ConfigurationString,
+is_active as IsActive
 from shops
-where user_guid like @UserGuid";
+where user_guid like @UserGuid and is_active = true";
 
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
@@ -57,12 +54,13 @@ description,
 city,
 street,
 local_number as LocalNumber,
-configuration as ConfigurationString
+configuration as ConfigurationString,
+is_active as IsActive
 from shops
-where user_guid like @UserGuid and guid like @ShopGuid";
+where user_guid like @UserGuid and guid like @ShopGuid and is_active = true";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
-			var dao = connection.QueryFirst<ShopDao>(sql, new
+			var dao = connection.QueryFirstOrDefault<ShopDao>(sql, new
 			{
 				UserGuid = userId.ToDatabaseStringFormat(),
 				ShopGuid = userShopId.ToDatabaseStringFormat()
@@ -79,8 +77,8 @@ where user_guid like @UserGuid and guid like @ShopGuid";
 	public void Save(UserShop userShop)
 	{
 		const string sql = @"insert into shops
-(guid, user_guid, name, description, city, street, local_number, configuration)
-values (@Guid, @UserGuid, @Name, @Description, @City, @Street, @LocalNumber, @configuration)";
+(guid, user_guid, name, description, city, street, local_number, configuration, is_active)
+values (@Guid, @UserGuid, @Name, @Description, @City, @Street, @LocalNumber, @configuration, @IsActive)";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			var dao = new ShopDao(userShop);
@@ -93,6 +91,7 @@ values (@Guid, @UserGuid, @Name, @Description, @City, @Street, @LocalNumber, @co
 				City = dao.City,
 				Street = dao.Street,
 				LocalNumber = dao.LocalNumber,
+				IsActive= dao.IsActive,
 				Configuration = dao.ConfigurationString
 			});
 		}
@@ -106,7 +105,8 @@ description = @Description,
 city = @City,
 street = @Street,
 local_number = @LocalNumber,
-configuration = @configuration
+configuration = @Configuration,
+is_active = @IsActive
 where guid like @Guid";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
@@ -119,6 +119,7 @@ where guid like @Guid";
 				Street = dao.Street,
 				LocalNumber = dao.LocalNumber,
 				Configuration = dao.ConfigurationString,
+				IsActive = dao.IsActive,
 				Guid = dao.Guid
 			});
 		}

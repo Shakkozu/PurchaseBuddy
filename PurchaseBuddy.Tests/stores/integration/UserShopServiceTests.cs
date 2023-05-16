@@ -37,6 +37,16 @@ internal class UserShopServiceTests : CatalogueTestsFixture
 
 		Assert.NotNull(userShopService.GetUserShopById(UserId, addedShopId));
 	}
+	
+	[Test]
+	public void DisabledShopsShouldNotBeReturned()
+	{
+		var addedShopId = userShopService.AddNew(UserId, UserShopDescription.CreateNew("test"));
+
+		userShopService.DeleteUserShop(UserId, addedShopId);
+
+		Assert.Null(userShopService.GetUserShopById(UserId, addedShopId));
+	}
 
 	[Test]
 	public void GetAllUserShops_AssertAllUserShopsAreReturned()

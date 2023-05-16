@@ -13,6 +13,7 @@ public class ShoppingListItemDto
         Unavailable = shoppingListItem.Unavailable;
     }
     public int Quantity { get; set; }
+    public int Index { get; set; }
     public UserProductDto ProductDto { get; set; }
     public bool Purchased { get; set; }
     public bool Unavailable { get; set; }

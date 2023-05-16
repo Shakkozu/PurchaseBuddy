@@ -22,15 +22,29 @@ public class ShoppingListDto
     private List<ShoppingListItemDto> SortListItemsByShopConfiguration(List<Guid> categoriesMap, IEnumerable<ShoppingListItemDto> listItems)
     {
         var result = new List<ShoppingListItemDto>();
+		var index = 1;
         foreach (var categoryGuid in categoriesMap)
-            result.AddRange(listItems.Where(item => item.ProductDto.CategoryId == categoryGuid));
+		{
+			var itemsToAdd = listItems.Where(item => item.ProductDto.CategoryId == categoryGuid);
+			AddItems(itemsToAdd, result, ref index);
+		}
 
-		result.AddRange(listItems.Where(listItem => !categoriesMap.Any(mapEntry => mapEntry == listItem.ProductDto.CategoryId)));
+		var itemsWithoutCategories = listItems.Where(listItem => !categoriesMap.Any(mapEntry => mapEntry == listItem.ProductDto.CategoryId));
+		AddItems(itemsWithoutCategories, result, ref index);
 
         return result;
     }
 
-    public Guid Guid { get; set; }
+	private static void AddItems(IEnumerable<ShoppingListItemDto> itemsToAdd, List<ShoppingListItemDto> result, ref int index)
+	{
+		foreach (var item in itemsToAdd)
+		{
+			item.Index = index++;
+			result.Add(item);
+		}
+	}
+
+	public Guid Guid { get; set; }
     public Guid UserId { get; set; }
     public UserShopDto? AssignedShop { get; set; }
 

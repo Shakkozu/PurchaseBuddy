@@ -20,6 +20,7 @@ public class ShopDao
 		City = address?.City;
 		LocalNumber = address?.LocalNumber;
 		UserGuid = userShop.UserId.ToDatabaseStringFormat();
+		IsActive = userShop.IsActive;
 		configuration = new ShopConfigurationDao(userShop.ConfigurationEntries);
 		ConfigurationString = JsonConvert.SerializeObject(configuration);
     }
@@ -57,7 +58,8 @@ public class ShopDao
 	public int Id { get; set; }
     public string Guid { get; set; }
     public string UserGuid { get; set; }
-    public string Name { get; set; }
+	public bool IsActive { get; set; }
+	public string Name { get; set; }
     public string Description { get; set; }
     public string Street { get; set; }
     public string City { get; set; }

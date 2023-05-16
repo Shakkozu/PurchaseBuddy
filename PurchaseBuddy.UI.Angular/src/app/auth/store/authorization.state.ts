@@ -92,6 +92,6 @@ export class AuthorizationState {
 		// temporary disabled redirect, because it doesn't work with user-products component.
 		// Filtering on products table doesnt work.
 
-		this.router.navigate(['/home']);
+		this.router.navigate(['/']);
 	}
 }
