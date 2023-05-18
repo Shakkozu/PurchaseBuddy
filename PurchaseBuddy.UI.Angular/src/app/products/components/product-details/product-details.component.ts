@@ -29,9 +29,7 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
   private header = 'New Product';
   private productId!: string;
 
-
   public dataSource!: MatTreeFlatDataSource<ProductCategoryNode, ProductCategoryFlatNode>;
-  private originalProductCategory: string = '';
 
   constructor (private productCategoriesService: ProductCategoriesService,
     private productService: ProductsService,
@@ -44,6 +42,14 @@ export class UserProductDetailsComponent implements OnInit, OnDestroy {
       this.productCategoriesService
         .getCategories()
         .subscribe(categories => this.dataSource.data = categories);
+  }
+
+  public expandAll() {
+    this.treeControl.expandAll();
+  }
+
+  public collapseAll() {
+    this.treeControl.collapseAll();
   }
 
   ngOnInit(): void {

@@ -4,9 +4,12 @@
       Add new
     </button>
   </div>
-  <div class="grid__cell 1/2">
-    <input type="text" style="padding:8px;margin:15px auto;width:30%;" placeholder="Type to filter the name column..."
-      (keyup)="updateFilter($event)" />
+  <div class="grid__cell 1/2--desk">
+    <form class="search-form">
+      <mat-form-field class="example-full-width" style="margin-top: 16px;">
+        <input matInput type="text" placeholder="Filter..." (keyup)="updateFilter($event)" />
+      </mat-form-field>
+    </form>
     <ngx-datatable #table class="material" [columns]="columns" [columnMode]="ColumnMode.force" [headerHeight]="50"
       [footerHeight]="50" rowHeight="auto" [limit]="10" [rows]="rows">
       <ngx-datatable-column name="Name" prop="name">

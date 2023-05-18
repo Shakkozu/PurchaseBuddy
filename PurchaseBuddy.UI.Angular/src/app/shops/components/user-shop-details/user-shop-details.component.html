@@ -3,37 +3,37 @@
 <div class="container">
 
   <div class="grid">
-    <div class="grid__cell 1/5">
+    <div class="grid__cell 1/5--desk">
       <form mat-form [formGroup]="dataForm">
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>Name</mat-label>
             <input formControlName="name" matInput>
           </mat-form-field>
           <mat-error>{{getErrorMessage("name")}}</mat-error>
         </div>
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>Description</mat-label>
             <input formControlName="description" matInput>
           </mat-form-field>
           <mat-error>{{getErrorMessage("description")}}</mat-error>
         </div>
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>City</mat-label>
             <input formControlName="city" matInput>
           </mat-form-field>
           <mat-error>{{getErrorMessage("city")}}</mat-error>
         </div>
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>Street</mat-label>
             <input formControlName="street" matInput>
           </mat-form-field>
           <mat-error>{{getErrorMessage("street")}}</mat-error>
         </div>
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>Local number</mat-label>
             <input formControlName="localNumber" matInput>
@@ -54,7 +54,7 @@
         </div>
       </div>
     </div>
-    <div class="grid__cell 2/5">
+    <div class="grid__cell 2/5--desk">
       <app-categories-configurator #categoriesConfigurator></app-categories-configurator>
     </div>
   </div>

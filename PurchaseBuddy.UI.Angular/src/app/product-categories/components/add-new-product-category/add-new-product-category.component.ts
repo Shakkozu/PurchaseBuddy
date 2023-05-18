@@ -84,6 +84,14 @@ export class AddNewProductCategoryComponent implements OnInit {
     });
   }
 
+  public expandAll() {
+    this.treeControl.expandAll();
+  }
+
+  public collapseAll() {
+    this.treeControl.collapseAll();
+  }
+
   onNodeSelect(node: ProductCategoryNode) {
     this.dataForm.get('parentCategory')?.setValue(node.name);
     this.selectedNodeGuid = node.guid;

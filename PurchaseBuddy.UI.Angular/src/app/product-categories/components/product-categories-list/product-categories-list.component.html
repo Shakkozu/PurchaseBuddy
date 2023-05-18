@@ -4,13 +4,12 @@
       Add new
     </button>
   </div>
-  <div class="grid__cell 1/2">
+  <div class="grid__cell 1/2--desk">
     <div *ngIf="dataSource.data.length < 1">
-      <h3>Product categories list is empty</h3>
-    </div>
+      <h2 style="margin-top:16px;">Product categories list is empty</h2>
+    </div> 
     <div *ngIf="dataSource.data.length > 0" class="product-categories-tree">
-
-      <h3>Product Categories:</h3>
+      <h2 style="margin-top:16px;">Product Categories</h2>
       <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
           <button mat-icon-button disabled></button>

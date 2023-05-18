@@ -26,7 +26,7 @@ public class ShopCategoryListManagementService : IShopCategoryListManagementServ
 		{
 			var shop = shops[i];
 			shop.RemoveCategoryFromConfiguration(category);
-			userShopRepository.Save(shop);
+			userShopRepository.Update(shop);
 		}
 	}
 }

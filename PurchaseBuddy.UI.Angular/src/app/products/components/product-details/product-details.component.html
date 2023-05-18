@@ -15,9 +15,20 @@
         <input formControlName="productCategory" matInput>
       </mat-form-field>
     </div>
+    <div class="grid__cell pull-right">
+      <button mat-flat-button class="save-button" color="primary" (click)="save()">
+        Save
+      </button>
+      <button *ngIf="!isInEditMode" mat-flat-button class="save-button" style="margin-left: 8px;" color="primary"
+        (click)="saveAndAddNext()">
+        Save And Add New
+      </button>
+    </div>
   </form>
-  <div class="grid grid__cell 1/3">
-    <h3>Categories:</h3>
+  <div class="grid grid__cell 1/3--desk">
+    <h2 style="margin-top:16px">Categories</h2>
+    <button mat-flat-button color="primary" (click)="expandAll()">Expand All</button>
+    <button style="margin-left: 8px" mat-flat-button color="primary" (click)="collapseAll()">Collapse All</button>
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
         <button mat-icon-button disabled></button>
@@ -36,14 +47,5 @@
         </div>
       </mat-tree-node>
     </mat-tree>
-
-    <button mat-flat-button class="save-button" color="primary" (click)="save()">
-      Save
-    </button>
-
-    <button *ngIf="!isInEditMode" mat-flat-button class="save-button" style="margin-left: 8px;" color="primary"
-      (click)="saveAndAddNext()">
-      Save And Add New
-    </button>
   </div>
 </div>

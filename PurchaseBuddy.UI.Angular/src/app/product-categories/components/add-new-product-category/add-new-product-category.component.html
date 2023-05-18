@@ -1,24 +1,24 @@
 <mat-progress-bar *ngIf="progressService.visible" mode="indeterminate"></mat-progress-bar>
 <h2>Add new product category</h2>
 <div class="grid">
-  <div class="grid__cell 1/4">
+  <div class="grid__cell 1/4--desk">
     <form mat-form [formGroup]="dataForm">
       <div class="grid">
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>Name</mat-label>
             <input formControlName="categoryName" matInput>
           </mat-form-field>
           <mat-error>{{getErrorMessage("categoryName")}}</mat-error>
         </div>
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>Description</mat-label>
             <input formControlName="categoryDescription" matInput>
           </mat-form-field>
           <mat-error>{{getErrorMessage("categoryDescription")}}</mat-error>
         </div>
-        <div class="3/4 grid__cell">
+        <div class="3/4--desk grid__cell">
           <mat-form-field appearance="fill">
             <mat-label>Product Category Parent</mat-label>
             <input formControlName="parentCategory" matInput>
@@ -34,8 +34,10 @@
       Save And Add Next
     </button>
   </div>
-    <div class="grid__cell 2/5">
-      <h3>Categories:</h3>
+    <div class="grid__cell 2/5--desk">
+      <h2 style="margin-top:16px">Categories</h2>
+      <button mat-flat-button color="primary" (click)="expandAll()">Expand All</button>
+      <button style="margin-left: 8px" mat-flat-button color="primary" (click)="collapseAll()">Collapse All</button>
       <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
           <button mat-icon-button disabled></button>

@@ -53,9 +53,10 @@ export class ShoppingListDetailsComponent implements OnInit {
   }
 
   public getListItemDescription(listItem: ShoppingListItemDto) {
-    if (listItem.productDto.categoryName)
-      return `${ listItem.productDto.name }  [${ listItem.productDto.categoryName }]`;
-    
+    return `${ listItem?.productDto?.categoryName ?? '' }`;
+  }
+
+  public getListItemName(listItem: ShoppingListItemDto) {
     return `${ listItem.productDto.name }`;
   }
   
@@ -84,4 +85,63 @@ export class ShoppingListDetailsComponent implements OnInit {
   returnToList() {
     this.router.navigate(['shopping-lists'])
   }
+
+  folders: Section[] = [
+    {
+      name: 'Photos',
+      updated: new Date('1/1/16'),
+    },
+    {
+      name: 'Recipes',
+      updated: new Date('1/17/16'),
+    },
+    {
+      name: 'Work',
+      updated: new Date('1/28/16'),
+    },
+  ];
+  notes: Section[] = [
+    {
+      name: 'Vacation Itinerary',
+      updated: new Date('2/20/16'),
+    },
+    {
+      name: 'Kitchen Remodel',
+      updated: new Date('1/18/16'),
+    },
+  ];
+}
+
+
+
+export interface Section {
+  name: string;
+  updated: Date;
+}
+
+export class ListSectionsExample {
+  folders: Section[] = [
+    {
+      name: 'Photos',
+      updated: new Date('1/1/16'),
+    },
+    {
+      name: 'Recipes',
+      updated: new Date('1/17/16'),
+    },
+    {
+      name: 'Work',
+      updated: new Date('1/28/16'),
+    },
+  ];
+  notes: Section[] = [
+    {
+      name: 'Vacation Itinerary',
+      updated: new Date('2/20/16'),
+    },
+    {
+      name: 'Kitchen Remodel',
+      updated: new Date('1/18/16'),
+    },
+  ];
 }
