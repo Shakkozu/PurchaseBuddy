@@ -68,6 +68,18 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	}
 
 	[Test]
+	public void WhenListIsAssignedToDeactivatedShop_ListIsReturnedWithoutShopInfo()
+	{
+		var shop = AShopWithCategories();
+		var list = shoppingListProductsManagementService.CreateNewList(UserId, AListItemsWithSingleItem(), shop);
+		shopService.DeleteUserShop(UserId, shop);
+
+		var userList = shoppingListProductsManagementService.GetShoppingList(UserId, list);
+
+		Assert.AreEqual(null, userList.AssignedShop);
+	}
+	
+	[Test]
 	public void ShouldOrderShoppingListItemsByAssignedShopCategoriesConfig()
 	{
 		Guid category1 = categoriesGuids[2], category2 = categoriesGuids[0], category3 = categoriesGuids[1];
@@ -338,6 +350,10 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	private Guid AShopWithCategories(IEnumerable<Guid> categories)
 	{
 		return shopService.AddNew(UserId, UserShopDescription.CreateNew("test"), categories.ToList());
+	}
+	private Guid AShopWithCategories()
+	{
+		return shopService.AddNew(UserId, UserShopDescription.CreateNew("test"), new List<Guid>());
 	}
 	private Guid AUserCreated()
 	{

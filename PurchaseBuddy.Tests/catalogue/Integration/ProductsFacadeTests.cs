@@ -26,7 +26,7 @@ internal class ProductsFacadeTests : CatalogueTestsFixture
 	{
 		var userProductsRepo = new ProductsRepository(TestConfigurationHelper.GetConnectionString());
 		var userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
-		var shopRepo = new InMemoryUserShopRepository();
+		var shopRepo = new ShopsRepository(TestConfigurationHelper.GetConnectionString());
 		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
 		shopListService = new ShopCategoryListManagementService(shopRepo, userCategoriesRepo);
 		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);

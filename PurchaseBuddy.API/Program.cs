@@ -38,7 +38,7 @@ var configBuilder = new ConfigurationBuilder()
 var configuration = configBuilder.Build();
 var databaseConnectionString = configuration.GetConnectionString("Database");
 if (databaseConnectionString == null)
-	throw new ArgumentException("databsae connection string is invalid");
+	throw new ArgumentException("database connection string is invalid");
 
 MigrationsRunner.RunMigrations(builder.Services, databaseConnectionString);
 
@@ -57,7 +57,6 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: MyAllowSpecificOrigins,
 						policy =>
 						{
-							//policy.WithOrigins("http://localhost:4200");
 							policy.AllowAnyOrigin();
 							policy.AllowAnyHeader();
 							policy.AllowAnyMethod();

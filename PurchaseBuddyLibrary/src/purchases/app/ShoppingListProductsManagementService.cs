@@ -64,10 +64,8 @@ public class ShoppingListProductsManagementService : IShoppingListService
 		if (shoppingList.ShopId.HasValue)
 		{
 			var shop = userShopService.GetUserShopById(userId, shoppingList.ShopId.Value);
-			if (shop == null)
-				throw new ArgumentException("assigned shop not found");
-
-			shopDto = UserShopDto.FromModel(shop);
+			if (shop != null)
+				shopDto = UserShopDto.FromModel(shop);
 		}
 
 		var userProducts = userProductsManagementService.GetUserProducts(new GetUserProductsQuery(userId, pageSize: 1000));
@@ -88,7 +86,7 @@ public class ShoppingListProductsManagementService : IShoppingListService
 		var userProducts = userProductsManagementService.GetUserProducts(new GetUserProductsQuery(userId, pageSize: 1000));
 		foreach (var list in notCompletedShoppingLists)
 		{
-			UserShop? shop = list.ShopId.HasValue ? userShops.First(shop => shop.Guid == list.ShopId.Value) : null;
+			UserShop? shop = list.ShopId.HasValue ? userShops.FirstOrDefault(shop => shop.Guid == list.ShopId.Value) : null;
 			var listItems = list.Items
 				.Select(item => new ShoppingListItemDto(item, userProducts.First(p => p.Guid == item.ProductId)))
 				.ToList();
