@@ -1,9 +1,15 @@
-﻿using PurchaseBuddyLibrary.src.catalogue.contract;
+﻿using PurchaseBuddyLibrary.src.auth.app;
+using PurchaseBuddyLibrary.src.auth.contract;
+using PurchaseBuddyLibrary.src.auth.persistance;
+using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
+using System.Transactions;
 
 namespace PurchaseBuddy.Tests;
 internal class PurchaseBuddyTestsFixture
 {
+	protected TransactionScope _transactionScope;
+
 	protected UserProductCategory AUserProductCategory(string? name = null)
 	{
 		return UserProductCategory.CreateNew(name ?? "dairy", UserId);
@@ -26,6 +32,26 @@ internal class PurchaseBuddyTestsFixture
 		parent.AddChild(child);
 
 		return child;
+	}
+
+	protected Guid AUserCreated()
+	{
+		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
+		var authService = new AuthorizationService(userRepository, null);
+		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
+		return UserId;
+	}
+
+	[SetUp]
+	public void SetUp()
+	{
+		_transactionScope = new TransactionScope();
+	}
+
+	[TearDown]
+	public void TearDown()
+	{
+		_transactionScope.Dispose();
 	}
 
 	protected Guid UserId = Guid.Parse("8FFEE1B4-ADDF-4C5A-B773-16C4830FC278");

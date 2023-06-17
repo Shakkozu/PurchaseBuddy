@@ -1,6 +1,4 @@
-﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
@@ -8,31 +6,26 @@ using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProductCategories;
+using System.Transactions;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class ProductCategoryManagementTests : CatalogueTestsFixture
 {
+	private TransactionScope _transactionScope;
+
 	[SetUp]
 	public void SetUp()
 	{
-		userProductsRepo = new InMemoryProductsRepository();
-		userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
-		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
-		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
-
-		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
-		authService = new AuthorizationService(userRepository, null);
-		UserId = AUserCreated();
+		_transactionScope = new TransactionScope();
 	}
 
 	[TearDown]
 	public override void TearDown()
 	{
-		base.TearDown();
+		_transactionScope.Dispose();
 	}
 
 	[OneTimeSetUp]
@@ -41,6 +34,19 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		var servicesCollection = new ServiceCollection();
 		MigrationsRunner.ClearDatabase(servicesCollection, TestConfigurationHelper.GetConnectionString());
 		MigrationsRunner.RunMigrations(servicesCollection, TestConfigurationHelper.GetConnectionString());
+
+		userProductsRepo = new ProductsRepository(TestConfigurationHelper.GetConnectionString());
+		userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
+		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
+		productService = new UserProductsManagementService(userProductsRepo, userProductCategoriesService);
+
+		UserId = AUserCreated();
+	}
+
+	[OneTimeTearDown]
+	public void OneTimeTearDown()
+	{
+		base.TearDown();
 	}
 
 	public class TestValidation
@@ -262,18 +268,8 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 	}
 
 
-	private IProduct ProductCreated(string name)
-	{
-		var product = UserProduct.Create(name, UserId);
-		return userProductsRepo.Save(product);
-	}
-
-
-	private InMemoryProductsRepository userProductsRepo;
+	private IProductsRepository userProductsRepo;
 	private IUserProductCategoriesRepository userCategoriesRepo;
 	private UserProductCategoriesManagementService userProductCategoriesService;
 	private UserProductsManagementService productService;
-	private string? databaseConnectionString;
-	private AuthorizationService authService;
-	private Guid createdUserGuid;
 }

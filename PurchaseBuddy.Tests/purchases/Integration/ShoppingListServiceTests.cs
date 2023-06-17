@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PurchaseBuddy.API;
@@ -9,13 +8,9 @@ using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
-using PurchaseBuddyLibrary.src.auth.app;
-using PurchaseBuddyLibrary.src.auth.contract;
-using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 
 namespace PurchaseBuddy.Tests.purchases.Integration;
-
 internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 {
 	private IUserProductsManagementService productsManagementService;
@@ -23,54 +18,56 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	private IUserProductCategoriesManagementService categoriesManagementService;
 	private IShoppingListService shoppingListProductsManagementService;
 
-	[SetUp]
-	public void SetUp()
+	[OneTimeSetUp]
+	public void OneTimeSetUp()
 	{
 		var services = new ServiceCollection();
-		var configBuilder = new ConfigurationBuilder()
-			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-		var configuration = configBuilder.Build();
-		var databaseConnectionString = configuration.GetConnectionString("Database");
-		PurchaseBuddyFixture.RegisterDependencies(services, databaseConnectionString);
-
+		PurchaseBuddyFixture.RegisterDependencies(services, TestConfigurationHelper.GetConnectionString());
 		var serviceProvider = services.BuildServiceProvider();
+
 		productsManagementService = serviceProvider.GetRequiredService<IUserProductsManagementService>();
 		shopService = serviceProvider.GetRequiredService<IUserShopService>();
 		categoriesManagementService = serviceProvider.GetRequiredService<IUserProductCategoriesManagementService>();
 		shoppingListProductsManagementService = serviceProvider.GetRequiredService<IShoppingListService>();
-		TearDown();
-		UserId = AUserCreated();
-		InitializeTestContext();
-	}
-
-	[TearDown]
-	public void TearDown()
-	{
-		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
+		Extensions.RecordElapsedTime("setup database", () =>
 		{
-			connection.Execute("delete from user_products");
-			connection.Execute("delete from shared_products_customization");
-			connection.Execute("delete from shared_products");
-			connection.Execute("delete from shopping_lists");
-			connection.Execute("delete from shops");
-			connection.Execute("delete from product_categories_hierarchy");
-			connection.Execute("delete from product_categories");
-			connection.Execute("delete from users");
-		}
+			MigrationsRunner.ClearDatabase(services, TestConfigurationHelper.GetConnectionString());
+			MigrationsRunner.RunMigrations(services, TestConfigurationHelper.GetConnectionString());
+		});
+
+		Extensions.RecordElapsedTime("Initialize", () =>
+		{
+			UserId = AUserCreated();
+			InitializeTestContext();
+		});
 	}
 
-	[OneTimeSetUp]
-	public void OneTimeSetUp()
+	[OneTimeTearDown]
+	public void OneTimeTearDown()
 	{
-		var servicesCollection = new ServiceCollection();
-		MigrationsRunner.ClearDatabase(servicesCollection, TestConfigurationHelper.GetConnectionString());
-		MigrationsRunner.RunMigrations(servicesCollection, TestConfigurationHelper.GetConnectionString());
+		Extensions.RecordElapsedTime("Clear database", () =>
+		{
+			using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
+			{
+				connection.Execute("delete from user_products");
+				connection.Execute("delete from shared_products_customization");
+				connection.Execute("delete from shared_products");
+				connection.Execute("delete from shopping_lists");
+				connection.Execute("delete from shops");
+				connection.Execute("delete from product_categories_hierarchy");
+				connection.Execute("delete from product_categories");
+				connection.Execute("delete from users");
+				connection.Close();
+			}
+		});
+		_transactionScope.Dispose();
 	}
 
 	[Test]
 	public void WhenListIsAssignedToDeactivatedShop_ListIsReturnedWithoutShopInfo()
 	{
-		var shop = AShopWithCategories();
+		Guid shop = Guid.NewGuid();
+		shop = AShopWithCategories();
 		var list = shoppingListProductsManagementService.CreateNewList(UserId, AListItemsWithSingleItem(), shop);
 		shopService.DeleteUserShop(UserId, shop);
 
@@ -78,25 +75,28 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 
 		Assert.AreEqual(null, userList.AssignedShop);
 	}
-	
+
 	[Test]
 	public void ShouldOrderShoppingListItemsByAssignedShopCategoriesConfig()
 	{
-		Guid category1 = categoriesGuids[2], category2 = categoriesGuids[0], category3 = categoriesGuids[1];
-		var productCat1 = AProductWithCategory(category1);
-		var productCat2 = AProductWithCategory(category2);
-		var productCat3 = AProductWithCategory(category3);
-		var shop = AShopWithCategories(new[] { category1, category2, category3 });
-		var listItems = AListItems(new[] {productCat1, productCat2, productCat3});
-		var list = shoppingListProductsManagementService.CreateNewList(UserId, listItems, shop);
+		Extensions.RecordElapsedTime("Test Execution", () =>
+		{
+			Guid category1 = categoriesGuids[2], category2 = categoriesGuids[0], category3 = categoriesGuids[1];
+			var productCat1 = AProductWithCategory(category1);
+			var productCat2 = AProductWithCategory(category2);
+			var productCat3 = AProductWithCategory(category3);
+			var shop = AShopWithCategories(new[] { category1, category2, category3 });
+			var listItems = AListItems(new[] { productCat1, productCat2, productCat3 });
+			var list = shoppingListProductsManagementService.CreateNewList(UserId, listItems, shop);
 
-		var userList = shoppingListProductsManagementService.GetShoppingList(UserId, list);
+			var userList = shoppingListProductsManagementService.GetShoppingList(UserId, list);
 
-		Assert.AreEqual(productCat1, userList.ShoppingListItems[0].ProductDto.Guid);
-		Assert.AreEqual(productCat2, userList.ShoppingListItems[1].ProductDto.Guid);
-		Assert.AreEqual(productCat3, userList.ShoppingListItems[2].ProductDto.Guid);
+			Assert.AreEqual(productCat1, userList.ShoppingListItems[0].ProductDto.Guid);
+			Assert.AreEqual(productCat2, userList.ShoppingListItems[1].ProductDto.Guid);
+			Assert.AreEqual(productCat3, userList.ShoppingListItems[2].ProductDto.Guid);
+		});
 	}
-	
+
 	[Test]
 	public void ShouldSaveShoppingListsFieldsCorrectly()
 	{
@@ -111,7 +111,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		Assert.AreEqual(userList.ShoppingListItems.Last().ProductDto.Guid, listItems.Last().ProductId);
 		Assert.AreEqual(userList.ShoppingListItems.Last().Quantity, listItems.Last().Quantity);
 	}
-	
+
 	[Test]
 	public void ShouldReturnAllNotCompletedLists()
 	{
@@ -125,7 +125,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		Assert.AreEqual(1, userLists.Count);
 		Assert.AreEqual(list2, userLists.First().Guid);
 	}
-	
+
 	[Test]
 	public void ShouldNotCreateEmptyList()
 	{
@@ -236,9 +236,9 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		Assert.Throws<InvalidOperationException>(() => shoppingListProductsManagementService.CreateNewListWithNotBoughtItems(UserId, listId, shopId2));
 	}
 
-    [Test]
-    public void ShouldCreateNewListWithNotPurchasedItemsAndCompleteCurrentList()
-    {
+	[Test]
+	public void ShouldCreateNewListWithNotPurchasedItemsAndCompleteCurrentList()
+	{
 		var productGuid = products.First().Guid;
 		var listId = shoppingListProductsManagementService.CreateNewList(UserId, AListItems(), shopId);
 
@@ -247,11 +247,11 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		var userList = shoppingListProductsManagementService.GetShoppingList(UserId, listId);
 		Assert.True(userList.Completed);
 	}
-	
 
-    [Test]
-    public void ShouldCreateNewListWithNotPurchasedItemsAndRemoveNotCompletedItems()
-    {
+
+	[Test]
+	public void ShouldCreateNewListWithNotPurchasedItemsAndRemoveNotCompletedItems()
+	{
 		var productGuid = products.First().Guid;
 		var listId = shoppingListProductsManagementService.CreateNewList(UserId, AListItems(), shopId);
 
@@ -261,9 +261,9 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		Assert.IsEmpty(userList.ShoppingListItems);
 	}
 
-    [Test]
-    public void ShouldMarkListAsCompletedWhenLastProductIsPurchased()
-    {
+	[Test]
+	public void ShouldMarkListAsCompletedWhenLastProductIsPurchased()
+	{
 		var listId = shoppingListProductsManagementService.CreateNewList(UserId, AListItemsWithSingleItem(), shopId);
 
 		shoppingListProductsManagementService.MarkProductAsPurchased(UserId, listId, products.First().Guid);
@@ -273,9 +273,9 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		Assert.NotNull(userList.CompletedAt);
 	}
 
-    [Test]
-    public void ShouldCompleteListWhenLastNotPurchasedProductIsRemoved()
-    {
+	[Test]
+	public void ShouldCompleteListWhenLastNotPurchasedProductIsRemoved()
+	{
 		var listId = shoppingListProductsManagementService.CreateNewList(UserId, AListItems(), shopId);
 
 		shoppingListProductsManagementService.MarkProductAsPurchased(UserId, listId, products.First().Guid);
@@ -286,61 +286,61 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		Assert.NotNull(userList.CompletedAt);
 	}
 
-    [Test]
-    public void CannotAddProductToCompletedList()
-    {
+	[Test]
+	public void CannotAddProductToCompletedList()
+	{
 		var listId = shoppingListProductsManagementService.CreateNewList(UserId, AListItemsWithSingleItem(), shopId);
 
 		shoppingListProductsManagementService.MarkProductAsPurchased(UserId, listId, products.First().Guid);
-		
+
 		Assert.Throws<InvalidOperationException>(() => shoppingListProductsManagementService.AddProductToList(UserId, listId, UserProduct.Create("blabla", UserId)));
 	}
 
-    [Test]
-    public void ShouldRemoveProductFromList()
-    {
-        var list = shoppingListProductsManagementService.CreateNewList(UserId, AListItems(), shopId);
+	[Test]
+	public void ShouldRemoveProductFromList()
+	{
+		var list = shoppingListProductsManagementService.CreateNewList(UserId, AListItems(), shopId);
 
-        shoppingListProductsManagementService.RemoveProductFromList(UserId, list, products.First().Guid);
+		shoppingListProductsManagementService.RemoveProductFromList(UserId, list, products.First().Guid);
 
 		var userList = shoppingListProductsManagementService.GetShoppingList(UserId, list);
 		Assert.AreEqual(1, userList.ShoppingListItems.Count);
 	}
 
-    private List<ShoppingListItem> AListItems(IEnumerable<Guid> _products = null)
-    {
-		if(_products != null)
+	private List<ShoppingListItem> AListItems(IEnumerable<Guid> _products = null)
+	{
+		if (_products != null)
 			return _products.Select(product => ShoppingListItem.CreateNew(product)).ToList();
 
-        return new List<ShoppingListItem>
-        {
-            ShoppingListItem.CreateNew(products.First().Guid, 1),
-            ShoppingListItem.CreateNew(products.Last().Guid, 2),
-        };
-    }
+		return new List<ShoppingListItem>
+	{
+		ShoppingListItem.CreateNew(products.First().Guid, 1),
+		ShoppingListItem.CreateNew(products.Last().Guid, 2),
+	};
+	}
 
-    private List<ShoppingListItem> AListItemsWithSingleItem()
-    {
-        return new List<ShoppingListItem>
-        {
-            ShoppingListItem.CreateNew(products.First().Guid, 1),
-        };
-    }
+	private List<ShoppingListItem> AListItemsWithSingleItem()
+	{
+		return new List<ShoppingListItem>
+		{
+			ShoppingListItem.CreateNew(products.First().Guid, 1),
+		};
+	}
 
-    private void InitializeTestContext()
-    {
-        var product1 = productsManagementService.DefineNewUserProduct(UserProduct.Create("chicken breasts", UserId));
-        var product2 = productsManagementService.DefineNewUserProduct(UserProduct.Create("milk", UserId));
-        products = new[] { product1, product2 }.ToList();
+	private void InitializeTestContext()
+	{
+		var product1 = productsManagementService.DefineNewUserProduct(UserProduct.Create("chicken breasts", UserId));
+		var product2 = productsManagementService.DefineNewUserProduct(UserProduct.Create("milk", UserId));
+		products = new[] { product1, product2 }.ToList();
 
-        var category1 = categoriesManagementService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
-        var category2 = categoriesManagementService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
-        var category3 = categoriesManagementService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
-        categoriesGuids = new[] { category1, category2, category3 }.ToList();
+		var category1 = categoriesManagementService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		var category2 = categoriesManagementService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		var category3 = categoriesManagementService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		categoriesGuids = new[] { category1, category2, category3 }.ToList();
 
-        shopId = shopService.AddNew(UserId, UserShopDescription.CreateNew("test1"), new List<Guid> { category1, category2 });
-        shopId2 = shopService.AddNew(UserId, UserShopDescription.CreateNew("test2"), new List<Guid> { category2, category1 });
-    }
+		shopId = shopService.AddNew(UserId, UserShopDescription.CreateNew("test1"), new List<Guid> { category1, category2 });
+		shopId2 = shopService.AddNew(UserId, UserShopDescription.CreateNew("test2"), new List<Guid> { category2, category1 });
+	}
 
 	private Guid AProductWithCategory(Guid categoryGuid)
 	{
@@ -355,16 +355,9 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	{
 		return shopService.AddNew(UserId, UserShopDescription.CreateNew("test"), new List<Guid>());
 	}
-	private Guid AUserCreated()
-	{
-		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
-		var authService = new AuthorizationService(userRepository, null);
-		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
-		return UserId;
-	}
 
 	private List<IProduct> products;
-    private List<Guid> categoriesGuids;
-    private Guid shopId;
-    private Guid shopId2;
+	private List<Guid> categoriesGuids;
+	private Guid shopId;
+	private Guid shopId2;
 }

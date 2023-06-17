@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+
+    <UserSecretsId>517e85b0-0f6f-4367-8630-bcf1c05c0f5d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,21 +20,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="appsettings.Development.json" />
     <None Remove="appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="appsettings.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <EmbeddedResource Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

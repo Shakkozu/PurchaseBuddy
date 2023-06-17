@@ -2,98 +2,64 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.infra;
 using PurchaseBuddyLibrary.src.auth.app;
-using PurchaseBuddyLibrary.src.auth.contract;
 using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Commands.SharedProducts;
-using PurchaseBuddyLibrary.src.catalogue.contract;
-using PurchaseBuddyLibrary.src.catalogue.Model.Category;
-using PurchaseBuddyLibrary.src.catalogue.Model.Product;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 
-internal class IntegrationTestsFixture
+internal class ProductManagementTests : PurchaseBuddyTestsFixture
 {
+	private IProductsRepository productsRepo;
+	private IUserProductCategoriesRepository userCategoriesRepo;
+	private UserProductCategoriesManagementService userProductCategoriesService;
+	private UserProductsManagementService productService;
+	private GetUserProductsQueryHandler queryHandler;
+	private AddNewSharedProductCommandHandler addSharedProductCommandHandler;
+	private AuthorizationService authorizationService;
+
 	[OneTimeSetUp]
 	public void OneTimeSetup()
 	{
-		MigrateDatabaseSchema();
+		var services = new ServiceCollection();
+		var connectionString = TestConfigurationHelper.GetConnectionString();
+		MigrationsRunner.ClearDatabase(services, connectionString);
+		MigrationsRunner.RunMigrations(services, connectionString);
+
+		productsRepo = new ProductsRepository(connectionString);
+		userCategoriesRepo = new ProductCategoriesRepository(connectionString);
+		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, productsRepo);
+		productService = new UserProductsManagementService(productsRepo, userProductCategoriesService);
+		queryHandler = new GetUserProductsQueryHandler(productsRepo, userProductCategoriesService);
+		authorizationService = new AuthorizationService(new UserRepository(connectionString), new ConfigurationBuilder().Build());
+		var userRepository = new UserRepository(connectionString);
+		var sharedProductsRepo = new SharedProductRepository(connectionString);
+		addSharedProductCommandHandler = new AddNewSharedProductCommandHandler(sharedProductsRepo, userRepository);
+		UserId = AUserCreated();
 	}
 
-	private static void MigrateDatabaseSchema()
-	{
-		var serviceCollection = new ServiceCollection();
-		Database.MigrationsRunner.RunMigrations(serviceCollection, API.Config.TestConnectionString);
-	}
-}
-
-internal class CatalogueIntegrationTestsFixture : IntegrationTestsFixture
-{
-	[SetUp]
-	public void SetUp()
+	[OneTimeTearDown]
+	public void OneTimeTearDown()
 	{
 		ClearDatabase();
-		var builder = new ConfigurationBuilder();
-		builder.AddJsonFile("appsettings.json");
-		Configuration = builder.Build();
 	}
 
 	private static void ClearDatabase()
 	{
-		using (var connection = new NpgsqlConnection(API.Config.TestConnectionString))
+		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
 		{
 			connection.Execute("delete from shared_products_customization");
 			connection.Execute("delete from user_products");
 			connection.Execute("delete from shared_products");
 			connection.Execute("delete from product_categories");
 		}
-	}
-
-	protected IConfiguration Configuration { get; private set; }
-
-	protected UserDto AUser()
-	{
-		return new UserDto
-		{
-			Email = "john.doe@example.com",
-			Login = "johnDoe",
-			Password = "zaq1@WSX"
-		};
-	}
-}
-
-internal class ProductManagementTests : CatalogueTestsFixture
-{
-	[SetUp]
-	public void SetUp()
-	{
-		productsRepo = new ProductsRepository(TestConfigurationHelper.GetConnectionString());
-		userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
-		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, productsRepo);
-		productService = new UserProductsManagementService(productsRepo, userProductCategoriesService);
-		queryHandler = new GetUserProductsQueryHandler(productsRepo, userProductCategoriesService);
-		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
-		var sharedProductsRepo = new SharedProductRepository(TestConfigurationHelper.GetConnectionString());
-		addSharedProductCommandHandler = new AddNewSharedProductCommandHandler(sharedProductsRepo, userRepository);
-		UserId = AUserCreated();
-	}
-
-	[TearDown]
-	public override void TearDown()
-	{
-		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
-		{
-			connection.Execute("delete from user_products");
-		}
-		base.TearDown();
 	}
 
 	[Test]
@@ -155,8 +121,8 @@ internal class ProductManagementTests : CatalogueTestsFixture
 	[Test]
 	public void ChangeProductCategory_AssertUserCanChangeSharedProductForHimself()
 	{
-		var userId = AdministratorCreated();
-		var sharedProductGuid = addSharedProductCommandHandler.Handle(new AddNewSharedProductCommand { Name = "testSharedProduct", UserGuid = userId });
+		authorizationService.GrantAdministratorAccessRights(UserId);
+		var sharedProductGuid = addSharedProductCommandHandler.Handle(new AddNewSharedProductCommand { Name = "testSharedProduct", UserGuid = UserId });
 		var originalCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest(name: "test1"));
 		var destCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest(name: "test2"));
 		productService.ChangeProductCategory(UserId, sharedProductGuid, originalCategory);
@@ -172,8 +138,8 @@ internal class ProductManagementTests : CatalogueTestsFixture
 	[Test]
 	public void ChangeProductCategory_AssertUserCanReassignSharedProductForHimself()
 	{
-		var userId = AdministratorCreated();
-		var sharedProductGuid = addSharedProductCommandHandler.Handle(new AddNewSharedProductCommand { Name = "testSharedProduct", UserGuid = userId });
+		authorizationService.GrantAdministratorAccessRights(UserId);
+		var sharedProductGuid = addSharedProductCommandHandler.Handle(new AddNewSharedProductCommand { Name = "testSharedProduct", UserGuid = UserId });
 		var category = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest(name: "test1"));
 
 		productService.ChangeProductCategory(UserId, sharedProductGuid, category);
@@ -232,11 +198,4 @@ internal class ProductManagementTests : CatalogueTestsFixture
 			CategoryId = categoryId,
 		};
 	}
-
-	private IProductsRepository productsRepo;
-	private IUserProductCategoriesRepository userCategoriesRepo;
-	private UserProductCategoriesManagementService userProductCategoriesService;
-	private UserProductsManagementService productService;
-	private GetUserProductsQueryHandler queryHandler;
-	private AddNewSharedProductCommandHandler addSharedProductCommandHandler;
 }

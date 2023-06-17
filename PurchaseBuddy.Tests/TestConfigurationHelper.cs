@@ -1,14 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
+using PurchaseBuddyLibrary.src.utils;
 
 namespace PurchaseBuddy.Tests;
 internal static class TestConfigurationHelper
 {
 	public static string GetConnectionString()
 	{
-		var configBuilder = new ConfigurationBuilder()
-			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-		var configuration = configBuilder.Build();
-		var connectionString = configuration.GetConnectionString("Database");
+		var configuration = new ConfigurationBuilder()
+			.AddUserSecrets<PurchaseBuddyTestsFixture>()
+			.Build();
+		var connectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
 		if(string.IsNullOrEmpty(connectionString))
 			throw new ArgumentNullException(nameof(connectionString));
 

@@ -1,48 +1,63 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
+using PurchaseBuddyLibrary.src.auth.app;
+using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
-using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
+using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
+using System.Transactions;
 
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 
 internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 {
-	private InMemoryProductsRepository userProductsRepo;
+	private IProductsRepository userProductsRepo;
 	private IUserProductCategoriesRepository userCategoriesRepo;
 	private UserProductCategoriesManagementService userProductCategoriesService;
+	private TransactionScope _transactionScope;
+	private AuthorizationService _authorizationService;
+
 
 	[SetUp]
 	public void SetUp()
 	{
-		userProductsRepo = new InMemoryProductsRepository();
-		userCategoriesRepo = new ProductCategoriesRepository(TestConfigurationHelper.GetConnectionString());
-		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
-
-		UserId = AUserCreated();
+		_transactionScope = new TransactionScope();
 	}
 
 	[TearDown]
-	public void TearDown()
+	public override void TearDown()
 	{
-		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
-		{
-			connection.Execute("delete from product_categories_hierarchy");
-			connection.Execute("delete from product_categories");
-			connection.Execute("delete from users");
-		}
+		_transactionScope.Dispose();
+	}
+
+	[OneTimeTearDown]
+	public void OneTimeTearDown()
+	{
+		base.TearDown();
 	}
 
 	[OneTimeSetUp]
 	public void OneTimeSetUp()
 	{
+		var connectionString = TestConfigurationHelper.GetConnectionString();
+		var config = new ConfigurationBuilder()
+			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+
+		userProductsRepo = new ProductsRepository(connectionString);
+		userCategoriesRepo = new ProductCategoriesRepository(connectionString);
+		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
+		_authorizationService = new AuthorizationService(new UserRepository(connectionString), config);
+
 		var servicesCollection = new ServiceCollection();
-		MigrationsRunner.ClearDatabase(servicesCollection, TestConfigurationHelper.GetConnectionString());
-		MigrationsRunner.RunMigrations(servicesCollection, TestConfigurationHelper.GetConnectionString());
+		MigrationsRunner.ClearDatabase(servicesCollection, connectionString);
+		MigrationsRunner.RunMigrations(servicesCollection, connectionString);
+		UserId = AUserCreated();
 	}
 
 	[Test]
