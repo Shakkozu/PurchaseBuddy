@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using PurchaseBuddy.API;
 using PurchaseBuddy.Database;
+using PurchaseBuddyLibrary.src.utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,10 +35,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var configBuilder = new ConfigurationBuilder()
-	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+	.AddUserSecrets<Program>();
 var configuration = configBuilder.Build();
-var databaseConnectionString = configuration.GetConnectionString("Database");
-if (databaseConnectionString == null)
+var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
+if (string.IsNullOrWhiteSpace(databaseConnectionString))
 	throw new ArgumentException("database connection string is invalid");
 
 MigrationsRunner.RunMigrations(builder.Services, databaseConnectionString);

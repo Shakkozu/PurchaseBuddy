@@ -86,20 +86,6 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 		Assert.IsEmpty(productCategories.First().Children);
 	}
 
-	[Test]
-	public void UserCanRemoveProductCategory_WhenProductCategoryHasChildrenAndParent_AssertChildrenAreMovedToRemovedNodeParent()
-	{
-		var rootCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
-		var subCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child", rootCategory));
-		var subSubCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandChild", subCategory));
-
-		userProductCategoriesService.DeleteCategory(UserId, subCategory);
-
-		var productCategories = userProductCategoriesService.GetCategories(UserId);
-		Assert.AreEqual(1, productCategories.Count);
-		Assert.IsNotEmpty(productCategories.First().Children);
-		Assert.AreEqual(subSubCategory, productCategories.First().Children.First().Guid);
-	}
 
 	[Test]
 	public void UserCanRemoveProductCategory_WhenProductCategoryHasChildrenAndIsRootCategory_AssertChildrenAreMovedToRootNode()
@@ -113,5 +99,20 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 		Assert.AreEqual(1, productCategories.Count);
 		Assert.AreEqual(subCategory, productCategories.First().Guid);
 		Assert.IsEmpty(productCategories.First().Children);
+	}
+
+	[Test]
+	public void UserCanRemoveProductCategory_WhenProductCategoryHasChildrenAndParent_AssertChildrenAreMovedToRemovedNodeParent()
+	{
+        var rootCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest());
+		var subCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("child", rootCategory));
+		var subSubCategory = userProductCategoriesService.AddNewProductCategory(UserId, AUserProductCategoryCreateRequest("grandChild", subCategory));
+
+		userProductCategoriesService.DeleteCategory(UserId, subCategory);
+
+		var productCategories = userProductCategoriesService.GetCategories(UserId);
+		Assert.AreEqual(1, productCategories.Count);
+		Assert.IsNotEmpty(productCategories.First().Children);
+		Assert.AreEqual(subSubCategory, productCategories.First().Children.First().Guid);
 	}
 }
