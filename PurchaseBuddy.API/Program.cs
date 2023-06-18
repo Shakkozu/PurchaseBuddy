@@ -35,11 +35,12 @@ builder.Services.AddSwaggerGen(c =>
 	});
 });
 
-var configBuilder = new ConfigurationBuilder()
-	.AddEnvironmentVariables()
-	.AddUserSecrets<Program>();
-var configuration = configBuilder.Build();
-var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
+//var configBuilder = new ConfigurationBuilder()
+//	.AddEnvironmentVariables()
+//	.AddUserSecrets<Program>();
+//var configuration = configBuilder.Build();
+//var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
+var databaseConnectionString = @"postgres://mgmlhlit:MV-MWGFwmI1Hg66DjbDi8dazb1fOXakX@dumbo.db.elephantsql.com/mgmlhlit".ToConnectionString();
 if (string.IsNullOrWhiteSpace(databaseConnectionString))
 	throw new ArgumentException("database connection string is invalid");
 
