@@ -10,12 +10,10 @@ namespace PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
 public class ProductsRepository : IProductsRepository
 {
     private readonly string connectionString;
-    private readonly SharedProductRepository customizationRepo;
 
     public ProductsRepository(string connectionString)
     {
         this.connectionString = connectionString;
-        customizationRepo = new SharedProductRepository(connectionString);
     }
     public IProduct? GetProduct(Guid productGuid, Guid userId)
     {

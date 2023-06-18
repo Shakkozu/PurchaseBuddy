@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
  values (@Guid, @Email, @Login, @Salt, @PasswordHash)";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
-			var affectedRows = connection.Execute(sql, UserDao.From(user));
+			connection.Execute(sql, UserDao.From(user));
 		}
 	}
 
@@ -69,7 +69,7 @@ public class UserRepository : IUserRepository
 		const string sql = @"update users set is_administrator = true where guid like @UserGuid";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
-			var result = connection.ExecuteScalar(sql, new { UserGuid = userId.ToDatabaseStringFormat() });
+			connection.ExecuteScalar(sql, new { UserGuid = userId.ToDatabaseStringFormat() });
 		}
 	}
 }

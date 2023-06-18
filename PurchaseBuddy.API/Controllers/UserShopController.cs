@@ -19,7 +19,6 @@ public class UserShopController : BaseController
 		: base(authorizationService)
 	{
 		this.userShopService = userShopService;
-		this.logger = logger;
 	}
 
 	[HttpGet]
@@ -75,7 +74,6 @@ public class UserShopController : BaseController
 		return Ok();
 	}
 
-	private readonly ILogger<UserShopController> logger;
 	private readonly UserShopService userShopService;
 }
 

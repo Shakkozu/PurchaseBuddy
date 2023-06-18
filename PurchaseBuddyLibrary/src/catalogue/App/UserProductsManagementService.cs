@@ -87,10 +87,6 @@ public class UserProductsManagementService : IUserProductsManagementService
 				productsRepository.SaveSharedProductCustomization(customization);
 				return;
 			}
-			else
-			{
-
-			}
 			product.RemoveProductCategory();
 			productsRepository.Update(product, userGuid);
 			return;

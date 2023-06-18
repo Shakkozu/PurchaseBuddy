@@ -24,7 +24,7 @@ public class UserProductController : BaseController
 	public async Task<IActionResult> AssignProductTo(Guid? productId, Guid? categoryId)
 	{
 		var user = await GetUserFromSessionAsync();
-		if (productId.HasValue == false || categoryId.HasValue == false)
+		if (!productId.HasValue || !categoryId.HasValue)
 			return BadRequest("Product id is not provided or category id is not provided.");
 
 		try

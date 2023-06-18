@@ -48,8 +48,8 @@ public class ShoppingListDto
     public Guid UserId { get; set; }
     public UserShopDto? AssignedShop { get; set; }
 
-    public List<ShoppingListItemDto> ShoppingListItems { get; set; } = new List<ShoppingListItemDto> { };
-    public bool? Completed { get; set; }
+	public List<ShoppingListItemDto> ShoppingListItems { get; set; }
+	public bool? Completed { get; set; }
     public DateTime? CompletedAt { get; set; }
     public DateTime CreatedAt { get; set; }
 }

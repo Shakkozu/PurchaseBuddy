@@ -2,8 +2,8 @@
 
 public class GetUserProductsInCategoryQuery
 {
-    public Guid UserId;
-    public Guid CategoryId;
+    public Guid UserId { get; }
+    public Guid CategoryId { get; }
 
     public GetUserProductsInCategoryQuery(Guid userId, Guid categoryId)
     {

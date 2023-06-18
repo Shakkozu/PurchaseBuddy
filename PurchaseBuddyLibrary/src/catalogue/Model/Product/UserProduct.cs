@@ -23,12 +23,6 @@ public class UserProduct : IProduct
 	{
 		return new UserProduct(product.Id, customization.UserID, customization.Name, product.Guid, customization.CategoryId);
 	}
-
-	public void RemoveProductCategory()
-	{
-		CategoryId = null;
-	}
-
 	internal static IProduct LoadFrom(ProductDao result)
 	{
 		return new UserProduct(result.Id,
@@ -37,6 +31,12 @@ public class UserProduct : IProduct
 			Guid.Parse(result.Guid),
 			string.IsNullOrEmpty(result.CategoryGuid) ? null : Guid.Parse(result.CategoryGuid));
 	}
+
+	public void RemoveProductCategory()
+	{
+		CategoryId = null;
+	}
+
 
 	private UserProduct(int? id, Guid userID, string name, Guid guid, Guid? categoryId)
 	{

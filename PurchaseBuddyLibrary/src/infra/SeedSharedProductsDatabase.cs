@@ -6,13 +6,10 @@ namespace PurchaseBuddyLibrary.src.infra;
 public class SeedSharedProductsDatabase
 {
 	private readonly IProductsRepository productsRepository;
-	private readonly IUserProductCategoriesRepository productCategoriesRepository;
 
-	public SeedSharedProductsDatabase(IProductsRepository productsRepository,
-		IUserProductCategoriesRepository productCategoriesRepository)
+	public SeedSharedProductsDatabase(IProductsRepository productsRepository)
 	{
 		this.productsRepository = productsRepository;
-		this.productCategoriesRepository = productCategoriesRepository;
 	}
 	public void Seed()
 	{

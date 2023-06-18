@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using PurchaseBuddy.API;
 using PurchaseBuddy.Database;
+using PurchaseBuddyLibrary.src.auth.infra;
 using PurchaseBuddyLibrary.src.utils;
 
 var builder = WebApplication.CreateBuilder(args);

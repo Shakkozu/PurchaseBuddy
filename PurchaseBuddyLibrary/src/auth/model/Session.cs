@@ -1,4 +1,6 @@
-﻿namespace PurchaseBuddyLibrary.src.auth.model;
+﻿using System.Runtime.Serialization;
+
+namespace PurchaseBuddyLibrary.src.auth.model;
 
 public class SessionExpiredException : Exception
 {

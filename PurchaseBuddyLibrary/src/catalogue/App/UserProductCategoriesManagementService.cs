@@ -11,7 +11,7 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 {
 	private readonly IUserProductCategoriesRepository productCategoriesRepository;
 	private readonly IProductsRepository userProductsRepository;
-	private GetUserProductCategoriesQueryHandler getUserProductCategoriesQueryHandler;
+	private readonly GetUserProductCategoriesQueryHandler getUserProductCategoriesQueryHandler;
 
 	public UserProductCategoriesManagementService(
 		IUserProductCategoriesRepository productCategoriesRepository,
@@ -19,14 +19,14 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 	{
 		this.productCategoriesRepository = productCategoriesRepository;
 		this.userProductsRepository = userProductsRepository;
-		var seed = new SeedSharedProductsDatabase(userProductsRepository, productCategoriesRepository);
+		var seed = new SeedSharedProductsDatabase(userProductsRepository);
 		getUserProductCategoriesQueryHandler = new GetUserProductCategoriesQueryHandler(productCategoriesRepository);
 		seed.Seed();
 	}
 
-	public GetUserProductCategoriesResponse GetUserProductCategories(Guid userID)
+	public GetUserProductCategoriesResponse GetUserProductCategories(Guid userId)
 	{
-		return getUserProductCategoriesQueryHandler.Handle(userID);
+		return getUserProductCategoriesQueryHandler.Handle(userId);
 	}
 	public Guid AddNewProductCategory(Guid userID, CreateUserCategoryRequest request)
 	{
@@ -135,7 +135,6 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 	{
 		var categories = productCategoriesRepository.FindAll(userId);
 		var category = productCategoriesRepository.FindById(userId, productCategoryGuid);
-		var categoryToReassign = categories.FirstOrDefault(c => c.Guid == productCategoryGuid);
 		if (category is null)
 			throw new ResourceNotFoundException($"user product category with id {productCategoryGuid} not found for user: {userId}");
 

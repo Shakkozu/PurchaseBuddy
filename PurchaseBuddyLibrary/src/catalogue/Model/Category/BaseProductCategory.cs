@@ -52,7 +52,6 @@ public abstract class BaseProductCategory : IProductCategory
 	{
 		ParentId = null;
 		Parent = null;
-		//IsRoot = true;
 	}
 
 	protected List<Guid> productsInCategory = new List<Guid>();

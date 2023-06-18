@@ -30,8 +30,6 @@ public static class MigrationsRunner
 	
 	public static void ClearDatabase(ServiceCollection serviceCollection, string connectionString)
 	{
-
-		var sc = new ServiceCollection();
 		IMigrationRunner migrator;
 		var isRegistered = serviceCollection.BuildServiceProvider().GetServices<IMigrationRunner>().Any();
 		if (!isRegistered)

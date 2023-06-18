@@ -99,10 +99,10 @@ public class UserProductCategoryController : BaseController
 	{
 		var user = await GetUserFromSessionAsync();
 		var c1 = categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("Category 1", "Category 1 description", null));
-		var c2 = categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("Category 2", "Category 2 description", null));
-		var sc1 = categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("SubCategory 1", "Subcategory 1 description", c1));
+		categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("Category 2", "Category 2 description", null));
+		categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("SubCategory 1", "Subcategory 1 description", c1));
 		var sc11 = categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("SubCategory 12", "Subcategory 2 description", c1));
-		var sc12 = categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("SubCategory 11", "Subcategory 11 description", sc11));
+		categoriesManagementService.AddNewProductCategory(user.Guid, new CreateUserCategoryRequest("SubCategory 11", "Subcategory 11 description", sc11));
 
 		return Ok();
 	}

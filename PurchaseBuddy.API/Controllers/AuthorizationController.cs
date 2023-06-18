@@ -63,8 +63,6 @@ public class AuthorizationController : BaseController
             if (user is null)
                 throw new Exception();
 
-            var sessionContext = authorizationService.GetUserSessionInfo(sessionId);
-
             return Ok(sessionId);
         }
         catch (Exception e)
@@ -80,18 +78,17 @@ public class AuthorizationController : BaseController
     {
         try
         {
-			var userClaims = User.Claims.ToList();
 			var userAuthenticationClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Authentication);
 			if(userAuthenticationClaim != null)
 				authorizationService.Logout(Guid.Parse(userAuthenticationClaim.Value));
-
-            return Ok();
         }
+
         catch (Exception e)
         {
             logger.LogError($"[AuthorizationController] Register user request failed with error: {e}");
             return BadRequest(e.Message);
         }
+        return Ok();
     }
 }
 
