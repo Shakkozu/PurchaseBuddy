@@ -36,6 +36,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var configBuilder = new ConfigurationBuilder()
+	.AddEnvironmentVariables()
 	.AddUserSecrets<Program>();
 var configuration = configBuilder.Build();
 var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
