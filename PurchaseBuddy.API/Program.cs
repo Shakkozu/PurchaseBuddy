@@ -12,35 +12,21 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
+{
+	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
-		c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-		{
-			In = ParameterLocation.Header,
-			Description = "Please enter session id in field below",
-			Name = "Authorization",
-			Type = SecuritySchemeType.ApiKey
-		});
-		c.AddSecurityRequirement(new OpenApiSecurityRequirement
-		{{
-			new OpenApiSecurityScheme
-			{
-				Reference = new OpenApiReference
-				{
-					Type = ReferenceType.SecurityScheme,
-					Id = "Bearer"
-				}
-			},
-			new string[] {}
-		}
+		In = ParameterLocation.Header,
+		Description = "Please enter session id in field below",
+		Name = "Authorization",
+		Type = SecuritySchemeType.ApiKey
 	});
 });
 
-//var configBuilder = new ConfigurationBuilder()
-//	.AddEnvironmentVariables()
-//	.AddUserSecrets<Program>();
-//var configuration = configBuilder.Build();
-//var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
-var databaseConnectionString = @"postgres://mgmlhlit:MV-MWGFwmI1Hg66DjbDi8dazb1fOXakX@dumbo.db.elephantsql.com/mgmlhlit".ToConnectionString();
+var configBuilder = new ConfigurationBuilder()
+	.AddEnvironmentVariables()
+	.AddUserSecrets<Program>();
+var configuration = configBuilder.Build();
+var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
 if (string.IsNullOrWhiteSpace(databaseConnectionString))
 	throw new ArgumentException("database connection string is invalid");
 
