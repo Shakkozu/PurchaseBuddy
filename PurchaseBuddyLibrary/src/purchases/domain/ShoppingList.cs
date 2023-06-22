@@ -1,4 +1,5 @@
 ﻿using PurchaseBuddy.src.purchases.persistance;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
 namespace PurchaseBuddy.src.purchases.domain;
@@ -139,5 +140,21 @@ public class ShoppingList
 			dao.CreatedAt,
 			dao.CompletedAt
 			);
+	}
+
+	public void UpdateListItems(IEnumerable<ShoppingListItem> newItemsList)
+	{
+		var productsToRemove = Items
+			.Where(existingItem => !newItemsList.Any(newItem => newItem.ProductId == existingItem.ProductId))
+			.Select(x => x.ProductId)
+			.ToImmutableList();
+		var productsToAdd = newItemsList
+			.Where(newItem => !Items.Any(existingItem => existingItem.ProductId == newItem.ProductId))
+			.ToImmutableList();
+
+		foreach (var productToAdd in productsToAdd)
+			AddNew(productToAdd);
+		foreach (var productToRemove in productsToRemove)
+			Remove(productToRemove);
 	}
 }

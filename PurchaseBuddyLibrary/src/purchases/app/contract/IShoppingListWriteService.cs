@@ -1,18 +1,16 @@
 ﻿using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
-using PurchaseBuddyLibrary.src.purchases.app.contract;
 
-namespace PurchaseBuddy.src.purchases.app;
-public interface IShoppingListService
+namespace PurchaseBuddyLibrary.src.purchases.app.contract;
+
+public interface IShoppingListWriteService
 {
-	void AddProductToList(Guid userId, Guid shoppingListId, UserProduct userProduct);
+	void UpdateProductsOnList(Guid userId, Guid shoppingListId, List<Guid> productsIDs);
 	void ChangeQuantityOfProductOnList(Guid userId, Guid shoppingListId, Guid productId, int newQuantity);
-	Guid CreateNewList(Guid userId, List<ShoppingListItem> listItems, Guid? assignedShop = null);
-	ShoppingListDto GetShoppingList(Guid userId, Guid shoppingListId);
-	IList<ShoppingListDto> GetNotClosedShoppingLists(Guid userId);
 	void MarkProductAsNotPurchased(Guid userId, Guid list, Guid productGuid);
 	void MarkProductAsPurchased(Guid userId, Guid shoppingListId, Guid productId);
 	void MarkProductAsUnavailable(Guid userId, Guid shoppingListId, Guid productId);
 	void RemoveProductFromList(Guid userId, Guid shoppingListId, Guid productId);
+	Guid CreateNewList(Guid userId, List<ShoppingListItem> listItems, Guid? assignedShop = null);
 	Guid CreateNewListWithNotBoughtItems(Guid userId, Guid listId, Guid shopId2);
 }

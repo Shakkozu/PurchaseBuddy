@@ -9,6 +9,7 @@ using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Commands.SharedProducts;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
+using PurchaseBuddyLibrary.src.purchases.app.contract;
 using PurchaseBuddyLibrary.src.stores.app;
 
 namespace PurchaseBuddy.API;
@@ -27,7 +28,8 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<IUserProductCategoriesRepository>(new ProductCategoriesRepository(connectionString));
 		serviceCollection.AddSingleton<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
 		serviceCollection.AddSingleton<IShopCategoryListManagementService, ShopCategoryListManagementService>();
-		serviceCollection.AddSingleton<IShoppingListService, ShoppingListProductsManagementService>();
+		serviceCollection.AddSingleton<IShoppingListReadService, ShoppingListReadService>();
+		serviceCollection.AddSingleton<IShoppingListWriteService, ShoppingListWriteService>();
 		serviceCollection.AddSingleton<IShoppingListRepository>(new ShoppingListRepository(connectionString));
 		serviceCollection.AddSingleton<IUserProductsManagementService, UserProductsManagementService>();
 		serviceCollection.AddSingleton<UserProductsManagementService>();

@@ -47,7 +47,7 @@ public class ShoppingListDto
 	public Guid Guid { get; set; }
     public Guid UserId { get; set; }
     public UserShopDto? AssignedShop { get; set; }
-
+	
 	public List<ShoppingListItemDto> ShoppingListItems { get; set; }
 	public bool? Completed { get; set; }
     public DateTime? CompletedAt { get; set; }

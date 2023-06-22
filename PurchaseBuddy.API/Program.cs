@@ -24,11 +24,15 @@ builder.Services.AddSwaggerGen(c =>
 
 var configBuilder = new ConfigurationBuilder()
 	.AddEnvironmentVariables()
-	.AddUserSecrets<Program>();
+	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 var configuration = configBuilder.Build();
 var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
 if (string.IsNullOrWhiteSpace(databaseConnectionString))
-	throw new ArgumentException("database connection string is invalid");
+{
+	databaseConnectionString = configuration.GetConnectionString("Database");
+	if(string.IsNullOrEmpty(databaseConnectionString))
+		throw new ArgumentException("database connection string is invalid");
+}
 
 MigrationsRunner.RunMigrations(builder.Services, databaseConnectionString);
 

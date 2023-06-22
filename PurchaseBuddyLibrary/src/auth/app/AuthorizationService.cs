@@ -132,7 +132,7 @@ public class AuthorizationService : IUserAuthorizationService
 
     private bool ValidateIfEmailIsCorrect(string email)
     {
-        return new EmailAddressAttribute().IsValid(email);
+		return string.IsNullOrEmpty(email) || new EmailAddressAttribute().IsValid(email);
     }
 
     private string GetHash(string input, string salt = "")

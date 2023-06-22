@@ -1,9 +1,9 @@
 ﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddyLibrary.src.auth.app;
+using PurchaseBuddyLibrary.src.purchases.app.contract;
 
 namespace PurchaseBuddy.API.Controllers;
 
@@ -12,21 +12,24 @@ namespace PurchaseBuddy.API.Controllers;
 [Route("shopping-lists")]
 public class ShoppingListsController : BaseController
 {
-	private readonly IShoppingListService shoppingListService;
+	private readonly IShoppingListWriteService shoppingListService;
+	private readonly IShoppingListReadService shoppingListReadService;
 
 	public ShoppingListsController(IUserAuthorizationService authorizationService,
-		IShoppingListService shoppingListService
+		IShoppingListWriteService shoppingListService,
+		IShoppingListReadService shoppingListReadService
 		)
 		: base(authorizationService)
 	{
 		this.shoppingListService = shoppingListService;
+		this.shoppingListReadService = shoppingListReadService;
 	}
 
 	[HttpGet]
 	public async Task<IActionResult> GetCurrentShoppingLists()
 	{
 		var user = await GetUserFromSessionAsync();
-		var lists = shoppingListService.GetNotClosedShoppingLists(user.Guid);
+		var lists = shoppingListReadService.GetNotClosedShoppingLists(user.Guid);
 
 		return Ok(lists);
 	}
@@ -35,7 +38,7 @@ public class ShoppingListsController : BaseController
 	public async Task<IActionResult> GetShoppingList(Guid listId)
 	{
 		var user = await GetUserFromSessionAsync();
-		var lists = shoppingListService.GetShoppingList(user.Guid, listId);
+		var lists = shoppingListReadService.GetShoppingList(user.Guid, listId);
 
 		return Ok(lists);
 	}
@@ -45,6 +48,15 @@ public class ShoppingListsController : BaseController
 	{
 		var user = await GetUserFromSessionAsync();
 		shoppingListService.MarkProductAsPurchased(user.Guid, listId, productId);
+
+		return NoContent();
+	}
+	
+	[HttpPatch("{listId}/products")]
+	public async Task<IActionResult> UpdateProducts(Guid listId, [FromBody] UpdateShoppingListItemsRequest request)
+	{
+		var user = await GetUserFromSessionAsync();
+		shoppingListService.UpdateProductsOnList(user.Guid, listId, request.ListItems);
 
 		return NoContent();
 	}
@@ -72,5 +84,9 @@ public record CreateNewShoppingListRequest
 {
 	public List<Guid> ListItems { get; set; }
 	public Guid? AssignedShop { get; set; }
+}
+public record UpdateShoppingListItemsRequest
+{
+	public List<Guid> ListItems { get; set; }
 }
 

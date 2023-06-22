@@ -4,6 +4,37 @@ namespace PurchaseBuddy.Tests.purchases.Unit;
 internal class ShoppingListTests : Fixture
 {
     [Test]
+    public void ShouldUpdateListItems_NotChangedItemsAreNotModified()
+    {
+        var productId = Guid.NewGuid();
+        var productId2 = Guid.NewGuid();
+        var shoppingList = AShoppingList();
+		var items = new List<ShoppingListItem> { ShoppingListItem.CreateNew(productId), ShoppingListItem.CreateNew(productId2) };
+		shoppingList.AddNew(ShoppingListItem.CreateNew(productId));
+		shoppingList.AddNew(ShoppingListItem.CreateNew(Guid.NewGuid()));
+		shoppingList.MarkProductAsPurchased(productId);
+
+        shoppingList.UpdateListItems(items);
+
+        Assert.True(shoppingList.Items.First(item => item.ProductId == productId).Purchased);
+    }
+	
+	[Test]
+    public void ShouldUpdateListItems()
+    {
+        var productId = Guid.NewGuid();
+        var productId2 = Guid.NewGuid();
+        var shoppingList = AShoppingList();
+		var items = new List<ShoppingListItem> { ShoppingListItem.CreateNew(productId2) };
+		shoppingList.AddNew(ShoppingListItem.CreateNew(productId));
+
+        shoppingList.UpdateListItems(items);
+
+        Assert.True(shoppingList.Items.All(item => item.ProductId == productId2));
+		Assert.False(shoppingList.Items.First().Purchased);
+    }
+	
+	[Test]
     public void MarkProductAsPurchased_AssertFlagUpdated()
     {
         var productId = Guid.NewGuid();

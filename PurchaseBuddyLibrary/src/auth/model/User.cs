@@ -11,7 +11,7 @@ public class User
 	public string PasswordHash { get; }
 	public bool IsAdministrator { get; }
 
-	internal static User CreateNew(string login, string email, string passwordHash, string salt)
+	internal static User CreateNew(string login, string? email, string passwordHash, string salt)
 	{
 		return new User(null, Guid.NewGuid(), login, email, passwordHash, salt, false);
 	}
