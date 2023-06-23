@@ -22,17 +22,15 @@ builder.Services.AddSwaggerGen(c =>
 	});
 });
 
-var configBuilder = new ConfigurationBuilder()
+var config = builder.Configuration
+	.SetBasePath(builder.Environment.ContentRootPath)
+	.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 	.AddEnvironmentVariables()
-	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-var configuration = configBuilder.Build();
-var databaseConnectionString = configuration.GetValue<string>("ElephantSQLConnectionURL").ToConnectionString();
-if (string.IsNullOrWhiteSpace(databaseConnectionString))
-{
-	databaseConnectionString = configuration.GetConnectionString("Database");
-	if(string.IsNullOrEmpty(databaseConnectionString))
-		throw new ArgumentException("database connection string is invalid");
-}
+	.Build();
+
+var databaseConnectionString = ConnectionStringProvider.GetConnectionString(config);
+if(string.IsNullOrEmpty(databaseConnectionString))
+	throw new ArgumentNullException(nameof(databaseConnectionString));
 
 MigrationsRunner.RunMigrations(builder.Services, databaseConnectionString);
 
@@ -58,6 +56,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
