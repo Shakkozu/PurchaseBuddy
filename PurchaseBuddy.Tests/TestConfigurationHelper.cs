@@ -8,9 +8,9 @@ internal static class TestConfigurationHelper
 
 	public static string GetConnectionString()
 	{
-		var urlValue = GetValueFromEnv(elephantURLKey) ?? GetValueFromConfig(elephantURLKey);
+		var urlValue = GetValueFromEnv(elephantURLKey);
 		if (string.IsNullOrEmpty(urlValue))
-			throw new ArgumentNullException(nameof(urlValue));
+			return GetConnectionString("Database");
 
 		return urlValue.ToConnectionString();
 	}
@@ -18,10 +18,21 @@ internal static class TestConfigurationHelper
 	public static string? GetValueFromConfig(string name)
 	{
 		var configuration = new ConfigurationBuilder()
+			.AddJsonFile("appSettings.json", optional: true, true)
 			.AddUserSecrets<PurchaseBuddyTestsFixture>()
 			.Build();
 
 		return configuration.GetValue<string>(name);
+	}
+	
+	private static string? GetConnectionString(string name)
+	{
+		var configuration = new ConfigurationBuilder()
+			.AddJsonFile("appSettings.json", optional: true, true)
+			.AddUserSecrets<PurchaseBuddyTestsFixture>()
+			.Build();
+
+		return configuration.GetConnectionString(name);
 	}
 	
 	private static string? GetValueFromEnv(string name)
