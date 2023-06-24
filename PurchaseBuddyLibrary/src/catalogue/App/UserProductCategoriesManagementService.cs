@@ -3,7 +3,6 @@ using PurchaseBuddy.src.infra;
 using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProductCategories;
-using PurchaseBuddyLibrary.src.infra;
 
 namespace PurchaseBuddy.src.catalogue.App;
 
@@ -19,9 +18,7 @@ public class UserProductCategoriesManagementService : IUserProductCategoriesMana
 	{
 		this.productCategoriesRepository = productCategoriesRepository;
 		this.userProductsRepository = userProductsRepository;
-		var seed = new SeedSharedProductsDatabase(userProductsRepository);
 		getUserProductCategoriesQueryHandler = new GetUserProductCategoriesQueryHandler(productCategoriesRepository);
-		seed.Seed();
 	}
 
 	public GetUserProductCategoriesResponse GetUserProductCategories(Guid userId)

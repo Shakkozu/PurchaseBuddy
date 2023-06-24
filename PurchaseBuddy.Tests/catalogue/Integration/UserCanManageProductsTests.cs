@@ -6,12 +6,6 @@ using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 namespace PurchaseBuddy.Tests.catalogue.Integration;
 internal class UserCanManageProductsTests : CatalogueTestsFixture
 {
-    [SetUp]
-    public void SetUp()
-    {
-        userProductsManagementService = new UserProductsManagementService(new InMemoryProductsRepository(), null);
-    }
-
     [Test]
     public void UserCanChangeProductCategoryAssignmentFromSharedCategoryToUserCategory()
     {
@@ -52,5 +46,4 @@ internal class UserCanManageProductsTests : CatalogueTestsFixture
     }
 
     private readonly Guid userId = Guid.Parse("8FFEE1B4-ADDF-4C5A-B773-16C4830FC278");
-    private UserProductsManagementService userProductsManagementService;
 }

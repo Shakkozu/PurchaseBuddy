@@ -21,7 +21,6 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 	private IUserProductCategoriesRepository userCategoriesRepo;
 	private UserProductCategoriesManagementService userProductCategoriesService;
 	private TransactionScope _transactionScope;
-	private AuthorizationService _authorizationService;
 
 
 	[SetUp]
@@ -52,7 +51,6 @@ internal class ProductCategoryRemovingTests : CatalogueTestsFixture
 		userProductsRepo = new ProductsRepository(connectionString);
 		userCategoriesRepo = new ProductCategoriesRepository(connectionString);
 		userProductCategoriesService = new UserProductCategoriesManagementService(userCategoriesRepo, userProductsRepo);
-		_authorizationService = new AuthorizationService(new UserRepository(connectionString), config);
 
 		var servicesCollection = new ServiceCollection();
 		MigrationsRunner.ClearDatabase(servicesCollection, connectionString);

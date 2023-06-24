@@ -9,7 +9,6 @@ using PurchaseBuddyLibrary.src.catalogue.Model.Category;
 
 namespace PurchaseBuddy.Tests.catalogue;
 
-[TestFixture]
 internal class CatalogueTestsFixture
 {
 	protected UserProductCategory AUserProductCategory(string? name = null)

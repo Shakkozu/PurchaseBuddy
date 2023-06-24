@@ -49,24 +49,6 @@ internal class ProductCategoryManagementTests : CatalogueTestsFixture
 		base.TearDown();
 	}
 
-	public class TestValidation
-	{
-		private TestValidation(int value) {
-			Value = value;
-		}
-
-		public static TestValidation CreateFrom(int? input)
-		{
-			return input switch
-			{
-				null => throw new ArgumentNullException(),
-				<= 0 => throw new ArgumentOutOfRangeException(),
-				_ => new TestValidation(input.Value),
-			};
-		}
-        public int Value { get; }
-    }
-
 	[Test]
 	public void UserProductCategoriesWithGranchildrenAreReturnedCorrectly()
 	{

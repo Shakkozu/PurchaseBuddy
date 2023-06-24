@@ -60,7 +60,6 @@ public class UserProductCategory : BaseProductCategory
 		if (!productsInCategory.Contains(product.Guid))
 			return;
 
-		// todo: If it's possible to fetch products from children categories, removing a product from child via root should be possible
 		productsInCategory.Remove(product.Guid);
 	}
 
