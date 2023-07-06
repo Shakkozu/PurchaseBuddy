@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using PurchaseBuddy.src.purchases.domain;
+using PurchaseBuddyLibrary.purchases.persistance;
 using PurchaseBuddyLibrary.src.utils;
 
 namespace PurchaseBuddy.src.purchases.persistance;

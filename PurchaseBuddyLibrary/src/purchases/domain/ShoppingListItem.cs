@@ -12,8 +12,9 @@ public class ShoppingListItem
 	}
 
 	internal static ShoppingListItem LoadFrom(UserShoppingListItemDao item)
-	{
-		return new ShoppingListItem(Guid.Parse(item.ItemGuid), item.Quantity, item.Purchased, item.Unavailable, Guid.Parse(item.Guid));
+    {
+        var guid = string.IsNullOrEmpty(item.Guid) ? Guid.NewGuid() : Guid.Parse(item.Guid);
+		return new ShoppingListItem(Guid.Parse(item.ItemGuid), item.Quantity, item.Purchased, item.Unavailable, guid);
 	}
 
     protected ShoppingListItem(Guid productId, int quantity, bool purchased, bool unavailable, Guid guid)

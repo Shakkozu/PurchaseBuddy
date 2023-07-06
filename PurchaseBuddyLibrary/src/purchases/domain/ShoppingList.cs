@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using PurchaseBuddyLibrary.purchases.domain;
+using PurchaseBuddyLibrary.purchases.persistance;
 
 namespace PurchaseBuddy.src.purchases.domain;
 
