@@ -1,6 +1,7 @@
 ﻿using PurchaseBuddy.src.purchases.persistance;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using PurchaseBuddyLibrary.purchases.domain;
 
 namespace PurchaseBuddy.src.purchases.domain;
 
@@ -36,6 +37,7 @@ public class ShoppingList
 	{
 		if (!items.Any())
 			throw new InvalidOperationException("cannot create empty list");
+
 		var shoppingList = new ShoppingList(userId, shopId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
 		foreach(var item in items)
 			shoppingList.AddNew(item);
@@ -51,9 +53,9 @@ public class ShoppingList
 		CompletedAt = DateTime.Now;
 	}
 
-	public void MarkProductAsPurchased(Guid productId)
+	public void MarkListItemAsPurchased(Guid listItemId)
 	{
-		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == productId);
+		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.Guid == listItemId);
 		if (toUpdate is null)
 			return;
 
@@ -62,18 +64,18 @@ public class ShoppingList
 			Complete();
 	}
 
-	internal void MarkProductAsNotPurchased(Guid productId)
+	internal void MarkListItemAsNotPurchased(Guid listItemId)
 	{
-		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == productId);
+		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.Guid == listItemId);
 		if (toUpdate is null)
 			return;
 
 		toUpdate.MarkAsNotPurchased();
 	}
 
-	public void MarkProductAsUnavailable(Guid productId)
+	public void MarkListItemAsUnavailable(Guid listItemId)
 	{
-		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == productId);
+		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.Guid == listItemId);
 		if (toUpdate is null)
 			return;
 
@@ -85,33 +87,39 @@ public class ShoppingList
 		if (IsCompleted)
 			throw new InvalidOperationException("cannot add item to completed list");
 
-		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == shoppingListItem.ProductId);
-		if (toUpdate is null)
+		if(shoppingListItem is ImportedShoppingListItem imported)
 		{
-			shoppingListItems.Add(shoppingListItem);
+			var itemToIncrement = Items.FirstOrDefault(item => item is ImportedShoppingListItem importedItem && importedItem.ProductName.Trim() == imported.ProductName.Trim());
+			if(itemToIncrement != null)
+				itemToIncrement.ChangeQuantityTo(itemToIncrement.Quantity + shoppingListItem.Quantity);
+			else
+				shoppingListItems.Add(imported);
 			return;
 		}
-
-		toUpdate.ChangeQuantityTo(shoppingListItem.Quantity + toUpdate.Quantity);
+		var itemToUpdate = Items.FirstOrDefault(item => item.ProductId == shoppingListItem.ProductId || item.Guid == shoppingListItem.Guid);
+		if (itemToUpdate != null)
+			itemToUpdate.ChangeQuantityTo(shoppingListItem.Quantity + itemToUpdate.Quantity);
+		else
+			shoppingListItems.Add(shoppingListItem);
 	}
 
-	public void ChangeQuantityOf(Guid productId, int newQuantity)
+	public void ChangeQuantityOf(Guid listItemId, int newQuantity)
 	{
-		var itemToUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == productId);
+		var itemToUpdate = shoppingListItems.Find(listItem => listItem.Guid == listItemId);
 		if (itemToUpdate == null)
 			return;
 
 		itemToUpdate.ChangeQuantityTo(newQuantity);
 	}
 
-	public void Remove(Guid productId)
+	public void Remove(Guid listItemId)
 	{
-		var itemToRemove = shoppingListItems.FirstOrDefault(listItem => listItem.ProductId == productId);
+		var itemToRemove = shoppingListItems.Find(listItem => listItem.Guid == listItemId);
 		if (itemToRemove == null)
 			return;
 
 		shoppingListItems.Remove(itemToRemove);
-		if (shoppingListItems.All(listItem => listItem.Purchased))
+		if (shoppingListItems.TrueForAll(listItem => listItem.Purchased))
 			Complete();
 	}
 
@@ -124,14 +132,18 @@ public class ShoppingList
 			throw new InvalidOperationException("cannnot create list when source is completed");
 
 		foreach (var itemToRemove in notBoughtProducts)
-			Remove(itemToRemove.ProductId);
+			Remove(itemToRemove.Guid);
 
 		return CreateNew(UserId, notBoughtProducts, shopId);
 	}
 
 	internal static ShoppingList LoadFrom(ShoppingListDao dao)
 	{
-		var shoppingListEntries = dao.GetShoppingListEntries().Select(x => ShoppingListItem.LoadFrom(x)).ToList();
+		var shoppingListEntries = dao.GetShoppingListEntries()
+			.Select(listItemDao => listItemDao is ImportedShoppingListItemDao importedDao ?
+				ImportedShoppingListItem.LoadFrom(importedDao) :
+				ShoppingListItem.LoadFrom((UserShoppingListItemDao)listItemDao))
+			.ToList();
 		return new ShoppingList(
 			Guid.Parse(dao.UserGuid),
 			string.IsNullOrEmpty(dao.ShopGuid) ? (Guid?)null : Guid.Parse(dao.ShopGuid),
@@ -145,11 +157,11 @@ public class ShoppingList
 	public void UpdateListItems(IEnumerable<ShoppingListItem> newItemsList)
 	{
 		var productsToRemove = Items
-			.Where(existingItem => !newItemsList.Any(newItem => newItem.ProductId == existingItem.ProductId))
-			.Select(x => x.ProductId)
+			.Where(existingItem => !newItemsList.Any(newItem => newItem.Guid == existingItem.Guid))
+			.Select(x => x.Guid)
 			.ToImmutableList();
 		var productsToAdd = newItemsList
-			.Where(newItem => !Items.Any(existingItem => existingItem.ProductId == newItem.ProductId))
+			.Where(newItem => !Items.Any(existingItem => existingItem.Guid == newItem.Guid))
 			.ToImmutableList();
 
 		foreach (var productToAdd in productsToAdd)

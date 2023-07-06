@@ -7,10 +7,12 @@ using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
+using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 
 namespace PurchaseBuddy.Tests.purchases.Integration;
+
 internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 {
 	private IUserProductsManagementService productsManagementService;
@@ -63,6 +65,72 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 			}
 		});
 		_transactionScope.Dispose();
+	}
+
+	[Test]
+	public void ShouldAddImportedProductToList()
+	{
+		var importedShoppingListItems = new List<ShoppingListItem>
+		{
+			ImportedShoppingListItem.CreateNew("Milk", "Dairy")
+		};
+		var createdListId = shoppingListWriteService.CreateNewList(UserId, importedShoppingListItems);
+		var addNewItemRequest = new AddNewListItemRequest
+		{
+			ProductName = "testProduct",
+			ProductCategoryName = "testCategory"
+		};
+
+		shoppingListWriteService.AddNewListItem(UserId, createdListId, addNewItemRequest);
+
+		var createdList = shoppingListReadService.GetShoppingList(UserId, createdListId);
+		Assert.AreEqual(createdList.ShoppingListItems.Last().ProductDto.Name, "testProduct");
+	}
+	
+	[Test]
+	public void ShouldAddUsedDefinedProductToList()
+	{
+		var importedShoppingListItems = new List<ShoppingListItem>
+		{
+			ImportedShoppingListItem.CreateNew("Milk", "Dairy")
+		};
+		var createdListId = shoppingListWriteService.CreateNewList(UserId, importedShoppingListItems);
+		var addNewItemRequest = new AddNewListItemRequest
+		{
+			ProductGuid = products.First().Guid
+		};
+
+		shoppingListWriteService.AddNewListItem(UserId, createdListId, addNewItemRequest);
+
+		var createdList = shoppingListReadService.GetShoppingList(UserId, createdListId);
+		Assert.AreEqual(createdList.ShoppingListItems.Last().ProductDto.Name, products.First().Name);
+	}
+
+	[Test]
+	public void ShouldSaveImportedShoppingListItemCorrectly()
+	{
+		var importedShoppingListItems = new List<ShoppingListItem>
+		{
+			ImportedShoppingListItem.CreateNew("Milk", "Dairy")
+		};
+
+		var createdListId = shoppingListWriteService.CreateNewList(UserId, importedShoppingListItems);
+
+		var createdList = shoppingListReadService.GetShoppingList(UserId, createdListId);
+		Assert.AreEqual(createdList.ShoppingListItems.First().ProductDto.Name, ((ImportedShoppingListItem)importedShoppingListItems.First()).ProductName);
+	}
+
+	[Test]
+	public void ShouldPurchaseImportedListItemProperly()
+	{
+		var listItem = ImportedShoppingListItem.CreateNew("Milk", "Dairy");
+		var importedShoppingListItems = new List<ShoppingListItem> { listItem };
+		var createdListId = shoppingListWriteService.CreateNewList(UserId, importedShoppingListItems);
+
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, createdListId, listItem.Guid);
+
+		var createdList = shoppingListReadService.GetShoppingList(UserId, createdListId);
+		Assert.True(createdList.ShoppingListItems.First().Purchased);
 	}
 
 	[Test]
@@ -121,7 +189,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		var list = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 		var list2 = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 
-		shoppingListWriteService.MarkProductAsPurchased(UserId, list, listItems.First().ProductId);
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, list, listItems.First().Guid);
 		var userLists = shoppingListReadService.GetNotClosedShoppingLists(UserId);
 
 		Assert.AreEqual(1, userLists.Count);
@@ -137,15 +205,18 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	}
 
 	[Test]
-	public void ShouldMarkListItemAsPurchased()
+	public void ShouldMarkDifferentListItemTypesAsPurchased()
 	{
-		var productGuid = products.First().Guid;
-		var list = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
+		var importedListItem = ImportedShoppingListItem.CreateNew("Milk", "Dairy");
+		var normalListItem = ShoppingListItem.CreateNew(products.First().Guid);
+		var listItems = new List<ShoppingListItem> { importedListItem, normalListItem };
+		var createdListId = shoppingListWriteService.CreateNewList(UserId, listItems);
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, createdListId, importedListItem.Guid);
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, createdListId, normalListItem.Guid);
 
-		shoppingListWriteService.MarkProductAsPurchased(UserId, list, productGuid);
+		var createdList = shoppingListReadService.GetShoppingList(UserId, createdListId);
 
-		var listItem = shoppingListReadService.GetShoppingList(UserId, list).ShoppingListItems.First(li => li.ProductDto.Guid == productGuid);
-		Assert.True(listItem.Purchased);
+		Assert.True(createdList.Completed);
 	}
 
 	[Test]
@@ -153,9 +224,9 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	{
 		var productGuid = products.First().Guid;
 		var list = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, list, productGuid);
 
-		shoppingListWriteService.MarkProductAsPurchased(UserId, list, productGuid);
-		shoppingListWriteService.MarkProductAsNotPurchased(UserId, list, productGuid);
+		shoppingListWriteService.MarkListItemAsNotPurchased(UserId, list, productGuid);
 
 		var listItem = shoppingListReadService.GetShoppingList(UserId, list).ShoppingListItems.First(li => li.ProductDto.Guid == productGuid);
 		Assert.False(listItem.Purchased);
@@ -186,50 +257,38 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldChangeProductQuantity()
 	{
-		var productGuid = products.First().Guid;
+		var listItems = AListItems();
+		var listItemGuid = listItems.First().Guid;
 		var newQuantity = 10;
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
+		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 
-		shoppingListWriteService.ChangeQuantityOfProductOnList(UserId, listId, productGuid, 10);
+		shoppingListWriteService.ChangeQuantityOfProductOnList(UserId, listId, listItemGuid, 10);
 
 		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
-		Assert.AreEqual(newQuantity, userList.ShoppingListItems.First(p => p.ProductDto.Guid == productGuid).Quantity);
+		Assert.AreEqual(newQuantity, userList.ShoppingListItems.First(p => p.Guid == listItemGuid.ToString()).Quantity);
 	}
 
 
 	[Test]
 	public void ShouldMarkProductAsUnavailable()
 	{
-		var productGuid = products.First().Guid;
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
+		var listItems = AListItems();
+		var listItemGuid = listItems.First().Guid;
+		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 
-		shoppingListWriteService.MarkProductAsUnavailable(UserId, listId, productGuid);
-
-		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
-		Assert.True(userList.ShoppingListItems.First(p => p.ProductDto.Guid == productGuid).Unavailable);
-	}
-
-	[Test]
-	public void ShouldUpdateProductsList()
-	{
-		var productGuid = products.First().Guid;
-		var newProductGuid = products.Last().Guid;
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(new List<Guid> { productGuid }));
-
-		shoppingListWriteService.UpdateProductsOnList(UserId, listId, new List<Guid> { newProductGuid});
+		shoppingListWriteService.MarkListItemtAsUnavailable(UserId, listId, listItemGuid);
 
 		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
-		Assert.True(userList.ShoppingListItems.All(p => p.ProductDto.Guid == newProductGuid));
+		Assert.True(userList.ShoppingListItems.First(p => p.Guid == listItemGuid.ToString()).Unavailable);
 	}
 
 	[Test]
 	public void ShouldCreateNewListWithNotPurchasedItems()
 	{
-		var productGuid = products.First().Guid;
 		var listItems = AListItems();
 		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 
-		shoppingListWriteService.MarkProductAsUnavailable(UserId, listId, productGuid);
+		shoppingListWriteService.MarkListItemtAsUnavailable(UserId, listId, listItems.First().Guid);
 		var newListId = shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId2);
 
 		var userList = shoppingListReadService.GetShoppingList(UserId, newListId);
@@ -243,10 +302,10 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldNotCreateNewListWithNotPurchasedItems_WhenAllItemsArePurchased()
 	{
-		var productGuid = products.First().Guid;
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItemsWithSingleItem(), shopId);
-
-		shoppingListWriteService.MarkProductAsPurchased(UserId, listId, productGuid);
+		var listItems = AListItemsWithSingleItem();
+		var listItemGuid = listItems.First().Guid;
+		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, listId, listItemGuid);
 
 		Assert.Throws<InvalidOperationException>(() => shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId2));
 	}
@@ -254,7 +313,6 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldCreateNewListWithNotPurchasedItemsAndCompleteCurrentList()
 	{
-		var productGuid = products.First().Guid;
 		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
 
 		shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId);
@@ -267,7 +325,6 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldCreateNewListWithNotPurchasedItemsAndRemoveNotCompletedItems()
 	{
-		var productGuid = products.First().Guid;
 		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
 
 		shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId);
@@ -279,9 +336,10 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldMarkListAsCompletedWhenLastProductIsPurchased()
 	{
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItemsWithSingleItem(), shopId);
+		var listItems = AListItemsWithSingleItem();
+		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 
-		shoppingListWriteService.MarkProductAsPurchased(UserId, listId, products.First().Guid);
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, listId, listItems.First().Guid);
 
 		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
 		Assert.True(userList.Completed);
@@ -291,10 +349,11 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldCompleteListWhenLastNotPurchasedProductIsRemoved()
 	{
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
+		var listItems = AListItems();
+		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 
-		shoppingListWriteService.MarkProductAsPurchased(UserId, listId, products.First().Guid);
-		shoppingListWriteService.RemoveProductFromList(UserId, listId, products.Last().Guid);
+		shoppingListWriteService.MarkListItemAsPurchased(UserId, listId, listItems.First().Guid);
+		shoppingListWriteService.RemoveItemFromList(UserId, listId, listItems.Last().Guid);
 
 		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
 		Assert.True(userList.Completed);
@@ -304,9 +363,10 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldRemoveProductFromList()
 	{
-		var list = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
+		var listItems = AListItems();
+		var list = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
 
-		shoppingListWriteService.RemoveProductFromList(UserId, list, products.First().Guid);
+		shoppingListWriteService.RemoveItemFromList(UserId, list, listItems.First().Guid);
 
 		var userList = shoppingListReadService.GetShoppingList(UserId, list);
 		Assert.AreEqual(1, userList.ShoppingListItems.Count);
@@ -317,11 +377,13 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 		if (_products != null)
 			return _products.Select(product => ShoppingListItem.CreateNew(product)).ToList();
 
-		return new List<ShoppingListItem>
-	{
-		ShoppingListItem.CreateNew(products.First().Guid, 1),
-		ShoppingListItem.CreateNew(products.Last().Guid, 2),
-	};
+		var listItems = new List<ShoppingListItem>
+		{
+			ShoppingListItem.CreateNew(products.First().Guid, 1),
+			ShoppingListItem.CreateNew(products.Last().Guid, 2),
+		};
+
+		return listItems;
 	}
 
 	private List<ShoppingListItem> AListItemsWithSingleItem()

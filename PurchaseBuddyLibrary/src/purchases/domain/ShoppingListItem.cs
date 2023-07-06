@@ -1,25 +1,28 @@
 ﻿using PurchaseBuddy.src.purchases.persistance;
 
-namespace PurchaseBuddy.src.purchases.domain;
+namespace PurchaseBuddyLibrary.purchases.domain;
 
 public class ShoppingListItem
 {
-	public static ShoppingListItem CreateNew(Guid productId, int quantity = 1)
+	public static ShoppingListItem CreateNew(Guid productId, int quantity = 1, Guid? guid = null)
 	{
-		return new ShoppingListItem(productId, quantity, false, false);
+		if (quantity < 1)
+			throw new ArgumentException("Quantity cannot be lower that 1");
+		return new ShoppingListItem(productId, quantity, false, false, guid ?? Guid.NewGuid());
 	}
 
-	internal static ShoppingListItem LoadFrom(ShoppingListDao.ShoppingListItemDao item)
+	internal static ShoppingListItem LoadFrom(UserShoppingListItemDao item)
 	{
-		return new ShoppingListItem(Guid.Parse(item.ItemGuid), item.Quantity, item.Purchased, item.Unavailable);
+		return new ShoppingListItem(Guid.Parse(item.ItemGuid), item.Quantity, item.Purchased, item.Unavailable, Guid.Parse(item.Guid));
 	}
 
-    private ShoppingListItem(Guid productId, int quantity, bool purchased, bool unavailable)
+    protected ShoppingListItem(Guid productId, int quantity, bool purchased, bool unavailable, Guid guid)
     {
 		ProductId = productId;
 		Quantity = quantity;
 		Purchased = purchased;
 		Unavailable = unavailable;
+		Guid = guid;
 	}
 
     public void ChangeQuantityTo(int quantity)
@@ -53,6 +56,7 @@ public class ShoppingListItem
 	}
 
 	public Guid ProductId { get; }
+	public Guid Guid { get; }
 	public int Quantity { get; private set; }
 	public bool Purchased { get; private set; }
 	public bool Unavailable { get; private set; }

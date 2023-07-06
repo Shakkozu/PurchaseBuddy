@@ -17,7 +17,7 @@ public class ShoppingListDao
 		Guid = shoppingList.Guid.ToDatabaseStringFormat();
 		CreatedAt = shoppingList.CreatedAt;
 		CompletedAt = shoppingList.CompletedAt;
-		shoppingListItems = shoppingList.Items.Select(item => new ShoppingListItemDao(item)).ToList();
+		shoppingListItems = ShoppingListItemMapper.Map(shoppingList.Items).ToList();
 		ItemsString = JsonConvert.SerializeObject(shoppingListItems);
 	}
 
@@ -30,34 +30,12 @@ public class ShoppingListDao
 	public string ItemsString { get; set; }
 	private List<ShoppingListItemDao> shoppingListItems = new();
 
-	public record ShoppingListItemDao
-	{
-        public ShoppingListItemDao()
-        {
-            
-        }
-        public ShoppingListItemDao(ShoppingListItem item)
-        {
-			ItemGuid = item.ProductId.ToDatabaseStringFormat();
-			Quantity = item.Quantity;
-			Purchased = item.Purchased;
-			Unavailable = item.Unavailable;
-        }
-        public string ItemGuid { get; set; }
-        public int Quantity { get; set; }
-		public bool Purchased { get; set; }
-		public bool Unavailable { get; set; }
-	}
-
 	internal List<ShoppingListItemDao> GetShoppingListEntries()
 	{
 		if (string.IsNullOrEmpty(ItemsString))
 			return new();
 
-		var list = JsonConvert.DeserializeObject<List<ShoppingListItemDao>>(ItemsString);
-		if (list == null)
-			return new();
-
-		return list;
+		var converter = new ShoppingListItemJsonConverter();
+		return converter.Convert(ItemsString);
 	}
 }

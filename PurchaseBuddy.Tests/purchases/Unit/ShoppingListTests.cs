@@ -1,4 +1,5 @@
 ﻿using PurchaseBuddy.src.purchases.domain;
+using PurchaseBuddyLibrary.purchases.domain;
 
 namespace PurchaseBuddy.Tests.purchases.Unit;
 internal class ShoppingListTests : Fixture
@@ -6,17 +7,16 @@ internal class ShoppingListTests : Fixture
     [Test]
     public void ShouldUpdateListItems_NotChangedItemsAreNotModified()
     {
-        var productId = Guid.NewGuid();
-        var productId2 = Guid.NewGuid();
         var shoppingList = AShoppingList();
-		var items = new List<ShoppingListItem> { ShoppingListItem.CreateNew(productId), ShoppingListItem.CreateNew(productId2) };
-		shoppingList.AddNew(ShoppingListItem.CreateNew(productId));
+		var firstItem = ShoppingListItem.CreateNew(Guid.NewGuid());
+		var items = new List<ShoppingListItem> { firstItem, ShoppingListItem.CreateNew(Guid.NewGuid()) };
+		shoppingList.AddNew(firstItem);
 		shoppingList.AddNew(ShoppingListItem.CreateNew(Guid.NewGuid()));
-		shoppingList.MarkProductAsPurchased(productId);
+		shoppingList.MarkListItemAsPurchased(firstItem.Guid);
 
         shoppingList.UpdateListItems(items);
 
-        Assert.True(shoppingList.Items.First(item => item.ProductId == productId).Purchased);
+        Assert.True(shoppingList.Items.First(item => item.Guid == firstItem.Guid).Purchased);
     }
 	
 	[Test]
@@ -25,7 +25,7 @@ internal class ShoppingListTests : Fixture
         var productId = Guid.NewGuid();
         var productId2 = Guid.NewGuid();
         var shoppingList = AShoppingList();
-		var items = new List<ShoppingListItem> { ShoppingListItem.CreateNew(productId2) };
+		var items = new List<ShoppingListItem> { ShoppingListItem.CreateNew(productId2), ShoppingListItem.CreateNew(productId) };
 		shoppingList.AddNew(ShoppingListItem.CreateNew(productId));
 
         shoppingList.UpdateListItems(items);
@@ -37,12 +37,11 @@ internal class ShoppingListTests : Fixture
 	[Test]
     public void MarkProductAsPurchased_AssertFlagUpdated()
     {
-        var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = ShoppingListItem.CreateNew(productId);
+        var shoppingListItem = ShoppingListItem.CreateNew(Guid.NewGuid());
         shoppingList.AddNew(shoppingListItem);
 
-        shoppingList.MarkProductAsPurchased(productId);
+        shoppingList.MarkListItemAsPurchased(shoppingListItem.Guid);
 
         Assert.True(shoppingList.Items.First().Purchased);
         Assert.False(shoppingList.Items.First().Unavailable);
@@ -51,12 +50,11 @@ internal class ShoppingListTests : Fixture
     [Test]
     public void MarkProductAsUnavailable_AssertFlagUpdated()
     {
-        var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = ShoppingListItem.CreateNew(productId);
+        var shoppingListItem = ShoppingListItem.CreateNew(Guid.NewGuid());
         shoppingList.AddNew(shoppingListItem);
 
-        shoppingList.MarkProductAsUnavailable(productId);
+        shoppingList.MarkListItemAsUnavailable(shoppingListItem.Guid);
 
         Assert.True(shoppingList.Items.First().Unavailable);
         Assert.False(shoppingList.Items.First().Purchased);
@@ -118,12 +116,11 @@ internal class ShoppingListTests : Fixture
     [Test]
     public void ChangeQuantityOf_AssertChanges()
     {
-        var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = ShoppingListItem.CreateNew(productId, 5);
+        var shoppingListItem = ShoppingListItem.CreateNew(Guid.NewGuid(), 5);
 
         shoppingList.AddNew(shoppingListItem);
-        shoppingList.ChangeQuantityOf(shoppingListItem.ProductId, 10);
+        shoppingList.ChangeQuantityOf(shoppingListItem.Guid, 10);
 
         Assert.AreEqual(10, shoppingList.Items.First().Quantity);
     }
@@ -138,23 +135,21 @@ internal class ShoppingListTests : Fixture
         Assert.DoesNotThrow(() => shoppingList.ChangeQuantityOf(productId, 10));
     }
 
-
     [Test]
     public void RemoveItem_AssertRemovedFromList()
     {
-        var productId = Guid.NewGuid();
         var shoppingList = AShoppingList();
-        var shoppingListItem = ShoppingListItem.CreateNew(productId, 5);
+        var shoppingListItem = ShoppingListItem.CreateNew(Guid.NewGuid(), 5);
         var shoppingListItem2 = ShoppingListItem.CreateNew(Guid.NewGuid(), 5);
 
         shoppingList.AddNew(shoppingListItem);
         shoppingList.AddNew(shoppingListItem2);
         Assert.AreEqual(2, shoppingList.Items.Count);
 
-        shoppingList.Remove(shoppingListItem.ProductId);
+        shoppingList.Remove(shoppingListItem.Guid);
         Assert.AreEqual(1, shoppingList.Items.Count);
 
-        shoppingList.Remove(shoppingListItem2.ProductId);
+        shoppingList.Remove(shoppingListItem2.Guid);
         Assert.AreEqual(0, shoppingList.Items.Count);
     }
 }

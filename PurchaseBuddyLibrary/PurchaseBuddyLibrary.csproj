@@ -8,8 +8,17 @@
 
   <ItemGroup>
     <Compile Remove="src\catalogue\Domain\**" />
+    <Compile Remove="src\catalogue\infra\**" />
+    <Compile Remove="src\crm\**" />
+    <Compile Remove="src\infra\Migrations\**" />
     <EmbeddedResource Remove="src\catalogue\Domain\**" />
+    <EmbeddedResource Remove="src\catalogue\infra\**" />
+    <EmbeddedResource Remove="src\crm\**" />
+    <EmbeddedResource Remove="src\infra\Migrations\**" />
     <None Remove="src\catalogue\Domain\**" />
+    <None Remove="src\catalogue\infra\**" />
+    <None Remove="src\crm\**" />
+    <None Remove="src\infra\Migrations\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,12 +30,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\catalogue\infra\" />
-    <Folder Include="src\crm\Model\" />
-    <Folder Include="src\infra\Migrations\" />
   </ItemGroup>
 
 </Project>

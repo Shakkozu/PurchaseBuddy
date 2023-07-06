@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PurchaseBuddy.src.purchases.domain;
+using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 
@@ -43,29 +44,20 @@ public class ShoppingListsController : BaseController
 		return Ok(lists);
 	}
 	
-	[HttpPut("{listId}/products/{productId}/mark-as-purchased")]
-	public async Task<IActionResult> MarkListItemAsPurchased(Guid listId, Guid productId)
+	[HttpPut("{listId}/list-items/{listItemID}/mark-as-purchased")]
+	public async Task<IActionResult> MarkListItemAsPurchased(Guid listId, Guid listItemID)
 	{
 		var user = await GetUserFromSessionAsync();
-		shoppingListService.MarkProductAsPurchased(user.Guid, listId, productId);
+		shoppingListService.MarkListItemAsPurchased(user.Guid, listId, listItemID);
 
 		return NoContent();
 	}
 	
-	[HttpPatch("{listId}/products")]
-	public async Task<IActionResult> UpdateProducts(Guid listId, [FromBody] UpdateShoppingListItemsRequest request)
+	[HttpPut("{listId}/list-items/{listItemID}/mark-as-not-purchased")]
+	public async Task<IActionResult> MarkListItemAsNotPurchased(Guid listId, Guid listItemID)
 	{
 		var user = await GetUserFromSessionAsync();
-		shoppingListService.UpdateProductsOnList(user.Guid, listId, request.ListItems);
-
-		return NoContent();
-	}
-	
-	[HttpPut("{listId}/products/{productId}/mark-as-not-purchased")]
-	public async Task<IActionResult> MarkListItemAsNotPurchased(Guid listId, Guid productId)
-	{
-		var user = await GetUserFromSessionAsync();
-		shoppingListService.MarkProductAsNotPurchased(user.Guid, listId, productId);
+		shoppingListService.MarkListItemAsNotPurchased(user.Guid, listId, listItemID);
 
 		return NoContent();
 	}
@@ -78,6 +70,15 @@ public class ShoppingListsController : BaseController
 		var list = shoppingListService.CreateNewList(user.Guid, shoppingListItems, request.AssignedShop);
 
 		return Ok(list);
+	}
+
+	[HttpDelete("{listId}/list-items/{listItemID}")]
+	public async Task<IActionResult> AddNewListItem(Guid listId, Guid listItemID)
+	{
+		var user = await GetUserFromSessionAsync();
+		shoppingListService.RemoveItemFromList(user.Guid, listId, listItemID);
+
+		return Ok();
 	}
 }
 public record CreateNewShoppingListRequest

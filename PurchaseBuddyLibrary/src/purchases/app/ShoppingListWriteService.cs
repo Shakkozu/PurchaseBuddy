@@ -1,7 +1,10 @@
-﻿using PurchaseBuddy.src.catalogue.Persistance;
+﻿using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.purchases.persistance;
+using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 
 namespace PurchaseBuddy.src.purchases.app;
@@ -9,39 +12,31 @@ namespace PurchaseBuddy.src.purchases.app;
 public class ShoppingListWriteService : IShoppingListWriteService
 {
 	private readonly IShoppingListRepository shoppingListRepository;
+	private readonly IUserProductsManagementService userProductsManagementService;
 
-	public ShoppingListWriteService(IShoppingListRepository shoppingListRepository)
+	public ShoppingListWriteService(IShoppingListRepository shoppingListRepository,
+		IUserProductsManagementService userProductsManagementService)
     {
 		this.shoppingListRepository = shoppingListRepository;
+		this.userProductsManagementService = userProductsManagementService;
 	}
 
-	public void UpdateProductsOnList(Guid userId, Guid listId, List<Guid> productsIDs)
-	{
-		var shoppingList = shoppingListRepository.GetShoppingList(userId, listId);
-		if (shoppingList == null)
-			throw new ArgumentException($"Shopping list with id {listId} not found");
-
-		var result = productsIDs.Select(productId => ShoppingListItem.CreateNew(productId));
-		shoppingList.UpdateListItems(result);
-		shoppingListRepository.Update(shoppingList);
-
-	}
-	public void MarkProductAsUnavailable(Guid userId, Guid shoppingListId, Guid productId)
+	public void MarkListItemtAsUnavailable(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		shoppingList.MarkProductAsUnavailable(productId);
+		shoppingList.MarkListItemAsUnavailable(listItemId);
 		shoppingListRepository.Update(shoppingList);
 	}
-	public void MarkProductAsPurchased(Guid userId, Guid shoppingListId, Guid productId)
+	public void MarkListItemAsPurchased(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		shoppingList.MarkProductAsPurchased(productId);
+		shoppingList.MarkListItemAsPurchased(listItemId);
 		shoppingListRepository.Update(shoppingList);
 	}
-	public void MarkProductAsNotPurchased(Guid userId, Guid shoppingListId, Guid productId)
+	public void MarkListItemAsNotPurchased(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		shoppingList.MarkProductAsNotPurchased(productId);
+		shoppingList.MarkListItemAsNotPurchased(listItemId);
 		shoppingListRepository.Update(shoppingList);
 	}
 	public Guid CreateNewList(Guid userId, List<ShoppingListItem> listItems, Guid? assignedShop = null)
@@ -51,26 +46,59 @@ public class ShoppingListWriteService : IShoppingListWriteService
 
 		return list.Guid;
 	}
-	public void RemoveProductFromList(Guid userId, Guid shoppingListId, Guid productId)
+	public void RemoveItemFromList(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		shoppingList.Remove(productId);
+		shoppingList.Remove(listItemId);
 		shoppingListRepository.Update(shoppingList);
 	}
-	public void ChangeQuantityOfProductOnList(Guid userId, Guid shoppingListId, Guid productId, int newQuantity)
+	public void ChangeQuantityOfProductOnList(Guid userId, Guid shoppingListId, Guid listItemId, int newQuantity)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		shoppingList.ChangeQuantityOf(productId, newQuantity);
+		shoppingList.ChangeQuantityOf(listItemId, newQuantity);
 		shoppingListRepository.Update(shoppingList);
 	}
 
-	public Guid CreateNewListWithNotBoughtItems(Guid userId, Guid shoppingListId, Guid shopId)
+	public Guid CreateNewListWithNotBoughtItems(Guid userId, Guid createdListId, Guid shopId)
 	{
-		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
+		var shoppingList = shoppingListRepository.GetShoppingList(userId, createdListId);
 		var newShoppingList = shoppingList.GenerateNewWithNotBoughtItems(shopId);
 		shoppingListRepository.Update(shoppingList);
 		shoppingListRepository.Save(newShoppingList);
 
 		return newShoppingList.Guid;
 	}
+
+	public void AddNewListItem(Guid userId, Guid createdListId, AddNewListItemRequest addNewItemRequest)
+	{
+		var shoppingList = shoppingListRepository.GetShoppingList(userId, createdListId);
+		if(shoppingList == null)
+			throw new ArgumentNullException($"Shopping list with guid {createdListId} not found for user {userId}");
+
+		var listItem = CreateShoppingListItemFromRequest(userId, addNewItemRequest);
+        shoppingList.AddNew(listItem);
+		shoppingListRepository.Update(shoppingList);
+	}
+
+    private ShoppingListItem CreateShoppingListItemFromRequest(Guid userId, AddNewListItemRequest addNewItemRequest)
+    {
+        var quantity = addNewItemRequest.Quantity.GetValueOrDefault(1);
+        if (addNewItemRequest.ProductGuid.HasValue)
+        {
+            var userProducts =
+                userProductsManagementService.GetUserProducts(new GetUserProductsQuery(userId, pageSize: 1000));
+            var productToAdd = userProducts.Find(p => p.Guid == addNewItemRequest.ProductGuid);
+            if (productToAdd == null)
+                throw new ArgumentNullException(
+                    $"Product with guid {addNewItemRequest.ProductGuid} not found for user {userId}");
+
+            return ShoppingListItem.CreateNew(productToAdd.Guid, quantity, addNewItemRequest.ListItemGuid);
+        }
+
+        if (string.IsNullOrEmpty(addNewItemRequest.ProductName))
+            throw new ArgumentException($"Cannot add product without guid and without name defined");
+
+        return ImportedShoppingListItem.CreateNew(addNewItemRequest.ProductName,
+            addNewItemRequest.ProductCategoryName, quantity, addNewItemRequest.ListItemGuid);
+    }
 }

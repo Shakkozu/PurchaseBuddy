@@ -1,7 +1,9 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.purchases.persistance;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
+using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 using PurchaseBuddyLibrary.src.stores.contract;
@@ -37,8 +39,16 @@ public class ShoppingListReadService : IShoppingListReadService
 		}
 
 		var userProducts = userProductsManagementService.GetUserProducts(new GetUserProductsQuery(userId, pageSize: 1000));
-		var listItems = shoppingList.Items
-			.Select(item => new ShoppingListItemDto(item, userProducts.First(p => p.Guid == item.ProductId)));
+		List<ShoppingListItemDto> listItems = new List<ShoppingListItemDto>();
+		foreach(var item in shoppingList.Items)
+		{
+			if(item is ImportedShoppingListItem importedItem)
+			{
+				listItems.Add(new ShoppingListItemDto(importedItem));
+				continue;
+			}
+			listItems.Add(new ShoppingListItemDto(item, userProducts.First(p => p.Guid == item.ProductId)));
+		}
 
 		return new ShoppingListDto(userId, shoppingList, shopDto, listItems);
 	}
