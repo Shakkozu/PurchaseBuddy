@@ -72,11 +72,20 @@ public class ShoppingListsController : BaseController
 		return Ok(list);
 	}
 
-	[HttpDelete("{listId}/list-items/{listItemID}")]
-	public async Task<IActionResult> AddNewListItem(Guid listId, Guid listItemID)
+	[HttpPost("{listId}/list-items")]
+	public async Task<IActionResult> AddNewListItem(Guid listId, [FromBody] AddNewListItemRequest request)
 	{
 		var user = await GetUserFromSessionAsync();
-		shoppingListService.RemoveItemFromList(user.Guid, listId, listItemID);
+		shoppingListService.AddNewListItem(user.Guid, listId, request);
+
+		return Ok();
+	}
+
+	[HttpDelete("{listId:guid}/list-items/{listItemId:guid}")]
+	public async Task<IActionResult> DeleteListItem(Guid listId, Guid listItemId)
+	{
+		var user = await GetUserFromSessionAsync();
+		shoppingListService.RemoveItemFromList(user.Guid, listId, listItemId);
 
 		return Ok();
 	}
