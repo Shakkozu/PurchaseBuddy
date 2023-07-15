@@ -33,7 +33,11 @@ public class UserShopService : IUserShopService
 
 	public UserShop? GetUserShopById(Guid userId, Guid userShopId)
 	{
-		return userShopRepository.GetUserShop(userId, userShopId);
+		var userShop = userShopRepository.GetUserShop(userId, userShopId);
+		if (userShop == null || !userShop.IsActive)
+			return null;
+
+		return userShop;
 	}
 
 	public List<UserShop> GetAllUserShops(Guid userId)
