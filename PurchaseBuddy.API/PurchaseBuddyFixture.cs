@@ -39,10 +39,12 @@ public static class PurchaseBuddyFixture
 
 	private static void RegisterRepositories(IServiceCollection serviceCollection, string connectionString)
 	{
-		if (string.IsNullOrEmpty(connectionString))
-			RegisterInMemoryRepositories(serviceCollection);
-		else
-			RegisterRelationalRepositories(serviceCollection, connectionString);
+		RegisterInMemoryRepositories(serviceCollection);
+
+		//if (string.IsNullOrEmpty(connectionString))
+		//	RegisterInMemoryRepositories(serviceCollection);
+		//else
+		//	RegisterRelationalRepositories(serviceCollection, connectionString);
 
 	}
 	private static void RegisterInMemoryRepositories(IServiceCollection serviceCollection)
