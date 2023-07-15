@@ -5,7 +5,7 @@ namespace PurchaseBuddyLibrary.purchases.domain;
 
 public class ImportedShoppingListItem : ShoppingListItem
 {
-	public static ImportedShoppingListItem CreateNew(string productName, string categoryName, int quantity = 1, Guid? guid = null)
+	public static ShoppingListItem CreateNew(string productName, string categoryName, int quantity = 1, Guid? guid = null)
 	{
 		if (quantity < 1)
 			throw new ArgumentException("Quantity cannot be lower that 1");
