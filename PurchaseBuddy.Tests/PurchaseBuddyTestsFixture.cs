@@ -38,7 +38,7 @@ internal class PurchaseBuddyTestsFixture
 	{
 		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
 		var authService = new AuthorizationService(userRepository, null);
-		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
+		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = Guid.NewGuid().ToString(), Email = $"{Guid.NewGuid()}@example.com" });
 		return UserId;
 	}
     protected Guid ANewUserCreated()
@@ -52,12 +52,14 @@ internal class PurchaseBuddyTestsFixture
 	[SetUp]
 	public void SetUp()
 	{
-		_transactionScope = new TransactionScope();
+        Console.WriteLine("TRANSACTION STARTED");
+		_transactionScope = new TransactionScope(TransactionScopeOption.RequiresNew);
 	}
 
 	[TearDown]
 	public void TearDown()
 	{
+        Console.WriteLine("TRANSACTION DISPOSED");
 		_transactionScope.Dispose();
 	}
 

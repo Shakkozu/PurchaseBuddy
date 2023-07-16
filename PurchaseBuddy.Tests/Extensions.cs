@@ -7,8 +7,9 @@ internal static class Extensions
 	{
 		var sw = new Stopwatch();
 		sw.Start();
+		Console.WriteLine($"[{name}] Started");
 		value();
 		sw.Stop();
-		Console.WriteLine($"[{name}] Elapsed in {sw.ElapsedMilliseconds}ms");
+		Console.WriteLine($"[{name}] Processed. Total execution time: {sw.ElapsedMilliseconds}ms");
 	}
 }

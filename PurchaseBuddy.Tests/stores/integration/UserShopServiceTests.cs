@@ -27,7 +27,6 @@ internal class UserShopServiceTests : CatalogueTestsFixture
 	public override void TearDown()
 	{
 		base.TearDown();
-
 	}
 
 	[Test]

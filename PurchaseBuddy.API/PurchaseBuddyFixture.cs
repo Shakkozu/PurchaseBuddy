@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.purchases.app;
@@ -23,17 +24,17 @@ public static class PurchaseBuddyFixture
 	public static void RegisterDependencies(IServiceCollection serviceCollection, string connectionString)
 	{
 		RegisterRepositories(serviceCollection, connectionString);
-		serviceCollection.AddSingleton<IUserAuthorizationService, AuthorizationService>();
-		serviceCollection.AddSingleton<UserShopService, UserShopService>();
-		serviceCollection.AddSingleton<IUserShopService, UserShopService>();
-		serviceCollection.AddSingleton<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
-		serviceCollection.AddSingleton<IShopCategoryListManagementService, ShopCategoryListManagementService>();
-		serviceCollection.AddSingleton<IShoppingListReadService, ShoppingListReadService>();
-		serviceCollection.AddSingleton<IShoppingListWriteService, ShoppingListWriteService>();
-		serviceCollection.AddSingleton<IUserProductsManagementService, UserProductsManagementService>();
-		serviceCollection.AddSingleton<UserProductsManagementService>();
-		serviceCollection.AddSingleton<CategoryFacade>();
-		serviceCollection.AddSingleton<ShoppingListSharingFacade>();
+		serviceCollection.AddTransient<IUserAuthorizationService, AuthorizationService>();
+		serviceCollection.AddTransient<UserShopService, UserShopService>();
+		serviceCollection.AddTransient<IUserShopService, UserShopService>();
+		serviceCollection.AddTransient<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
+		serviceCollection.AddTransient<IShopCategoryListManagementService, ShopCategoryListManagementService>();
+		serviceCollection.AddTransient<IShoppingListReadService, ShoppingListReadService>();
+		serviceCollection.AddTransient<IShoppingListWriteService, ShoppingListWriteService>();
+		serviceCollection.AddTransient<IUserProductsManagementService, UserProductsManagementService>();
+		serviceCollection.AddTransient<UserProductsManagementService>();
+		serviceCollection.AddTransient<CategoryFacade>();
+		serviceCollection.AddTransient<ShoppingListSharingFacade>();
         serviceCollection.AddTransient<ITimeService, TimeService>();
     }
 
@@ -56,12 +57,12 @@ public static class PurchaseBuddyFixture
 	}
 	private static void RegisterRelationalRepositories(IServiceCollection serviceCollection, string connectionString)
 	{
-		serviceCollection.AddSingleton<IUserRepository>(new UserRepository(connectionString));
-		serviceCollection.AddSingleton<IUserShopRepository>(new ShopsRepository(connectionString));
-		serviceCollection.AddSingleton<IProductsRepository>(new ProductsRepository(connectionString));
-		serviceCollection.AddSingleton<ISharedProductRepository>(new SharedProductRepository(connectionString));
-		serviceCollection.AddSingleton<IUserProductCategoriesRepository>(new ProductCategoriesRepository(connectionString));
-		serviceCollection.AddSingleton<IShoppingListRepository>(new ShoppingListRepository(connectionString));
-		serviceCollection.AddSingleton<ISharedShoppingListRepository>(new SharedShoppingListRepository(connectionString));
+		serviceCollection.AddTransient<IUserRepository>(serviceProvider => new UserRepository(connectionString));
+		serviceCollection.AddTransient<IUserShopRepository>(serviceProvider => new ShopsRepository(connectionString));
+		serviceCollection.AddTransient<IProductsRepository>(serviceProvider => new ProductsRepository(connectionString));
+		serviceCollection.AddTransient<ISharedProductRepository>(serviceProvider => new SharedProductRepository(connectionString));
+		serviceCollection.AddTransient<IUserProductCategoriesRepository>(serviceProvider => new ProductCategoriesRepository(connectionString));
+		serviceCollection.AddTransient<IShoppingListRepository>(serviceProvider => new ShoppingListRepository(connectionString));
+		serviceCollection.AddTransient<ISharedShoppingListRepository>(serviceProvider =>  new SharedShoppingListRepository(connectionString));
 	}
 }

@@ -11,10 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="catalogue\Unit\**" />
     <Compile Remove="crm\**" />
     <Compile Remove="e2e\**" />
+    <EmbeddedResource Remove="catalogue\Unit\**" />
     <EmbeddedResource Remove="crm\**" />
     <EmbeddedResource Remove="e2e\**" />
+    <None Remove="catalogue\Unit\**" />
     <None Remove="crm\**" />
     <None Remove="e2e\**" />
   </ItemGroup>
@@ -50,7 +53,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="catalogue\Unit\" />
     <Folder Include="stores\categories-maps\" />
   </ItemGroup>
 

@@ -14,6 +14,7 @@ namespace PurchaseBuddy.Tests.purchases.Integration;
 
 internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 {
+	private ServiceProvider serviceProvider;
 	private IUserProductsManagementService productsManagementService;
 	private IUserShopService shopService;
 	private IUserProductCategoriesManagementService categoriesManagementService;
@@ -25,18 +26,23 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	{
 		var services = new ServiceCollection();
 		PurchaseBuddyFixture.RegisterDependencies(services, TestConfigurationHelper.GetConnectionString());
-		var serviceProvider = services.BuildServiceProvider();
+		serviceProvider = services.BuildServiceProvider();
 
-		productsManagementService = serviceProvider.GetRequiredService<IUserProductsManagementService>();
-		shopService = serviceProvider.GetRequiredService<IUserShopService>();
-		categoriesManagementService = serviceProvider.GetRequiredService<IUserProductCategoriesManagementService>();
-		shoppingListWriteService = serviceProvider.GetRequiredService<IShoppingListWriteService>();
-		shoppingListReadService = serviceProvider.GetRequiredService<IShoppingListReadService>();
 		Extensions.RecordElapsedTime("setup database", () =>
 		{
 			MigrationsRunner.ClearDatabase(services, TestConfigurationHelper.GetConnectionString());
 			MigrationsRunner.RunMigrations(services, TestConfigurationHelper.GetConnectionString());
 		});
+	}
+
+	[SetUp]
+	public void Setup()
+	{
+		productsManagementService = serviceProvider.GetRequiredService<IUserProductsManagementService>();
+		shopService = serviceProvider.GetRequiredService<IUserShopService>();
+		categoriesManagementService = serviceProvider.GetRequiredService<IUserProductCategoriesManagementService>();
+		shoppingListWriteService = serviceProvider.GetRequiredService<IShoppingListWriteService>();
+		shoppingListReadService = serviceProvider.GetRequiredService<IShoppingListReadService>();
 
 		Extensions.RecordElapsedTime("Initialize", () =>
 		{

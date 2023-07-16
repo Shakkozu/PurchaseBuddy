@@ -41,6 +41,7 @@ internal class CatalogueTestsFixture
 	{
 		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
 		{
+			connection.Execute("delete from shared_shopping_lists");
 			connection.Execute("delete from shared_products_customization");
 			connection.Execute("delete from user_products");
 			connection.Execute("delete from shared_products");
@@ -49,6 +50,7 @@ internal class CatalogueTestsFixture
 			connection.Execute("delete from shopping_lists");
 			connection.Execute("delete from shops");
 			connection.Execute("delete from users");
+			connection.Dispose();
 		}
 	}
 	protected Guid AUserCreated(string login = "testUser")

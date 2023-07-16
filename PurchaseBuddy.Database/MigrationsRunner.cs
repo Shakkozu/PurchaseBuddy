@@ -9,11 +9,8 @@ public static class MigrationsRunner
 	public static void RunMigrations(IServiceCollection serviceCollection, string connectionString)
 	{
 		IMigrationRunner migrator;
-
-
-		serviceCollection.AddScoped(_ => new SqlConnection(connectionString));
 		var isRegistered = serviceCollection.BuildServiceProvider().GetServices<IMigrationRunner>().Any();
-		if (!isRegistered)
+                  		if (!isRegistered)
 		{
 			serviceCollection.AddFluentMigratorCore()
 				.ConfigureRunner(rb =>
@@ -34,19 +31,19 @@ public static class MigrationsRunner
 		var isRegistered = serviceCollection.BuildServiceProvider().GetServices<IMigrationRunner>().Any();
 		if (!isRegistered)
 		{
-			var serviceProvider = serviceCollection.AddFluentMigratorCore()
+			serviceCollection.AddFluentMigratorCore()
 				.ConfigureRunner(rb =>
 					rb.AddPostgres()
 					.WithGlobalConnectionString(connectionString)
 					.ScanIn(typeof(Upgrade0001_InitializeUsers).Assembly).For.Migrations())
 				.BuildServiceProvider();
-
-			migrator = serviceProvider.GetRequiredService<IMigrationRunner>();
 		}
-		else
-			migrator = serviceCollection.BuildServiceProvider().GetRequiredService<IMigrationRunner>();
 
 
-		migrator.MigrateDown(0);
+        using(var serviceProvider = serviceCollection.BuildServiceProvider())
+        {
+            migrator = serviceProvider.GetRequiredService<IMigrationRunner>();
+            migrator.MigrateDown(0);
+        }
 	}
 }
