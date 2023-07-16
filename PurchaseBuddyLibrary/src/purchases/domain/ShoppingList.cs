@@ -9,6 +9,9 @@ namespace PurchaseBuddy.src.purchases.domain;
 public class ShoppingList
 {
 	private readonly List<ShoppingListItem> shoppingListItems;
+	private readonly List<Guid> _usersAllowedToModify;
+
+	public IReadOnlyCollection<Guid> UsersAllowedToModify => new ReadOnlyCollection<Guid>(_usersAllowedToModify);
 
 	public IReadOnlyCollection<ShoppingListItem> Items => new ReadOnlyCollection<ShoppingListItem>(shoppingListItems);
 	public Guid UserId { get; }
@@ -19,7 +22,13 @@ public class ShoppingList
 	public DateTime? CompletedAt { get; private set; }
 
 
-	private ShoppingList(Guid userId, Guid? shopId, Guid guid, List<ShoppingListItem> shoppingListEntries, DateTime createdAt, DateTime? closedAt)
+	private ShoppingList(Guid userId,
+					  Guid? shopId,
+					  Guid guid,
+					  List<ShoppingListItem> shoppingListEntries,
+					  DateTime createdAt,
+					  DateTime? closedAt,
+					  List<Guid> usersAllowedToModify)
 	{
 		UserId = userId;
 		shoppingListItems = shoppingListEntries;
@@ -27,11 +36,18 @@ public class ShoppingList
 		CompletedAt = closedAt;
 		Guid = guid;
 		ShopId = shopId;
+		_usersAllowedToModify = usersAllowedToModify ?? new List<Guid>();
 
 	}
 	public static ShoppingList CreateNew(Guid userId, Guid? shopId = null)
 	{
-		return new ShoppingList(userId, shopId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
+		return new ShoppingList(userId,
+						  shopId,
+						  Guid.NewGuid(),
+						  new List<ShoppingListItem>(),
+						  DateTime.UtcNow,
+						  null,
+						  new List<Guid>());
 	
 	}
 	public static ShoppingList CreateNew(Guid userId, List<ShoppingListItem> items, Guid? shopId = null)
@@ -39,7 +55,13 @@ public class ShoppingList
 		if (!items.Any())
 			throw new InvalidOperationException("cannot create empty list");
 
-		var shoppingList = new ShoppingList(userId, shopId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
+		var shoppingList = new ShoppingList(userId,
+									  shopId,
+									  Guid.NewGuid(),
+									  new List<ShoppingListItem>(),
+									  DateTime.UtcNow,
+									  null,
+									  new List<Guid>());
 		foreach(var item in items)
 			shoppingList.AddNew(item);
 
@@ -145,13 +167,15 @@ public class ShoppingList
 				ImportedShoppingListItem.LoadFrom(importedDao) :
 				ShoppingListItem.LoadFrom((UserShoppingListItemDao)listItemDao))
 			.ToList();
+
 		return new ShoppingList(
 			Guid.Parse(dao.UserGuid),
 			string.IsNullOrEmpty(dao.ShopGuid) ? (Guid?)null : Guid.Parse(dao.ShopGuid),
 			Guid.Parse(dao.Guid),
 			shoppingListEntries,
 			dao.CreatedAt,
-			dao.CompletedAt
+			dao.CompletedAt,
+			dao.GetAllowedUsers()
 			);
 	}
 
@@ -169,5 +193,13 @@ public class ShoppingList
 			AddNew(productToAdd);
 		foreach (var productToRemove in productsToRemove)
 			Remove(productToRemove);
+	}
+
+	internal void ShareTo(Guid otherUser)
+	{
+		if (_usersAllowedToModify.Contains(otherUser))
+			return;
+
+		_usersAllowedToModify.Add(otherUser);
 	}
 }

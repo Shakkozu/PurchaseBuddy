@@ -4,6 +4,7 @@ using Npgsql;
 using PurchaseBuddy.API;
 using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddyLibrary.purchases.domain;
@@ -13,7 +14,6 @@ using PurchaseBuddyLibrary.src.purchases.app.contract;
 using PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
 
 namespace PurchaseBuddy.Tests.purchases.Integration;
-
 internal class ShoppingListImportTests : PurchaseBuddyTestsFixture
 {
     private IUserProductsManagementService productsManagementService;

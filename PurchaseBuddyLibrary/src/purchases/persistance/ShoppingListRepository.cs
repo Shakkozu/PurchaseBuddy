@@ -20,15 +20,17 @@ user_guid as UserGuid,
 shop_guid as ShopGuid,
 created_at as CreatedAt,
 completed_at as CompletedAt,
-items as ItemsString
+items as ItemsString,
+allowed_users as AllowedUsers
 from shopping_lists
-where user_guid like @UserGuid";
+where user_guid like @UserGuid or allowed_users like @AllowedUsersQuery";
 
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			var dao = connection.Query<ShoppingListDao>(sql, new
 			{
-				UserGuid = userId.ToDatabaseStringFormat()
+				UserGuid = userId.ToDatabaseStringFormat(),
+				AllowedUsersQuery = $"%{userId.ToDatabaseStringFormat()}%"
 			});
 			if (dao == null || !dao.Any())
 				return new List<ShoppingList>();
@@ -47,16 +49,18 @@ user_guid as UserGuid,
 shop_guid as ShopGuid,
 created_at as CreatedAt,
 completed_at as CompletedAt,
-items as ItemsString
+items as ItemsString,
+allowed_users as AllowedUsers
 from shopping_lists
-where guid like @Guid and user_guid like @UserGuid";
+where guid like @Guid and (user_guid like @UserGuid or allowed_users like @AllowedUsersQuery)";
 
 		using(var connection = new NpgsqlConnection(connectionString))
 		{
 			var dao = connection.QueryFirstOrDefault<ShoppingListDao>(sql, new
 			{
 				UserGuid = userId.ToDatabaseStringFormat(),
-				Guid = shoppingListGuid.ToDatabaseStringFormat()
+				Guid = shoppingListGuid.ToDatabaseStringFormat(),
+				AllowedUsersQuery = $"%{userId.ToDatabaseStringFormat()}%"
 			});
 			if (dao == null)
 				return null;
@@ -67,14 +71,15 @@ where guid like @Guid and user_guid like @UserGuid";
 
 	public void Save(ShoppingList shoppingList)
 	{
-		const string sql = @"insert into shopping_lists (guid, user_guid, shop_guid, created_at, completed_at, items)
+		const string sql = @"insert into shopping_lists (guid, user_guid, shop_guid, created_at, completed_at, items, allowed_users)
 values
 (@Guid,
 @UserGuid,
 @ShopGuid,
 @CreatedAt,
 @CompletedAt,
-@Items)";
+@Items,
+@AllowedUsers)";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			var dao = new ShoppingListDao(shoppingList);
@@ -85,7 +90,8 @@ values
 				ShopGuid = dao.ShopGuid,
 				CreatedAt = dao.CreatedAt,
 				CompletedAt = dao.CompletedAt,
-				Items = dao.ItemsString
+				Items = dao.ItemsString,
+				AllowedUsers = dao.AllowedUsers
 			});
 		}
 	}
@@ -95,7 +101,8 @@ values
 		const string sql = @"update shopping_lists set
 shop_guid = @ShopGuid,
 completed_at = @CompletedAt,
-items = @Items
+items = @Items,
+allowed_users = @AllowedUsers
 where guid like @Guid";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
@@ -106,6 +113,7 @@ where guid like @Guid";
 				ShopGuid = dao.ShopGuid,
 				Items = dao.ItemsString,
 				CompletedAt = dao.CompletedAt,
+				AllowedUsers = dao.AllowedUsers
 			});
 		}
 	}

@@ -4,6 +4,7 @@ using PurchaseBuddy.src.purchases.persistance;
 using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
+using System.Collections.Generic;
 
 namespace PurchaseBuddy.src.purchases.app;
 
@@ -75,12 +76,12 @@ public class ShoppingListWriteService : IShoppingListWriteService
 		if(shoppingList == null)
 			throw new ArgumentNullException($"Shopping list with guid {listId} not found for user {userId}");
 
-		var listItem = CreateShoppingListItemFromRequest(userId, addNewItemRequest);
+		var listItem = CreateShoppingListItemFromRequest(userId, addNewItemRequest, shoppingList.UserId == userId);
         shoppingList.AddNew(listItem);
 		shoppingListRepository.Update(shoppingList);
 	}
     
-    private ShoppingListItem CreateShoppingListItemFromRequest(Guid userId, AddNewListItemRequest addNewItemRequest)
+    private ShoppingListItem CreateShoppingListItemFromRequest(Guid userId, AddNewListItemRequest addNewItemRequest, bool isUserListCreator)
     {
         var quantity = addNewItemRequest.Quantity.GetValueOrDefault(1);
         if (addNewItemRequest.ProductGuid.HasValue)
@@ -92,6 +93,9 @@ public class ShoppingListWriteService : IShoppingListWriteService
                 throw new ArgumentNullException(
                     $"Product with guid {addNewItemRequest.ProductGuid} not found for user {userId}");
 
+			if (!isUserListCreator)
+				return ImportedShoppingListItem.CreateNew(productToAdd.Name, productToAdd.CategoryName, quantity, addNewItemRequest.ListItemGuid);
+
             return ShoppingListItem.CreateNew(productToAdd.Guid, quantity, addNewItemRequest.ListItemGuid);
         }
 
@@ -101,5 +105,16 @@ public class ShoppingListWriteService : IShoppingListWriteService
         return ImportedShoppingListItem.CreateNew(addNewItemRequest.ProductName,
             addNewItemRequest.ProductCategoryName, quantity, addNewItemRequest.ListItemGuid);
     }
+
+	public void ShareList(Guid userId, Guid listId, Guid otherUser)
+	{
+		var shoppingList = shoppingListRepository.GetShoppingList(userId, listId);
+		if (shoppingList == null)
+			throw new ArgumentNullException($"Shopping list with guid {listId} not found for user {userId}");
+		
+		shoppingList.ShareTo(otherUser);
+		shoppingListRepository.Update(shoppingList);
+
+	}
 }
 

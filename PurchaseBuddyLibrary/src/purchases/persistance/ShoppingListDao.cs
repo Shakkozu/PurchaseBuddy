@@ -20,6 +20,9 @@ public class ShoppingListDao
 		CompletedAt = shoppingList.CompletedAt;
 		shoppingListItems = ShoppingListItemMapper.Map(shoppingList.Items).ToList();
 		ItemsString = JsonConvert.SerializeObject(shoppingListItems);
+		AllowedUsers = string.Join(
+			AllowedUsersSeparator,
+			shoppingList.UsersAllowedToModify.Select(x => x.ToDatabaseStringFormat()));
 	}
 
 	public int Id { get; set; }
@@ -29,6 +32,8 @@ public class ShoppingListDao
 	public DateTime CreatedAt { get; set; }
 	public DateTime? CompletedAt { get; set; }
 	public string ItemsString { get; set; }
+	public string AllowedUsers { get; set; }
+
 	private List<ShoppingListItemDao> shoppingListItems = new();
 
 	internal List<ShoppingListItemDao> GetShoppingListEntries()
@@ -39,4 +44,15 @@ public class ShoppingListDao
 		var converter = new ShoppingListItemJsonConverter();
 		return converter.Convert(ItemsString);
 	}
+
+	internal List<Guid> GetAllowedUsers()
+	{
+		if(string.IsNullOrEmpty(AllowedUsers))
+			return new List<Guid>();
+
+		var users = AllowedUsers.Split(AllowedUsersSeparator, StringSplitOptions.TrimEntries);
+		return users.Select(System.Guid.Parse).ToList();
+	}
+
+	private const string AllowedUsersSeparator = ",";
 }

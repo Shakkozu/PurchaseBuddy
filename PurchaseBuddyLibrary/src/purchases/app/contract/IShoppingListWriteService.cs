@@ -14,4 +14,5 @@ public interface IShoppingListWriteService
 	Guid CreateNewList(Guid userId, List<ShoppingListItem> listItems, Guid? assignedShop = null);
 	Guid CreateNewListWithNotBoughtItems(Guid userId, Guid createdListId, Guid shopId);
 	void AddNewListItem(Guid userId, Guid listId, AddNewListItemRequest addNewItemRequest);
+	void ShareList(Guid userId, Guid shoppingListId, Guid otherUser);
 }
