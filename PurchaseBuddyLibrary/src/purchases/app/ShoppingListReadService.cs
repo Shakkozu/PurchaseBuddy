@@ -41,19 +41,25 @@ public class ShoppingListReadService : IShoppingListReadService
 		var userProducts = userProductsManagementService.GetUserProducts(new GetUserProductsQuery(userId, pageSize: 1000));
 		List<ShoppingListItemDto> listItems = new List<ShoppingListItemDto>();
 		foreach(var item in shoppingList.Items)
-		{
-			if(item is ImportedShoppingListItem importedItem)
-			{
-				listItems.Add(new ShoppingListItemDto(importedItem));
-				continue;
-			}
-			listItems.Add(new ShoppingListItemDto(item, userProducts.First(p => p.Guid == item.ProductId)));
-		}
+        {
+            AddShoppingListItemDtoToList(item, listItems, userProducts);
+        }
 
 		return new ShoppingListDto(userId, shoppingList, shopDto, listItems);
 	}
 
-	public IList<ShoppingListDto> GetNotClosedShoppingLists(Guid userId)
+    private static void AddShoppingListItemDtoToList(ShoppingListItem item, List<ShoppingListItemDto> listItems, List<UserProductDto> userProducts)
+    {
+        if (item is ImportedShoppingListItem importedItem)
+        {
+            listItems.Add(new ShoppingListItemDto(importedItem));
+            return;
+        }
+
+        listItems.Add(new ShoppingListItemDto(item, userProducts.First(p => p.Guid == item.ProductId)));
+    }
+
+    public IList<ShoppingListDto> GetNotClosedShoppingLists(Guid userId)
 	{
 		var result = new List<ShoppingListDto>();
 		var notCompletedShoppingLists = shoppingListRepository.GetAll(userId).Where(list => !list.IsCompleted);
@@ -65,9 +71,9 @@ public class ShoppingListReadService : IShoppingListReadService
 		foreach (var list in notCompletedShoppingLists)
 		{
 			UserShop? shop = list.ShopId.HasValue ? userShops.FirstOrDefault(shop => shop.Guid == list.ShopId.Value) : null;
-			var listItems = list.Items
-				.Select(item => new ShoppingListItemDto(item, userProducts.First(p => p.Guid == item.ProductId)))
-				.ToList();
+            var listItems = new List<ShoppingListItemDto>();
+            foreach (var item in list.Items)
+                AddShoppingListItemDtoToList(item, listItems, userProducts);
 			result.Add(new ShoppingListDto(userId, list, UserShopDto.FromModel(shop), listItems));
 		}
 

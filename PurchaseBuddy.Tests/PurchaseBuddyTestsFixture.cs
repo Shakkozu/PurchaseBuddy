@@ -41,6 +41,13 @@ internal class PurchaseBuddyTestsFixture
 		UserId = authService.Register(new UserDto { Password = "examplePassword123!", Login = "exampleLogin123", Email = "test@example.com" });
 		return UserId;
 	}
+    protected Guid ANewUserCreated()
+	{
+		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
+		var authService = new AuthorizationService(userRepository, null);
+
+		return authService.Register(new UserDto { Password = "examplePassword123!", Login = Guid.NewGuid().ToString(), Email = $"{Guid.NewGuid()}@example.com" });
+	}
 
 	[SetUp]
 	public void SetUp()

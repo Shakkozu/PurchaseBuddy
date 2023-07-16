@@ -49,6 +49,11 @@ public class InMemoryUserShopRepository : IUserShopRepository
 
 	public void Update(UserShop shop)
 	{
-		throw new NotImplementedException();
-	}
+		var shopToUpdate = cache[shop.UserId].FirstOrDefault(userShop => shop.Guid == userShop.Guid);
+		if (shopToUpdate == null)
+			return;
+
+		cache[shop.UserId].Remove(shopToUpdate);
+		cache[shop.UserId].Add(shop);
+    }
 }

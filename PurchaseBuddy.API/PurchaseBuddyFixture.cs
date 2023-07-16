@@ -1,4 +1,5 @@
-﻿using PurchaseBuddy.src.catalogue.App;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddy.src.purchases.persistance;
@@ -11,7 +12,9 @@ using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
+using PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
 using PurchaseBuddyLibrary.src.stores.app;
+using PurchaseBuddyLibrary.src.utils;
 
 namespace PurchaseBuddy.API;
 
@@ -30,7 +33,9 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<IUserProductsManagementService, UserProductsManagementService>();
 		serviceCollection.AddSingleton<UserProductsManagementService>();
 		serviceCollection.AddSingleton<CategoryFacade>();
-	}
+		serviceCollection.AddSingleton<ShoppingListSharingFacade>();
+        serviceCollection.AddTransient<ITimeService, TimeService>();
+    }
 
 	private static void RegisterRepositories(IServiceCollection serviceCollection, string connectionString)
 	{
@@ -47,6 +52,7 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<IProductsRepository>(new InMemoryProductsRepository());
 		serviceCollection.AddSingleton<IUserProductCategoriesRepository>(new InMemoryUserProductCategoriesRepository());
 		serviceCollection.AddSingleton<IShoppingListRepository>(new InMemoryShoppingListRepository());
+		serviceCollection.AddSingleton<ISharedShoppingListRepository>(new InMemorySharedShoppingListRepository());
 	}
 	private static void RegisterRelationalRepositories(IServiceCollection serviceCollection, string connectionString)
 	{
@@ -56,5 +62,6 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<ISharedProductRepository>(new SharedProductRepository(connectionString));
 		serviceCollection.AddSingleton<IUserProductCategoriesRepository>(new ProductCategoriesRepository(connectionString));
 		serviceCollection.AddSingleton<IShoppingListRepository>(new ShoppingListRepository(connectionString));
+		serviceCollection.AddSingleton<ISharedShoppingListRepository>(new SharedShoppingListRepository(connectionString));
 	}
 }

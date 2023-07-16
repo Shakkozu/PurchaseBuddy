@@ -1,13 +1,13 @@
 ﻿using PurchaseBuddy.src.catalogue.App;
-using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.purchases.persistance;
 using PurchaseBuddyLibrary.purchases.domain;
-using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 
 namespace PurchaseBuddy.src.purchases.app;
+
+
 
 public class ShoppingListWriteService : IShoppingListWriteService
 {
@@ -15,7 +15,7 @@ public class ShoppingListWriteService : IShoppingListWriteService
 	private readonly IUserProductsManagementService userProductsManagementService;
 
 	public ShoppingListWriteService(IShoppingListRepository shoppingListRepository,
-		IUserProductsManagementService userProductsManagementService)
+        IUserProductsManagementService userProductsManagementService)
     {
 		this.shoppingListRepository = shoppingListRepository;
 		this.userProductsManagementService = userProductsManagementService;
@@ -69,17 +69,17 @@ public class ShoppingListWriteService : IShoppingListWriteService
 		return newShoppingList.Guid;
 	}
 
-	public void AddNewListItem(Guid userId, Guid createdListId, AddNewListItemRequest addNewItemRequest)
+	public void AddNewListItem(Guid userId, Guid listId, AddNewListItemRequest addNewItemRequest)
 	{
-		var shoppingList = shoppingListRepository.GetShoppingList(userId, createdListId);
+		var shoppingList = shoppingListRepository.GetShoppingList(userId, listId);
 		if(shoppingList == null)
-			throw new ArgumentNullException($"Shopping list with guid {createdListId} not found for user {userId}");
+			throw new ArgumentNullException($"Shopping list with guid {listId} not found for user {userId}");
 
 		var listItem = CreateShoppingListItemFromRequest(userId, addNewItemRequest);
         shoppingList.AddNew(listItem);
 		shoppingListRepository.Update(shoppingList);
 	}
-
+    
     private ShoppingListItem CreateShoppingListItemFromRequest(Guid userId, AddNewListItemRequest addNewItemRequest)
     {
         var quantity = addNewItemRequest.Quantity.GetValueOrDefault(1);
@@ -102,3 +102,4 @@ public class ShoppingListWriteService : IShoppingListWriteService
             addNewItemRequest.ProductCategoryName, quantity, addNewItemRequest.ListItemGuid);
     }
 }
+

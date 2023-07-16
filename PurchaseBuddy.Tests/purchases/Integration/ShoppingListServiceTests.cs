@@ -4,7 +4,6 @@ using Npgsql;
 using PurchaseBuddy.API;
 using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
-using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddyLibrary.purchases.domain;
@@ -136,8 +135,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void WhenListIsAssignedToDeactivatedShop_ListIsReturnedWithoutShopInfo()
 	{
-		Guid shop = Guid.NewGuid();
-		shop = AShopWithCategories();
+		var shop = AShopWithCategories();
 		var list = shoppingListWriteService.CreateNewList(UserId, AListItemsWithSingleItem(), shop);
 		shopService.DeleteUserShop(UserId, shop);
 
