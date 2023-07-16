@@ -187,20 +187,6 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	}
 
 	[Test]
-	public void ShouldReturnAllNotCompletedLists()
-	{
-		var listItems = AListItemsWithSingleItem();
-		var list = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
-		var list2 = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
-
-		shoppingListWriteService.MarkListItemAsPurchased(UserId, list, listItems.First().Guid);
-		var userLists = shoppingListReadService.GetNotClosedShoppingLists(UserId);
-
-		Assert.AreEqual(1, userLists.Count);
-		Assert.AreEqual(list2, userLists.First().Guid);
-	}
-
-	[Test]
 	public void ShouldNotCreateEmptyList()
 	{
 		var listItems = new List<ShoppingListItem> { };

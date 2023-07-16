@@ -27,10 +27,10 @@ public class ShoppingListsController : BaseController
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetCurrentShoppingLists()
+	public async Task<IActionResult> GetAllShoppingLists()
 	{
 		var user = await GetUserFromSessionAsync();
-		var lists = shoppingListReadService.GetNotClosedShoppingLists(user.Guid);
+		var lists = shoppingListReadService.GetAllShoppingLists(user.Guid);
 
 		return Ok(lists);
 	}

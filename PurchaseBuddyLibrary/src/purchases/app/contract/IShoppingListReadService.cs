@@ -3,5 +3,5 @@
 public interface IShoppingListReadService
 {
 	ShoppingListDto GetShoppingList(Guid userId, Guid shoppingListId);
-	IList<ShoppingListDto> GetNotClosedShoppingLists(Guid userId);
+	IList<ShoppingListDto> GetAllShoppingLists(Guid userId);
 }

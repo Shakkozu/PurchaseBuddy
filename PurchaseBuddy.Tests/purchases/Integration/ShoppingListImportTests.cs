@@ -133,7 +133,7 @@ internal class ShoppingListImportTests : PurchaseBuddyTestsFixture
         
         facade.ImportSharedList(otherUserId, sharedListId);
 
-        var shoppingList = shoppingListReadService.GetNotClosedShoppingLists(otherUserId);
+        var shoppingList = shoppingListReadService.GetAllShoppingLists(otherUserId);
         Assert.That(shoppingList, Is.Not.Empty);
     }
 

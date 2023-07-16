@@ -59,10 +59,10 @@ public class ShoppingListReadService : IShoppingListReadService
         listItems.Add(new ShoppingListItemDto(item, userProducts.First(p => p.Guid == item.ProductId)));
     }
 
-    public IList<ShoppingListDto> GetNotClosedShoppingLists(Guid userId)
+    public IList<ShoppingListDto> GetAllShoppingLists(Guid userId)
 	{
 		var result = new List<ShoppingListDto>();
-		var notCompletedShoppingLists = shoppingListRepository.GetAll(userId).Where(list => !list.IsCompleted);
+		var notCompletedShoppingLists = shoppingListRepository.GetAll(userId);
 		if (!notCompletedShoppingLists.Any())
 			return result;
 
