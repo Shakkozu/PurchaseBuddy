@@ -135,8 +135,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void WhenListIsAssignedToDeactivatedShop_ListIsReturnedWithoutShopInfo()
 	{
-		Guid shop = Guid.NewGuid();
-		shop = AShopWithCategories();
+		var shop = AShopWithCategories();
 		var list = shoppingListWriteService.CreateNewList(UserId, AListItemsWithSingleItem(), shop);
 		shopService.DeleteUserShop(UserId, shop);
 

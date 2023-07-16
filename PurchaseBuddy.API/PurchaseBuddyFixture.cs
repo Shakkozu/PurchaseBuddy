@@ -39,12 +39,10 @@ public static class PurchaseBuddyFixture
 
 	private static void RegisterRepositories(IServiceCollection serviceCollection, string connectionString)
 	{
-		RegisterInMemoryRepositories(serviceCollection);
-
-		//if (string.IsNullOrEmpty(connectionString))
-		//	RegisterInMemoryRepositories(serviceCollection);
-		//else
-		//	RegisterRelationalRepositories(serviceCollection, connectionString);
+		if (string.IsNullOrEmpty(connectionString))
+			RegisterInMemoryRepositories(serviceCollection);
+		else
+			RegisterRelationalRepositories(serviceCollection, connectionString);
 
 	}
 	private static void RegisterInMemoryRepositories(IServiceCollection serviceCollection)
@@ -64,5 +62,6 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddSingleton<ISharedProductRepository>(new SharedProductRepository(connectionString));
 		serviceCollection.AddSingleton<IUserProductCategoriesRepository>(new ProductCategoriesRepository(connectionString));
 		serviceCollection.AddSingleton<IShoppingListRepository>(new ShoppingListRepository(connectionString));
+		serviceCollection.AddSingleton<ISharedShoppingListRepository>(new SharedShoppingListRepository(connectionString));
 	}
 }

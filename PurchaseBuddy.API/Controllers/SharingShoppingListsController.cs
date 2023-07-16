@@ -26,7 +26,6 @@ public class SharingShoppingListsController : BaseController
 	public IActionResult GetSharedList(Guid listId)
 	{
 		var list = facade.GetSharedList(listId);
-        Console.WriteLine(@list);
 
         return Ok(new
 		{

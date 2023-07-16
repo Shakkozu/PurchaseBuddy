@@ -7,6 +7,7 @@ using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddyLibrary.purchases.domain;
+using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 using PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
@@ -25,14 +26,6 @@ internal class ShoppingListImportTests : PurchaseBuddyTestsFixture
     private Guid shopId;
     private ShoppingListSharingFacade facade;
 
-    [SetUp]
-    public void Setup()
-    {
-        facade = new ShoppingListSharingFacade(shoppingListReadService,
-            new InMemorySharedShoppingListRepository(),
-            shoppingListWriteService);
-    }
-
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
@@ -45,6 +38,7 @@ internal class ShoppingListImportTests : PurchaseBuddyTestsFixture
         categoriesManagementService = serviceProvider.GetRequiredService<IUserProductCategoriesManagementService>();
         shoppingListWriteService = serviceProvider.GetRequiredService<IShoppingListWriteService>();
         shoppingListReadService = serviceProvider.GetRequiredService<IShoppingListReadService>();
+		facade = serviceProvider.GetRequiredService<ShoppingListSharingFacade>();
         Extensions.RecordElapsedTime("setup database", () =>
         {
             MigrationsRunner.ClearDatabase(services, TestConfigurationHelper.GetConnectionString());
@@ -83,6 +77,32 @@ internal class ShoppingListImportTests : PurchaseBuddyTestsFixture
 		var secondCreatedList = facade.CreateSharedList(UserId, listId);
 
 		Assert.AreNotEqual(listToShareId, secondCreatedList);
+	}
+
+	[Test]
+	public void ShouldKeepCategoryInformation_WhenListItemIsImported_WhenListIsShared()
+	{
+		var listItems = new List<ShoppingListItem> { ImportedShoppingListItem.CreateNew("Milk", "Dairy") };
+		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
+		var sharedListId = facade.CreateSharedList(UserId, listId);
+
+		var sharedList = facade.GetSharedList(sharedListId);
+
+		Assert.AreEqual(sharedList.Items.First().categoryName, "Dairy");
+	}
+
+	[Test]
+	public void ShouldKeepCategoryInformation_WhenListIsShared()
+	{
+		var category = categoriesManagementService.AddNewProductCategory(UserId, new CreateUserCategoryRequest("Dairy", null, null));
+		var product = productsManagementService.DefineNewUserProduct(new UserProductDto { CategoryId = category, Guid = Guid.NewGuid(), Name = "Milk" }, UserId);
+		var listItems = new List<ShoppingListItem> { ShoppingListItem.CreateNew(product.Guid) };
+		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
+		var sharedListId = facade.CreateSharedList(UserId, listId);
+
+		var sharedList = facade.GetSharedList(sharedListId);
+
+		Assert.AreEqual(sharedList.Items.First().categoryName, "Dairy");
 	}
 
 	[Test]
