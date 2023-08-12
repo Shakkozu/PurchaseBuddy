@@ -4,16 +4,16 @@ using Npgsql;
 using PurchaseBuddy.API;
 using PurchaseBuddy.Database;
 using PurchaseBuddy.src.catalogue.App;
+using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.contract;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
-using PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
+using PurchaseBuddyLibrary.src.purchases.CloningListsToOtherUsers;
 
 namespace PurchaseBuddy.Tests.purchases.Integration;
-
 internal class ShoppingListImportTests : PurchaseBuddyTestsFixture
 {
     private IUserProductsManagementService productsManagementService;

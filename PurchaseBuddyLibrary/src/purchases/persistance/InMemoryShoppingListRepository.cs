@@ -9,14 +9,27 @@ public class InMemoryShoppingListRepository : IShoppingListRepository
 	public IList<ShoppingList> GetAll(Guid userId)
 	{
 		return cache.Values
-			.Where(list => list.UserId == userId)
+			.Where(list => list.UserId == userId || list.UsersAllowedToModify.Contains(userId))
 			.ToList();
 	}
 
 	public ShoppingList GetShoppingList(Guid userId, Guid shoppingListGuid)
 	{
 		if (!cache.ContainsKey(shoppingListGuid))
-			throw new ArgumentException("Not found");
+			return null;
+
+		var list = cache[shoppingListGuid];
+		if (list.UserId != userId && !list.UsersAllowedToModify.Contains(userId))
+			return null;
+
+
+		return cache[shoppingListGuid];
+	}
+
+	public ShoppingList? GetShoppingList(Guid shoppingListGuid)
+	{
+		if (!cache.ContainsKey(shoppingListGuid))
+			return null;
 
 		return cache[shoppingListGuid];
 	}

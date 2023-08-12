@@ -1,41 +1,56 @@
-﻿using PurchaseBuddy.src.catalogue.App;
+﻿using MediatR;
+using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.purchases.persistance;
 using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.src.catalogue.Queries.GetUserProducts;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
+using PurchaseBuddyLibrary.src.purchases.app.events;
 
 namespace PurchaseBuddy.src.purchases.app;
 
-
-
-public class ShoppingListWriteService : IShoppingListWriteService
+internal class ShoppingListWriteService : IShoppingListWriteService
 {
 	private readonly IShoppingListRepository shoppingListRepository;
 	private readonly IUserProductsManagementService userProductsManagementService;
+	private readonly IMediator mediator;
 
 	public ShoppingListWriteService(IShoppingListRepository shoppingListRepository,
-        IUserProductsManagementService userProductsManagementService)
+        IUserProductsManagementService userProductsManagementService,
+		IMediator mediator)
     {
 		this.shoppingListRepository = shoppingListRepository;
 		this.userProductsManagementService = userProductsManagementService;
+		this.mediator = mediator;
 	}
 
 	public void MarkListItemtAsUnavailable(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
+		if (shoppingList == null)
+			throw new ArgumentException($"Shopping list with id {shoppingListId} not found for user {userId}");
+
 		shoppingList.MarkListItemAsUnavailable(listItemId);
 		shoppingListRepository.Update(shoppingList);
 	}
 	public void MarkListItemAsPurchased(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
+		if (shoppingList == null)
+			throw new ArgumentException($"Shopping list with id {shoppingListId} not found for user {userId}");
+
 		shoppingList.MarkListItemAsPurchased(listItemId);
+		if (shoppingList.IsCompleted)
+			mediator.Send(new ShoppingCompleted(shoppingList.Guid, shoppingList.UserId));
+
 		shoppingListRepository.Update(shoppingList);
 	}
 	public void MarkListItemAsNotPurchased(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
+		if (shoppingList == null)
+			throw new ArgumentException($"Shopping list with id {shoppingListId} not found for user {userId}");
+
 		shoppingList.MarkListItemAsNotPurchased(listItemId);
 		shoppingListRepository.Update(shoppingList);
 	}
@@ -49,24 +64,17 @@ public class ShoppingListWriteService : IShoppingListWriteService
 	public void RemoveItemFromList(Guid userId, Guid shoppingListId, Guid listItemId)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		shoppingList.Remove(listItemId);
+		if (shoppingList == null)
+			throw new ArgumentException($"Shopping list with id {shoppingListId} not found for user {userId}");
+
+		shoppingList.Remove(listItemId, userId);
 		shoppingListRepository.Update(shoppingList);
 	}
 	public void ChangeQuantityOfProductOnList(Guid userId, Guid shoppingListId, Guid listItemId, int newQuantity)
 	{
 		var shoppingList = shoppingListRepository.GetShoppingList(userId, shoppingListId);
-		shoppingList.ChangeQuantityOf(listItemId, newQuantity);
+		shoppingList.ChangeQuantityOf(listItemId, newQuantity, userId);
 		shoppingListRepository.Update(shoppingList);
-	}
-
-	public Guid CreateNewListWithNotBoughtItems(Guid userId, Guid createdListId, Guid shopId)
-	{
-		var shoppingList = shoppingListRepository.GetShoppingList(userId, createdListId);
-		var newShoppingList = shoppingList.GenerateNewWithNotBoughtItems(shopId);
-		shoppingListRepository.Update(shoppingList);
-		shoppingListRepository.Save(newShoppingList);
-
-		return newShoppingList.Guid;
 	}
 
 	public void AddNewListItem(Guid userId, Guid listId, AddNewListItemRequest addNewItemRequest)
@@ -75,12 +83,12 @@ public class ShoppingListWriteService : IShoppingListWriteService
 		if(shoppingList == null)
 			throw new ArgumentNullException($"Shopping list with guid {listId} not found for user {userId}");
 
-		var listItem = CreateShoppingListItemFromRequest(userId, addNewItemRequest);
-        shoppingList.AddNew(listItem);
+		var listItem = CreateShoppingListItemFromRequest(userId, addNewItemRequest, shoppingList.UserId == userId);
+        shoppingList.AddNew(listItem, userId);
 		shoppingListRepository.Update(shoppingList);
 	}
     
-    private ShoppingListItem CreateShoppingListItemFromRequest(Guid userId, AddNewListItemRequest addNewItemRequest)
+    private ShoppingListItem CreateShoppingListItemFromRequest(Guid userId, AddNewListItemRequest addNewItemRequest, bool isUserListCreator)
     {
         var quantity = addNewItemRequest.Quantity.GetValueOrDefault(1);
         if (addNewItemRequest.ProductGuid.HasValue)
@@ -92,7 +100,10 @@ public class ShoppingListWriteService : IShoppingListWriteService
                 throw new ArgumentNullException(
                     $"Product with guid {addNewItemRequest.ProductGuid} not found for user {userId}");
 
-            return ShoppingListItem.CreateNew(productToAdd.Guid, quantity, addNewItemRequest.ListItemGuid);
+			if (!isUserListCreator)
+				return ImportedShoppingListItem.CreateNew(productToAdd.Name, productToAdd.CategoryName, quantity, addNewItemRequest.ListItemGuid);
+
+			return ShoppingListItem.CreateNew(productToAdd.Guid, quantity, addNewItemRequest.ListItemGuid);
         }
 
         if (string.IsNullOrEmpty(addNewItemRequest.ProductName))
@@ -101,5 +112,14 @@ public class ShoppingListWriteService : IShoppingListWriteService
         return ImportedShoppingListItem.CreateNew(addNewItemRequest.ProductName,
             addNewItemRequest.ProductCategoryName, quantity, addNewItemRequest.ListItemGuid);
     }
-}
 
+	public void GrantAccessToModifyingList(Guid listId, Guid userId)
+	{
+		var shoppingList = shoppingListRepository.GetShoppingList(listId);
+		if (shoppingList == null)
+			throw new ArgumentNullException($"Shopping list with guid {listId} not found");
+
+		shoppingList.GrantAccessToModifyingTo(userId);
+		shoppingListRepository.Update(shoppingList);
+	}
+}

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.Extensions.DependencyInjection;
+﻿using MediatR;
 using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
 using PurchaseBuddy.src.purchases.app;
@@ -13,7 +12,9 @@ using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
-using PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
+using PurchaseBuddyLibrary.src.purchases.app.eventHandlers;
+using PurchaseBuddyLibrary.src.purchases.CloningListsToOtherUsers;
+using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.events;
 using PurchaseBuddyLibrary.src.stores.app;
 using PurchaseBuddyLibrary.src.utils;
 
@@ -23,20 +24,26 @@ public static class PurchaseBuddyFixture
 {
 	public static void RegisterDependencies(IServiceCollection serviceCollection, string connectionString)
 	{
+		serviceCollection.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+		serviceCollection.AddLogging(cfg => cfg.AddConsole());
+
 		RegisterRepositories(serviceCollection, connectionString);
 		serviceCollection.AddTransient<IUserAuthorizationService, AuthorizationService>();
 		serviceCollection.AddTransient<UserShopService, UserShopService>();
 		serviceCollection.AddTransient<IUserShopService, UserShopService>();
 		serviceCollection.AddTransient<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
 		serviceCollection.AddTransient<IShopCategoryListManagementService, ShopCategoryListManagementService>();
-		serviceCollection.AddTransient<IShoppingListReadService, ShoppingListReadService>();
-		serviceCollection.AddTransient<IShoppingListWriteService, ShoppingListWriteService>();
+
 		serviceCollection.AddTransient<IUserProductsManagementService, UserProductsManagementService>();
 		serviceCollection.AddTransient<UserProductsManagementService>();
 		serviceCollection.AddTransient<CategoryFacade>();
 		serviceCollection.AddTransient<ShoppingListSharingFacade>();
         serviceCollection.AddTransient<ITimeService, TimeService>();
-    }
+
+		PurchaseModule.RegisterModule(serviceCollection);
+		SharingModule.Register(serviceCollection, connectionString);
+
+	}
 
 	private static void RegisterRepositories(IServiceCollection serviceCollection, string connectionString)
 	{

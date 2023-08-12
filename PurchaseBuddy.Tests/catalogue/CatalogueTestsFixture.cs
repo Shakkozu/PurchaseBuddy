@@ -41,6 +41,7 @@ internal class CatalogueTestsFixture
 	{
 		using (var connection = new NpgsqlConnection(TestConfigurationHelper.GetConnectionString()))
 		{
+			connection.Execute("delete from shopping_invitations");
 			connection.Execute("delete from shared_shopping_lists");
 			connection.Execute("delete from shared_products_customization");
 			connection.Execute("delete from user_products");

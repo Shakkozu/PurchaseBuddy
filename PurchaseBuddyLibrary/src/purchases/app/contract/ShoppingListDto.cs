@@ -6,7 +6,7 @@ public class ShoppingListDto
 {
     public ShoppingListDto(Guid userId, ShoppingList shoppingList, UserShopDto? shopDto, IEnumerable<ShoppingListItemDto> listItems)
     {
-        UserId = userId;
+        CreatorId = userId;
         Guid = shoppingList.Guid;
         AssignedShop = shopDto;
         Completed = shoppingList.CompletedAt.HasValue;
@@ -45,7 +45,7 @@ public class ShoppingListDto
 	}
 
 	public Guid Guid { get; set; }
-    public Guid UserId { get; set; }
+    public Guid CreatorId { get; set; }
     public UserShopDto? AssignedShop { get; set; }
 	
 	public List<ShoppingListItemDto> ShoppingListItems { get; set; }

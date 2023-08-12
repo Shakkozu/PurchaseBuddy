@@ -1,4 +1,4 @@
-﻿namespace PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
+﻿namespace PurchaseBuddyLibrary.src.purchases.CloningListsToOtherUsers;
 
 internal class SharedList
 {

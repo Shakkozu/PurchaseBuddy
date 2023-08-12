@@ -153,7 +153,7 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void ShouldOrderShoppingListItemsByAssignedShopCategoriesConfig()
 	{
-		Extensions.RecordElapsedTime("Test Execution", () =>
+		Extensions.RecordElapsedTime("ShoppingListInvitationsRepository Execution", () =>
 		{
 			Guid category1 = categoriesGuids[2], category2 = categoriesGuids[0], category3 = categoriesGuids[1];
 			var productCat1 = AProductWithCategory(category1);
@@ -270,57 +270,6 @@ internal class ShoppingListServiceTests : PurchaseBuddyTestsFixture
 
 		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
 		Assert.True(userList.ShoppingListItems.First(p => p.Guid == listItemGuid.ToString()).Unavailable);
-	}
-
-	[Test]
-	public void ShouldCreateNewListWithNotPurchasedItems()
-	{
-		var listItems = AListItems();
-		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
-
-		shoppingListWriteService.MarkListItemtAsUnavailable(UserId, listId, listItems.First().Guid);
-		var newListId = shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId2);
-
-		var userList = shoppingListReadService.GetShoppingList(UserId, newListId);
-		Assert.AreEqual(shopId2, userList.AssignedShop.Guid);
-		Assert.AreEqual(userList.ShoppingListItems.First().ProductDto.Guid, listItems.First().ProductId);
-		Assert.AreEqual(userList.ShoppingListItems.First().Quantity, listItems.First().Quantity);
-		Assert.AreEqual(userList.ShoppingListItems.Last().ProductDto.Guid, listItems.Last().ProductId);
-		Assert.AreEqual(userList.ShoppingListItems.Last().Quantity, listItems.Last().Quantity);
-	}
-
-	[Test]
-	public void ShouldNotCreateNewListWithNotPurchasedItems_WhenAllItemsArePurchased()
-	{
-		var listItems = AListItemsWithSingleItem();
-		var listItemGuid = listItems.First().Guid;
-		var listId = shoppingListWriteService.CreateNewList(UserId, listItems, shopId);
-		shoppingListWriteService.MarkListItemAsPurchased(UserId, listId, listItemGuid);
-
-		Assert.Throws<InvalidOperationException>(() => shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId2));
-	}
-
-	[Test]
-	public void ShouldCreateNewListWithNotPurchasedItemsAndCompleteCurrentList()
-	{
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
-
-		shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId);
-
-		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
-		Assert.True(userList.Completed);
-	}
-
-
-	[Test]
-	public void ShouldCreateNewListWithNotPurchasedItemsAndRemoveNotCompletedItems()
-	{
-		var listId = shoppingListWriteService.CreateNewList(UserId, AListItems(), shopId);
-
-		shoppingListWriteService.CreateNewListWithNotBoughtItems(UserId, listId, shopId);
-
-		var userList = shoppingListReadService.GetShoppingList(UserId, listId);
-		Assert.IsEmpty(userList.ShoppingListItems);
 	}
 
 	[Test]

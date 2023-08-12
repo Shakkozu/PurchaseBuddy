@@ -3,9 +3,8 @@
 namespace PurchaseBuddy.Database.Migrations;
 
 [Migration(5, "Create shopping list table")]
-public class Upgrade0005_CreateShopsTable: Migration
+public class Upgrade0005_CreateShopsTable : Migration
 {
-
 	public override void Down()
 	{
 		Delete.Table(ShopsTableName);

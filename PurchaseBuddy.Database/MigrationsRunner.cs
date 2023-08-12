@@ -10,7 +10,7 @@ public static class MigrationsRunner
 	{
 		IMigrationRunner migrator;
 		var isRegistered = serviceCollection.BuildServiceProvider().GetServices<IMigrationRunner>().Any();
-                  		if (!isRegistered)
+		if (!isRegistered)
 		{
 			serviceCollection.AddFluentMigratorCore()
 				.ConfigureRunner(rb =>
