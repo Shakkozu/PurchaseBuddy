@@ -16,6 +16,7 @@ internal class GrantAccessToModifyingSharedListService : IRequestHandler<Invitat
         this.shoppingListWrite = shoppingListWrite;
         this.logger = logger;
     }
+
     public Task Handle(InvitationToModifyingShoppingListAccepted request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling event InvitationToModifyingShoppingListAccepted {@notification}", request);

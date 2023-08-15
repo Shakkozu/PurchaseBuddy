@@ -62,7 +62,7 @@ public class SharingFacade
 		repo.Update(invitationsList);
 	}
 
-	public void MarkInvitationAsExpired(Guid listId)
+	public void MarkInvitationsAsExpired(Guid listId)
 	{
 		var invitationsList = repo.Get(listId);
 		if (invitationsList == null)

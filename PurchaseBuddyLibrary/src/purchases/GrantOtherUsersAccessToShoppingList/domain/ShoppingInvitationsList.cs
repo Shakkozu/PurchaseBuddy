@@ -69,6 +69,7 @@ public class ShoppingInvitationsList
     internal void MarkAsExpired()
     {
         IsActive = false;
+		_usersInvitedToModify.Clear();
     }
 
     internal void InviteUser(Guid otherUser, Guid listCreatorId)

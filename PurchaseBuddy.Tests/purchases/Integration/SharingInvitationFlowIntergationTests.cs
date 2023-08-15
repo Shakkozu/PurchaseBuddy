@@ -53,7 +53,6 @@ internal class SharingInvitationFlowIntergationTests : PurchaseBuddyTestsFixture
 	[Test]
 	public void InteractingWithSharedListWorksCorrectly()
 	{
-		//given
 		var shoppingListId = AShoppingListWithSingleItemCreated();
 		shoppingListWriteService.AddNewListItem(UserId, shoppingListId, new AddNewListItemRequest { ProductName = "Chocolate" });
 		sharingFacade.InviteOtherUserToModifyList(UserId, shoppingListId, OtherUser);

@@ -129,7 +129,7 @@ internal class SharingInvitationFlowsTests : PurchaseBuddyTestsFixture
         sharingFacade.InviteOtherUserToModifyList(UserId, shoppingListId, OtherUser);
         sharingFacade.InviteOtherUserToModifyList(UserId, shoppingListId, otherUser2);
 
-        sharingFacade.MarkInvitationAsExpired(shoppingListId);
+        sharingFacade.MarkInvitationsAsExpired(shoppingListId);
 
         Assert.IsEmpty(sharingReadFacade.GetAllActiveInvitationsForUser(OtherUser));
         Assert.IsEmpty(sharingReadFacade.GetAllActiveInvitationsForUser(otherUser2));
@@ -151,7 +151,7 @@ internal class SharingInvitationFlowsTests : PurchaseBuddyTestsFixture
     {
         var shoppingListId = AShoppingListWithSingleItemCreated();
         sharingFacade.InviteOtherUserToModifyList(UserId, shoppingListId, OtherUser);
-        sharingFacade.MarkInvitationAsExpired(shoppingListId);
+        sharingFacade.MarkInvitationsAsExpired(shoppingListId);
 
         Assert.Throws<InvalidOperationException>(() => sharingFacade.AcceptAnInvite(shoppingListId, OtherUser));
     }

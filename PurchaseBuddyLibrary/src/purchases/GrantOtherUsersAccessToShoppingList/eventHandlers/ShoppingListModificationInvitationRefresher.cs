@@ -19,7 +19,7 @@ internal class ShoppingCompletedEventHandler : IRequestHandler<ShoppingCompleted
     public Task Handle(ShoppingCompleted notification, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling event ShoppingCompleted {@notification}", notification);
-        sharingFacade.MarkInvitationAsExpired(notification.ListId);
+        sharingFacade.MarkInvitationsAsExpired(notification.ListId);
         return Task.CompletedTask;
     }
 }

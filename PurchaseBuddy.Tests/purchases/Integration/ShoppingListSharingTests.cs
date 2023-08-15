@@ -102,21 +102,6 @@ internal class AllowedUserHasAccessToShoppingListManagementTests : PurchaseBuddy
 	}
 
 	[Test]
-	public void AllowedUserShouldBeAbleToAddNewListItemToList()
-	{
-		var shoppingListId = AShoppingListWithSingleItemCreated();
-		var otherUser = ANewUserCreated();
-		shoppingListWriteService.GrantAccessToModifyingList(shoppingListId, otherUser);
-
-		shoppingListWriteService.AddNewListItem(otherUser, shoppingListId, new AddNewListItemRequest { ProductName = "Banana", ProductCategoryName = "Fruits" });
-
-		var list = shoppingListReadService.GetShoppingList(otherUser, shoppingListId);
-		var addedProduct = list.ShoppingListItems.Find(item => item.ProductDto.Name == "Banana");
-		Assert.NotNull(addedProduct);
-		Assert.AreEqual("Fruits", addedProduct.ProductDto.CategoryName);
-	}
-
-	[Test]
 	public void AllowedUserShouldBeAbleToAddNewListItemsToList()
 	{
 		var shoppingListId = AShoppingListWithSingleItemCreated();
