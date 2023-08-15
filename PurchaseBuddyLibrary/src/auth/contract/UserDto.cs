@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace PurchaseBuddyLibrary.src.auth.contract;
-public class UserDto
+public class RegisterUserRequest
 {
 	[Required]
 	[MinLength(4)]

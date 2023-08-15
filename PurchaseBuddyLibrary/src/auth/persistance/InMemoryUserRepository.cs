@@ -4,6 +4,11 @@ namespace PurchaseBuddyLibrary.src.auth.persistance;
 
 public class InMemoryUserRepository : IUserRepository
 {
+	public List<User> GetAll()
+	{
+		return cache.Values.ToList();
+	}
+
     public void Add(User user)
     {
         if (cache.ContainsKey(user.Guid))

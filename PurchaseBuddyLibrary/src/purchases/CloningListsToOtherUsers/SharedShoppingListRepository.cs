@@ -2,19 +2,18 @@
 using Npgsql;
 using PurchaseBuddyLibrary.src.utils;
 
-namespace PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
+namespace PurchaseBuddyLibrary.src.purchases.CloningListsToOtherUsers;
 
 public class SharedShoppingListRepository : ISharedShoppingListRepository
 {
 	private readonly string connectionString;
-
 	public SharedShoppingListRepository(string connectionString)
-    {
+	{
 		this.connectionString = connectionString;
 	}
-    public SharedListDto? Get(Guid listToShareId)
+	public SharedListDto? Get(Guid listToShareId)
 	{
-        const string sql = @"select
+		const string sql = @"select
 id,
 guid,
 creator_guid as CreatorGuid,
@@ -23,14 +22,14 @@ source_list_guid as SourceListGuid,
 items
 from shared_shopping_lists where guid like @Guid";
 
-        using (var connection = new NpgsqlConnection(connectionString))
-        {
-            var dao = connection.QueryFirstOrDefault<SharedShoppingListDao>(sql, new
-            {
-                Guid = listToShareId.ToDatabaseStringFormat()
-            });
-            if (dao == null)
-                return null;
+		using (var connection = new NpgsqlConnection(connectionString))
+		{
+			var dao = connection.QueryFirstOrDefault<SharedShoppingListDao>(sql, new
+			{
+				Guid = listToShareId.ToDatabaseStringFormat()
+			});
+			if (dao == null)
+				return null;
 
 			return new SharedListDto
 			{
@@ -38,9 +37,9 @@ from shared_shopping_lists where guid like @Guid";
 				CreatedAt = dao.CreatedAt,
 				CreatorId = Guid.Parse(dao.CreatorGuid),
 				SourceId = Guid.Parse(dao.SourceListGuid),
-				Items = dao.GetShoppingListEntries().Select(x => new SharedListItemDto (x.ProductName, x.CategoryName)).ToList()
+				Items = dao.GetShoppingListEntries().Select(x => new SharedListItemDto(x.ProductName, x.CategoryName)).ToList()
 			};
-        }
+		}
 	}
 
 	public List<SharedListDto> GetAllWithSourceAndCreator(Guid sourceListGuid, Guid userId)
@@ -92,11 +91,11 @@ values
 			var dao = new SharedShoppingListDao(list);
 			connection.ExecuteScalar(sql, new
 			{
-				Guid = dao.Guid,
-				CreatorGuid = dao.CreatorGuid,
-				SourceListGuid = dao.SourceListGuid,
-				CreatedAt = dao.CreatedAt,
-				Items = dao.Items
+				dao.Guid,
+				dao.CreatorGuid,
+				dao.SourceListGuid,
+				dao.CreatedAt,
+				dao.Items
 			});
 		}
 	}

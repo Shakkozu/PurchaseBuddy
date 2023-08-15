@@ -8,4 +8,5 @@ public interface IUserRepository
 	public User GetByGuid(Guid guid);
 	public void Add(User user);
 	void GrantAdministratorAccessRights(Guid userId);
+	List<User> GetAll();
 }

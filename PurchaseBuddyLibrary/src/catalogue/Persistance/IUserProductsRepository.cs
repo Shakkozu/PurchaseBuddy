@@ -5,7 +5,6 @@ namespace PurchaseBuddy.src.catalogue.Persistance;
 public interface IProductsRepository
 {
 	List<IProduct> GetUserProducts(Guid userID);
-	List<IProduct> GetSharedProducts();
 	IProduct Save(IProduct product);
 	IProduct? GetProduct(Guid productGuid, Guid userId);
 	void SaveSharedProductCustomization(SharedProductCustomization customization);

@@ -18,7 +18,7 @@ public class Upgrade0003_CreateProductTables : Migration
 			.WithColumn("guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable().Unique()
 			.WithColumn("category_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).Nullable().WithDefaultValue(null)
 			.WithColumn("name").AsString(255).NotNullable();
-		
+
 		Create.ForeignKey("FK_SharedProducts_CategoryGuid_ProductCategories_Guid")
 			.FromTable(SharedProductsTableName).ForeignColumn("category_guid")
 			.ToTable(ProductCategoriesTableName).PrimaryColumn("guid");

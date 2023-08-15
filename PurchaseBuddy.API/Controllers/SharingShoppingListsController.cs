@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PurchaseBuddyLibrary.src.auth.app;
-using PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
+using PurchaseBuddyLibrary.src.purchases.CloningListsToOtherUsers;
 
 namespace PurchaseBuddy.API.Controllers;
 

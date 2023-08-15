@@ -1,5 +1,4 @@
 ﻿using PurchaseBuddy.src.purchases.persistance;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.purchases.persistance;
@@ -9,8 +8,10 @@ namespace PurchaseBuddy.src.purchases.domain;
 public class ShoppingList
 {
 	private readonly List<ShoppingListItem> shoppingListItems;
+	private readonly List<Guid> _allowedUsers = new();
 
 	public IReadOnlyCollection<ShoppingListItem> Items => new ReadOnlyCollection<ShoppingListItem>(shoppingListItems);
+	public IReadOnlyCollection<Guid> UsersAllowedToModify => new ReadOnlyCollection<Guid>(_allowedUsers);
 	public Guid UserId { get; }
 	public Guid Guid { get; }
 	public Guid? ShopId { get; }
@@ -19,10 +20,18 @@ public class ShoppingList
 	public DateTime? CompletedAt { get; private set; }
 
 
-	private ShoppingList(Guid userId, Guid? shopId, Guid guid, List<ShoppingListItem> shoppingListEntries, DateTime createdAt, DateTime? closedAt)
+	private ShoppingList(Guid userId,
+					  Guid? shopId,
+					  Guid guid,
+					  List<ShoppingListItem> shoppingListEntries,
+					  List<Guid> usersAllowedToModify,
+					  DateTime createdAt,
+					  DateTime? closedAt
+					  )
 	{
 		UserId = userId;
 		shoppingListItems = shoppingListEntries;
+		_allowedUsers = usersAllowedToModify ?? new List<Guid>();
 		CreatedAt = createdAt;
 		CompletedAt = closedAt;
 		Guid = guid;
@@ -31,17 +40,29 @@ public class ShoppingList
 	}
 	public static ShoppingList CreateNew(Guid userId, Guid? shopId = null)
 	{
-		return new ShoppingList(userId, shopId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
-	
+		return new ShoppingList(userId,
+						  shopId,
+						  Guid.NewGuid(),
+						  new List<ShoppingListItem>(),
+						  new List<Guid>(),
+						  DateTime.UtcNow,
+						  null);
+
 	}
 	public static ShoppingList CreateNew(Guid userId, List<ShoppingListItem> items, Guid? shopId = null)
 	{
 		if (!items.Any())
 			throw new InvalidOperationException("cannot create empty list");
 
-		var shoppingList = new ShoppingList(userId, shopId, Guid.NewGuid(), new List<ShoppingListItem>(), DateTime.UtcNow, null);
-		foreach(var item in items)
-			shoppingList.AddNew(item);
+		var shoppingList = new ShoppingList(userId,
+									  shopId,
+									  Guid.NewGuid(),
+									  new List<ShoppingListItem>(),
+									  new List<Guid>(),
+									  DateTime.UtcNow,
+									  null);
+		foreach (var item in items)
+			shoppingList.AddNew(item, userId);
 
 		return shoppingList;
 	}
@@ -56,18 +77,18 @@ public class ShoppingList
 
 	public void MarkListItemAsPurchased(Guid listItemId)
 	{
-		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.Guid == listItemId);
+		var toUpdate = shoppingListItems.Find(listItem => listItem.Guid == listItemId);
 		if (toUpdate is null)
 			return;
 
 		toUpdate.MarkAsPurchased();
-		if (!shoppingListItems.Any(listItem => !listItem.Purchased))
+		if (!shoppingListItems.Exists(listItem => !listItem.Purchased))
 			Complete();
 	}
 
 	internal void MarkListItemAsNotPurchased(Guid listItemId)
 	{
-		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.Guid == listItemId);
+		var toUpdate = shoppingListItems.Find(listItem => listItem.Guid == listItemId);
 		if (toUpdate is null)
 			return;
 
@@ -76,22 +97,24 @@ public class ShoppingList
 
 	public void MarkListItemAsUnavailable(Guid listItemId)
 	{
-		var toUpdate = shoppingListItems.FirstOrDefault(listItem => listItem.Guid == listItemId);
+		var toUpdate = shoppingListItems.Find(listItem => listItem.Guid == listItemId);
 		if (toUpdate is null)
 			return;
 
 		toUpdate.MarkAsUnavailable();
 	}
 
-	public void AddNew(ShoppingListItem shoppingListItem)
+	public void AddNew(ShoppingListItem shoppingListItem, Guid userId)
 	{
 		if (IsCompleted)
 			throw new InvalidOperationException("cannot add item to completed list");
+		if (!UserHasAccessToModifyingList(userId))
+			throw new InvalidOperationException($"User {userId} does not have access to list {Guid}");
 
-		if(shoppingListItem is ImportedShoppingListItem imported)
+		if (shoppingListItem is ImportedShoppingListItem imported)
 		{
 			var itemToIncrement = Items.FirstOrDefault(item => item is ImportedShoppingListItem importedItem && importedItem.ProductName.Trim() == imported.ProductName.Trim());
-			if(itemToIncrement != null)
+			if (itemToIncrement != null)
 				itemToIncrement.ChangeQuantityTo(itemToIncrement.Quantity + shoppingListItem.Quantity);
 			else
 				shoppingListItems.Add(imported);
@@ -104,8 +127,15 @@ public class ShoppingList
 			shoppingListItems.Add(shoppingListItem);
 	}
 
-	public void ChangeQuantityOf(Guid listItemId, int newQuantity)
+	private bool UserHasAccessToModifyingList(Guid userId)
 	{
+		return userId == UserId || _allowedUsers.Contains(userId);
+	}
+
+	public void ChangeQuantityOf(Guid listItemId, int newQuantity, Guid userId)
+	{
+		if (!UserHasAccessToModifyingList(userId))
+			throw new InvalidOperationException($"User {userId} does not have access to list {Guid}");
 		var itemToUpdate = shoppingListItems.Find(listItem => listItem.Guid == listItemId);
 		if (itemToUpdate == null)
 			return;
@@ -113,8 +143,10 @@ public class ShoppingList
 		itemToUpdate.ChangeQuantityTo(newQuantity);
 	}
 
-	public void Remove(Guid listItemId)
+	public void Remove(Guid listItemId, Guid userId)
 	{
+		if (!UserHasAccessToModifyingList(userId))
+			throw new InvalidOperationException($"User {userId} does not have access to list {Guid}");
 		var itemToRemove = shoppingListItems.Find(listItem => listItem.Guid == listItemId);
 		if (itemToRemove == null)
 			return;
@@ -124,20 +156,6 @@ public class ShoppingList
 			Complete();
 	}
 
-	internal ShoppingList GenerateNewWithNotBoughtItems(Guid shopId)
-	{
-		var notBoughtProducts = shoppingListItems
-			.Where(listItem => !listItem.Purchased)
-			.ToList();
-		if (!notBoughtProducts.Any())
-			throw new InvalidOperationException("cannnot create list when source is completed");
-
-		foreach (var itemToRemove in notBoughtProducts)
-			Remove(itemToRemove.Guid);
-
-		return CreateNew(UserId, notBoughtProducts, shopId);
-	}
-
 	internal static ShoppingList LoadFrom(ShoppingListDao dao)
 	{
 		var shoppingListEntries = dao.GetShoppingListEntries()
@@ -145,29 +163,25 @@ public class ShoppingList
 				ImportedShoppingListItem.LoadFrom(importedDao) :
 				ShoppingListItem.LoadFrom((UserShoppingListItemDao)listItemDao))
 			.ToList();
+
 		return new ShoppingList(
 			Guid.Parse(dao.UserGuid),
 			string.IsNullOrEmpty(dao.ShopGuid) ? (Guid?)null : Guid.Parse(dao.ShopGuid),
 			Guid.Parse(dao.Guid),
 			shoppingListEntries,
+			dao.GetUsersAllowedToModify(),
 			dao.CreatedAt,
 			dao.CompletedAt
 			);
 	}
 
-	public void UpdateListItems(IEnumerable<ShoppingListItem> newItemsList)
+	internal void GrantAccessToModifyingTo(Guid userId)
 	{
-		var productsToRemove = Items
-			.Where(existingItem => !newItemsList.Any(newItem => newItem.Guid == existingItem.Guid))
-			.Select(x => x.Guid)
-			.ToImmutableList();
-		var productsToAdd = newItemsList
-			.Where(newItem => !Items.Any(existingItem => existingItem.Guid == newItem.Guid))
-			.ToImmutableList();
+		if (userId == UserId)
+			return;
+		if (_allowedUsers.Contains(userId))
+			return;
 
-		foreach (var productToAdd in productsToAdd)
-			AddNew(productToAdd);
-		foreach (var productToRemove in productsToRemove)
-			Remove(productToRemove);
+		_allowedUsers.Add(userId);
 	}
 }

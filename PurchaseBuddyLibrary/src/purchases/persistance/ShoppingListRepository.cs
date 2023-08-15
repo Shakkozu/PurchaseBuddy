@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Npgsql;
 using PurchaseBuddy.src.purchases.domain;
+using PurchaseBuddyLibrary.src.auth.model;
 using PurchaseBuddyLibrary.src.utils;
 
 namespace PurchaseBuddy.src.purchases.persistance;
@@ -20,15 +21,17 @@ user_guid as UserGuid,
 shop_guid as ShopGuid,
 created_at as CreatedAt,
 completed_at as CompletedAt,
-items as ItemsString
+items as ItemsString,
+allowed_users as UsersAllowedToModify
 from shopping_lists
-where user_guid like @UserGuid";
+where user_guid like @UserGuid or allowed_users like @AllowedUsersQuery";
 
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			var dao = connection.Query<ShoppingListDao>(sql, new
 			{
-				UserGuid = userId.ToDatabaseStringFormat()
+				UserGuid = userId.ToDatabaseStringFormat(),
+				AllowedUsersQuery = $"%{userId.ToDatabaseStringFormat()}%"
 			});
 			if (dao == null || !dao.Any())
 				return new List<ShoppingList>();
@@ -47,15 +50,43 @@ user_guid as UserGuid,
 shop_guid as ShopGuid,
 created_at as CreatedAt,
 completed_at as CompletedAt,
-items as ItemsString
+items as ItemsString,
+allowed_users as UsersAllowedToModify
 from shopping_lists
-where guid like @Guid and user_guid like @UserGuid";
+where guid like @Guid and (user_guid like @UserGuid or allowed_users like @AllowedUsersQuery)";
 
 		using(var connection = new NpgsqlConnection(connectionString))
 		{
 			var dao = connection.QueryFirstOrDefault<ShoppingListDao>(sql, new
 			{
 				UserGuid = userId.ToDatabaseStringFormat(),
+				Guid = shoppingListGuid.ToDatabaseStringFormat(),
+				AllowedUsersQuery = $"%{userId.ToDatabaseStringFormat()}%"
+			});
+			if (dao == null)
+				return null;
+
+			return ShoppingList.LoadFrom(dao);
+		}
+	}
+
+	public ShoppingList? GetShoppingList(Guid shoppingListGuid)
+	{
+		const string sql = @"select 
+guid,
+user_guid as UserGuid,
+shop_guid as ShopGuid,
+created_at as CreatedAt,
+completed_at as CompletedAt,
+items as ItemsString,
+allowed_users as UsersAllowedToModify
+from shopping_lists
+where guid like @Guid";
+
+		using (var connection = new NpgsqlConnection(connectionString))
+		{
+			var dao = connection.QueryFirstOrDefault<ShoppingListDao>(sql, new
+			{
 				Guid = shoppingListGuid.ToDatabaseStringFormat()
 			});
 			if (dao == null)
@@ -95,7 +126,8 @@ values
 		const string sql = @"update shopping_lists set
 shop_guid = @ShopGuid,
 completed_at = @CompletedAt,
-items = @Items
+items = @Items,
+allowed_users = @UsersAllowedToModify
 where guid like @Guid";
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
@@ -105,7 +137,8 @@ where guid like @Guid";
 				Guid = dao.Guid,
 				ShopGuid = dao.ShopGuid,
 				Items = dao.ItemsString,
-				CompletedAt = dao.CompletedAt,
+				UsersAllowedToModify = dao.UsersAllowedToModify,
+				CompletedAt = dao.CompletedAt
 			});
 		}
 	}

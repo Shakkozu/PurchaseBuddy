@@ -44,8 +44,7 @@ internal class PurchaseBuddyApp : WebApplicationFactory<Program>
 			collection.AddTransient<Fixtures>();
 			PurchaseBuddyFixture.RegisterDependencies(collection, databaseConnectionString);
 
-
-			}
+		}
 		);
         builder.ConfigureServices(_customization);
     }

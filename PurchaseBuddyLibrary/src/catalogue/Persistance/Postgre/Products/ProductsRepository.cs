@@ -44,11 +44,6 @@ where sp.guid like @ProductGuid and (spc.user_guid is null or spc.user_guid like
         }
     }
 
-    public List<IProduct> GetSharedProducts()
-    {
-        throw new NotImplementedException();
-    }
-
     public List<IProduct> GetUserProducts(Guid userID)
     {
         using (var connection = new NpgsqlConnection(connectionString))

@@ -3,7 +3,7 @@
 namespace PurchaseBuddy.Database.Migrations;
 
 [Migration(4, "Create shared products customization table")]
-public class Upgrade0004_CreateSharedProductsCustomization: Migration
+public class Upgrade0004_CreateSharedProductsCustomization : Migration
 {
 	public override void Down()
 	{
@@ -11,7 +11,7 @@ public class Upgrade0004_CreateSharedProductsCustomization: Migration
 	}
 
 	public override void Up()
-	{		
+	{
 		Create.Table(SharedProductsCustomizationTable)
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
 			.WithColumn("product_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).NotNullable().ForeignKey("shared_products", "guid")

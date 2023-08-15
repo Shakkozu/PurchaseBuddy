@@ -1,15 +1,15 @@
 ﻿using Newtonsoft.Json;
 using PurchaseBuddyLibrary.src.utils;
 
-namespace PurchaseBuddyLibrary.src.purchases.ShoppingListSharing;
+namespace PurchaseBuddyLibrary.src.purchases.CloningListsToOtherUsers;
 
 internal class SharedShoppingListDao
 {
-    public SharedShoppingListDao()
-    {
-        
-    }
-    public SharedShoppingListDao(SharedListDto list)
+	public SharedShoppingListDao()
+	{
+
+	}
+	public SharedShoppingListDao(SharedListDto list)
 	{
 		Guid = list.Guid.ToDatabaseStringFormat();
 		CreatorGuid = list.CreatorId.ToDatabaseStringFormat();
@@ -23,11 +23,11 @@ internal class SharedShoppingListDao
 
 
 	public int Id { get; set; }
-    public string Guid { get; set; }
-    public string CreatorGuid { get; set; }
-    public string SourceListGuid { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public string Items { get; set; }
+	public string Guid { get; set; }
+	public string CreatorGuid { get; set; }
+	public string SourceListGuid { get; set; }
+	public DateTime CreatedAt { get; set; }
+	public string Items { get; set; }
 
 	internal List<SharedShoppingListItemDao> GetShoppingListEntries()
 	{

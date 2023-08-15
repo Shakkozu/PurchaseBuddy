@@ -3,14 +3,14 @@
 namespace PurchaseBuddy.Database.Migrations;
 
 [Migration(8, "Change datetimes column type to timestamp with time zone in shopping list table")]
-public class Upgrade0008_AddInformationAboutTimeZoneToDatesStoredInShoppingTable: Migration
+public class Upgrade0008_AddInformationAboutTimeZoneToDatesStoredInShoppingTable : Migration
 {
-    public override void Down()
-    {
-    }
+	public override void Down()
+	{
+	}
 
-    public override void Up()
-    {
+	public override void Up()
+	{
 		Execute.Sql(@"ALTER TABLE shopping_lists ADD COLUMN created_at_utc timestamp with time zone;");
 		Execute.Sql(@"ALTER TABLE shopping_lists ADD COLUMN completed_at_utc timestamp with time zone;");
 
@@ -22,7 +22,7 @@ public class Upgrade0008_AddInformationAboutTimeZoneToDatesStoredInShoppingTable
 
 		Execute.Sql(@"ALTER TABLE shopping_lists RENAME COLUMN created_at_utc TO created_at;");
 		Execute.Sql(@"ALTER TABLE shopping_lists RENAME COLUMN completed_at_utc TO completed_at;");
-    }
+	}
 
 	private const string ShoppingListTableName = "shopping_lists";
 }

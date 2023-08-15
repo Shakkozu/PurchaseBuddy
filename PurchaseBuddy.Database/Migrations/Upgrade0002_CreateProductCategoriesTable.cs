@@ -22,7 +22,7 @@ public class Upgrade0002_CreateProductCategoriesTable : Migration
 			.WithColumn("user_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).Nullable().ForeignKey("users", "guid")
 			.WithColumn("name").AsString().NotNullable()
 			.WithColumn("description").AsString().Nullable();
-		
+
 		Create.Table(ProductCategoriesHierarchyTableName)
 			.WithColumn("id").AsInt64().NotNullable().PrimaryKey().Identity()
 			.WithColumn("category_guid").AsFixedLengthString(MigrationHelper.GuidColumnLength).ForeignKey(ProductCategoriesTableName, "guid")

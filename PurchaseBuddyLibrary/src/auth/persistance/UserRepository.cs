@@ -3,6 +3,7 @@ using Dapper;
 using Npgsql;
 using PurchaseBuddy.src.infra;
 using PurchaseBuddyLibrary.src.utils;
+using System;
 
 namespace PurchaseBuddyLibrary.src.auth.persistance;
 
@@ -22,6 +23,19 @@ public class UserRepository : IUserRepository
 		using (var connection = new NpgsqlConnection(connectionString))
 		{
 			connection.Execute(sql, UserDao.From(user));
+		}
+	}
+
+	public List<User> GetAll()
+	{
+		var sql = @"select guid, email, login, salt, password_hash, is_administrator as IsAdministrator from users";
+		using (var connection = new NpgsqlConnection(connectionString))
+		{
+			var result = connection.Query<UserDao>(sql);
+			if (result == null)
+				return new List<User>();
+
+			return result.Select(user => user.ToUser()).ToList();
 		}
 	}
 

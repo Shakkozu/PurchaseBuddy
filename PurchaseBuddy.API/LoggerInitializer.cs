@@ -16,5 +16,6 @@ public static class LoggerInitializer
 			{
 				logging.ClearProviders();
 				logging.AddConsole();
+				// TODO: add db
 			});
 }

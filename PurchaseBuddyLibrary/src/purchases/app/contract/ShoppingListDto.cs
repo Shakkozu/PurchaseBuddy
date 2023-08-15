@@ -1,12 +1,14 @@
 ﻿using PurchaseBuddy.src.purchases.domain;
+using PurchaseBuddyLibrary.src.crm;
 using PurchaseBuddyLibrary.src.stores.contract;
 
 namespace PurchaseBuddyLibrary.src.purchases.app.contract;
 public class ShoppingListDto
 {
-    public ShoppingListDto(Guid userId, ShoppingList shoppingList, UserShopDto? shopDto, IEnumerable<ShoppingListItemDto> listItems)
+    public ShoppingListDto(UserDto userDto, ShoppingList shoppingList, UserShopDto? shopDto, IEnumerable<ShoppingListItemDto> listItems)
     {
-        UserId = userId;
+        CreatorId = shoppingList.UserId;
+        CreatorName = userDto.Name;
         Guid = shoppingList.Guid;
         AssignedShop = shopDto;
         Completed = shoppingList.CompletedAt.HasValue;
@@ -45,8 +47,9 @@ public class ShoppingListDto
 	}
 
 	public Guid Guid { get; set; }
-    public Guid UserId { get; set; }
-    public UserShopDto? AssignedShop { get; set; }
+    public Guid CreatorId { get; set; }
+	public string CreatorName { get; }
+	public UserShopDto? AssignedShop { get; set; }
 	
 	public List<ShoppingListItemDto> ShoppingListItems { get; set; }
 	public bool? Completed { get; set; }
