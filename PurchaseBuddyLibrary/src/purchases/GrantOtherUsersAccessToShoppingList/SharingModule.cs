@@ -1,6 +1,8 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using PurchaseBuddyLibrary.src.purchases.app.events;
+using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList;
 using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.eventHandlers;
 using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.persistance;
 
@@ -8,7 +10,7 @@ namespace PurchaseBuddy.src.purchases.app;
 
 public static class SharingModule
 {
-	public static void Register(IServiceCollection serviceCollection, string connectionString)
+	public static void RegisterDependencies(IServiceCollection serviceCollection, string connectionString)
 	{
 		serviceCollection.AddTransient<IRequestHandler<ShoppingCompleted>, ShoppingCompletedEventHandler>();
 		serviceCollection.AddTransient<SharingFacade>();

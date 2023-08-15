@@ -1,6 +1,6 @@
 ﻿using PurchaseBuddy.src.purchases.app;
-using PurchaseBuddy.src.purchases.domain;
 using PurchaseBuddy.src.purchases.persistance;
+using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.domain;
 using System.Linq;
 
 namespace PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.persistance;
@@ -17,7 +17,7 @@ public class InMemoryShoppingListInvitationsRepository : IShoppingListInvitation
 
     public IEnumerable<ShoppingInvitationsList> GetAllWhereUserIsOnInvitationsList(Guid userGuid)
     {
-        return cache.Values.Where(x => x.UsersInvitedToModify.Contains(userGuid) && x.IsActive).ToList();
+        return cache.Values.Where(x => x.UsersInvitedToModify.Any(invite => invite.UserId == userGuid) && x.IsActive).ToList();
     }
 
     public void Save(ShoppingInvitationsList shoppingList)

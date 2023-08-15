@@ -1,7 +1,17 @@
-﻿using PurchaseBuddy.src.purchases.domain;
+﻿using System;
+using Newtonsoft.Json;
+using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.domain;
 using PurchaseBuddyLibrary.src.utils;
 
 namespace PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.persistance;
+
+
+
+internal class InvitationDao
+{
+    public Guid UserId { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
 
 public class ShoppingInvitationsListDao
 {
@@ -9,7 +19,6 @@ public class ShoppingInvitationsListDao
 	{
 
 	}
-
 
 	internal ShoppingInvitationsListDao(ShoppingInvitationsList invitations)
 	{
@@ -19,8 +28,12 @@ public class ShoppingInvitationsListDao
 		Guid = invitations.Guid.ToDatabaseStringFormat();
 		UsersAllowedToModify = string.Join(UsersSeparator,
 			invitations.UsersAllowedToModify.Select(x => x.ToDatabaseStringFormat()));
-		UsersInvitedToModify = string.Join(UsersSeparator,
-			invitations.UsersInvitedToModify.Select(x => x.ToDatabaseStringFormat()));
+		var invitationDtos = invitations.UsersInvitedToModify.Select(x => new InvitationDao
+		{
+			CreatedAt = x.CreatedAt,
+			UserId = x.UserId
+		});
+		UsersInvitedToModify = JsonConvert.SerializeObject(invitationDtos, Formatting.Indented);
 	}
 
 	public string ListId { get; set; }
@@ -38,13 +51,17 @@ public class ShoppingInvitationsListDao
 		var users = UsersAllowedToModify.Split(UsersSeparator, StringSplitOptions.TrimEntries);
 		return users.Select(System.Guid.Parse).ToList();
 	}
-	internal List<Guid> GetUsersInvitedToModify()
+	internal List<Invitation> GetUsersInvitedToModify()
 	{
 		if (string.IsNullOrEmpty(UsersInvitedToModify))
-			return new List<Guid>();
+			return new List<Invitation>();
 
-		var users = UsersInvitedToModify.Split(UsersSeparator, StringSplitOptions.TrimEntries);
-		return users.Select(System.Guid.Parse).ToList();
+		var daos = JsonConvert.DeserializeObject<List<InvitationDao>>(UsersInvitedToModify);
+		return daos.Select(x => new Invitation
+		{
+			CreatedAt = x.CreatedAt,
+			UserId = x.UserId
+		}).ToList();
 	}
 
 	private const string UsersSeparator = ",";

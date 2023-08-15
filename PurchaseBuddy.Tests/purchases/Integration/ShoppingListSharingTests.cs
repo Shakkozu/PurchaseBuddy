@@ -6,10 +6,13 @@ using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.domain;
 using PurchaseBuddyLibrary.purchases.domain;
+using PurchaseBuddyLibrary.src.auth.persistance;
 using PurchaseBuddyLibrary.src.catalogue.Model.Product;
+using PurchaseBuddyLibrary.src.crm;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 
 namespace PurchaseBuddy.Tests.purchases.Integration;
+
 internal class AllowedUserHasAccessToShoppingListManagementTests : PurchaseBuddyTestsFixture
 {
 	private IUserProductsManagementService productsManagementService;
@@ -25,6 +28,8 @@ internal class AllowedUserHasAccessToShoppingListManagementTests : PurchaseBuddy
 	{
 		var services = new ServiceCollection();
 		PurchaseBuddyFixture.RegisterDependencies(services, null);
+		var usersProvider = new UsersProvider(new UserRepository(TestConfigurationHelper.GetConnectionString()));
+		services.AddSingleton<IUsersProvider>(usersProvider);
 		var serviceProvider = services.BuildServiceProvider();
 
 		productsManagementService = serviceProvider.GetRequiredService<IUserProductsManagementService>();
@@ -109,6 +114,20 @@ internal class AllowedUserHasAccessToShoppingListManagementTests : PurchaseBuddy
 		var addedProduct = list.ShoppingListItems.Find(item => item.ProductDto.Name == "Banana");
 		Assert.NotNull(addedProduct);
 		Assert.AreEqual("Fruits", addedProduct.ProductDto.CategoryName);
+	}
+
+	[Test]
+	public void AllowedUserShouldBeAbleToAddNewListItemsToList()
+	{
+		var shoppingListId = AShoppingListWithSingleItemCreated();
+		var otherUser = ANewUserCreated();
+		shoppingListWriteService.GrantAccessToModifyingList(shoppingListId, otherUser);
+
+		shoppingListWriteService.AddNewListItem(otherUser, shoppingListId, new AddNewListItemRequest { ProductName = "Banana", ProductCategoryName = "Fruits" });
+		shoppingListWriteService.AddNewListItem(otherUser, shoppingListId, new AddNewListItemRequest { ProductName = "Chocolate", ProductCategoryName = "Sweets" });
+
+		var list = shoppingListReadService.GetShoppingList(otherUser, shoppingListId);
+		Assert.AreEqual(3, list.ShoppingListItems.Count);
 	}
 
 	[Test]

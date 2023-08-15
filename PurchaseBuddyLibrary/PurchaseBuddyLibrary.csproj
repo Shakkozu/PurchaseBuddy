@@ -5,19 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <Compile Remove="src\catalogue\Domain\**" />
     <Compile Remove="src\catalogue\infra\**" />
-    <Compile Remove="src\crm\**" />
     <Compile Remove="src\infra\Migrations\**" />
     <EmbeddedResource Remove="src\catalogue\Domain\**" />
     <EmbeddedResource Remove="src\catalogue\infra\**" />
-    <EmbeddedResource Remove="src\crm\**" />
     <EmbeddedResource Remove="src\infra\Migrations\**" />
     <None Remove="src\catalogue\Domain\**" />
     <None Remove="src\catalogue\infra\**" />
-    <None Remove="src\crm\**" />
     <None Remove="src\infra\Migrations\**" />
   </ItemGroup>
 

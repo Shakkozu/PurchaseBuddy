@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PurchaseBuddyLibrary.src.auth.app;
 using PurchaseBuddyLibrary.src.auth.contract;
@@ -8,6 +7,7 @@ using System.Net;
 using System.Security.Claims;
 
 namespace PurchaseBuddy.API.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 public class AuthorizationController : BaseController
@@ -35,7 +35,7 @@ public class AuthorizationController : BaseController
     }
 
     [HttpPost("register")]
-    public IActionResult Register([FromBody] UserDto userDto)
+    public IActionResult Register([FromBody] RegisterUserRequest userDto)
     {
         try
         {
@@ -63,7 +63,8 @@ public class AuthorizationController : BaseController
             if (user is null)
                 throw new Exception();
 
-            return Ok(sessionId);
+			var response = new LoginResponse(sessionId, user.Guid);
+			return Ok(response);
         }
         catch (Exception e)
         {
@@ -91,6 +92,8 @@ public class AuthorizationController : BaseController
         return Ok();
     }
 }
+
+public record LoginResponse(Guid SessionId, Guid UserId);
 
 public record ErrorResponse
 {

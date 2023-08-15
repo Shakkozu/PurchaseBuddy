@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace PurchaseBuddyLibrary.src.auth.app;
+
 public class AuthorizationService : IUserAuthorizationService
 {
     public AuthorizationService(IUserRepository userRepository,
@@ -20,7 +21,7 @@ public class AuthorizationService : IUserAuthorizationService
         this.configuration = configuration;
     }
 
-    public Guid Register(UserDto userDto)
+    public Guid Register(RegisterUserRequest userDto)
     {
         if (userRepository.GetByEmail(userDto.Email) != null)
             throw new ArgumentException("User with this email already exists");

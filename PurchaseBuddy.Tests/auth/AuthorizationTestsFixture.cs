@@ -16,9 +16,9 @@ internal abstract class AuthorizationTestsFixture
 
     protected IConfiguration Configuration { get; private set; }
 
-    protected UserDto AUser()
+    protected RegisterUserRequest AUser()
     {
-        return new UserDto
+        return new RegisterUserRequest
         {
             Email = "john.doe@example.com",
             Login = "johnDoe",

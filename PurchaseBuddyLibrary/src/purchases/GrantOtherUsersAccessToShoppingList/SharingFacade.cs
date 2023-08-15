@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using PurchaseBuddy.src.purchases.domain;
-using PurchaseBuddy.src.purchases.persistance;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
-using PurchaseBuddyLibrary.src.purchases.app.eventHandlers;
+using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.domain;
 using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.events;
 
 namespace PurchaseBuddy.src.purchases.app;
@@ -33,7 +31,7 @@ public class SharingFacade
 		mediator.Send(new InvitationToModifyingShoppingListAccepted(DateTime.Now, listId, invitedUserId));
 	}
 
-	public void InviteOtherUserToModifyList(Guid listCreatorId, Guid listId, Guid invitedUserId)
+	public Guid InviteOtherUserToModifyList(Guid listCreatorId, Guid listId, Guid invitedUserId)
 	{
 		var invitationsList = repo.Get(listId);
 		var list = shoppingListReadService.GetShoppingList(listCreatorId, listId);
@@ -46,11 +44,12 @@ public class SharingFacade
 			invitationsList.InviteUser(invitedUserId, list.CreatorId);
 			repo.Save(invitationsList);
 
-			return;
+			return invitationsList.Guid;
 		}
 
 		invitationsList.InviteUser(invitedUserId, list.CreatorId);
 		repo.Update(invitationsList);
+		return invitationsList.Guid;
 	}
 
 	public void RejectAnInvite(Guid listId, Guid invitedUserId)

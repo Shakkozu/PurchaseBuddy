@@ -1,7 +1,5 @@
 ﻿using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddyLibrary.src.purchases.app.contract;
 using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.events;
 
@@ -24,13 +22,4 @@ internal class GrantAccessToModifyingSharedListService : IRequestHandler<Invitat
         shoppingListWrite.GrantAccessToModifyingList(request.ListId, request.UserId);
         return Task.CompletedTask;
     }
-}
-public static class PurchaseModule
-{
-	public static void RegisterModule(IServiceCollection serviceCollection)
-	{
-		serviceCollection.AddTransient<IShoppingListReadService, ShoppingListReadService>();
-		serviceCollection.AddTransient<IShoppingListWriteService, ShoppingListWriteService>();
-		serviceCollection.AddTransient<IRequestHandler<InvitationToModifyingShoppingListAccepted>, GrantAccessToModifyingSharedListService>();
-	}
 }

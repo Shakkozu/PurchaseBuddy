@@ -1,10 +1,7 @@
 ﻿using PurchaseBuddy.src.purchases.persistance;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using PurchaseBuddyLibrary.purchases.domain;
 using PurchaseBuddyLibrary.purchases.persistance;
-using System.Collections.Generic;
-using PurchaseBuddyLibrary.src.auth.model;
 
 namespace PurchaseBuddy.src.purchases.domain;
 
@@ -27,12 +24,14 @@ public class ShoppingList
 					  Guid? shopId,
 					  Guid guid,
 					  List<ShoppingListItem> shoppingListEntries,
+					  List<Guid> usersAllowedToModify,
 					  DateTime createdAt,
 					  DateTime? closedAt
 					  )
 	{
 		UserId = userId;
 		shoppingListItems = shoppingListEntries;
+		_allowedUsers = usersAllowedToModify ?? new List<Guid>();
 		CreatedAt = createdAt;
 		CompletedAt = closedAt;
 		Guid = guid;
@@ -45,6 +44,7 @@ public class ShoppingList
 						  shopId,
 						  Guid.NewGuid(),
 						  new List<ShoppingListItem>(),
+						  new List<Guid>(),
 						  DateTime.UtcNow,
 						  null);
 
@@ -58,6 +58,7 @@ public class ShoppingList
 									  shopId,
 									  Guid.NewGuid(),
 									  new List<ShoppingListItem>(),
+									  new List<Guid>(),
 									  DateTime.UtcNow,
 									  null);
 		foreach (var item in items)
@@ -168,6 +169,7 @@ public class ShoppingList
 			string.IsNullOrEmpty(dao.ShopGuid) ? (Guid?)null : Guid.Parse(dao.ShopGuid),
 			Guid.Parse(dao.Guid),
 			shoppingListEntries,
+			dao.GetUsersAllowedToModify(),
 			dao.CreatedAt,
 			dao.CompletedAt
 			);
@@ -181,97 +183,5 @@ public class ShoppingList
 			return;
 
 		_allowedUsers.Add(userId);
-	}
-}
-
-public class ShoppingInvitationsList
-{
-	private readonly List<Guid> _usersAllowedToModify;
-	private readonly List<Guid> _usersInvitedToModify;
-
-	public bool IsCompleted { get; private set; }
-	public Guid ListId { get; private set; }
-	public Guid Guid { get; private set; }
-	public Guid CreatorId { get; private set; }
-	public IReadOnlyCollection<Guid> UsersAllowedToModify => new ReadOnlyCollection<Guid>(_usersAllowedToModify);
-	public IReadOnlyCollection<Guid> UsersInvitedToModify => new ReadOnlyCollection<Guid>(_usersInvitedToModify);
-
-	public bool IsActive { get; private set; }
-
-	public static ShoppingInvitationsList CreateNew(Guid listId, bool listCompleted, Guid creatorId)
-	{
-		if (listCompleted)
-			throw new InvalidOperationException("Cannot invite user to already completed list");
-
-		return new ShoppingInvitationsList(
-			listId,
-			true,
-			Guid.NewGuid(),
-			creatorId,
-			new List<Guid>(),
-			new List<Guid>());
-	}
-	public static ShoppingInvitationsList LoadFrom(ShoppingInvitationsListDao dao)
-	{
-		return new ShoppingInvitationsList(Guid.Parse(dao.ListId),
-			dao.IsActive,
-			Guid.Parse(dao.Guid),
-			Guid.Parse(dao.CreatorId),
-			dao.GetUsersInvitedToModify(),
-			dao.GetUsersAllowedToModify());
-	}
-	private ShoppingInvitationsList(Guid listId,
-		bool isActive,
-		Guid guid,
-		Guid listCreatorId,
-		List<Guid> usersInvitedToModify,
-		List<Guid> usersAllowedToModify)
-	{
-		Guid = guid;
-		CreatorId = listCreatorId;
-		ListId = listId;
-		IsActive = isActive;
-		_usersInvitedToModify = usersInvitedToModify ?? new List<Guid>();
-		_usersAllowedToModify = usersAllowedToModify ?? new List<Guid>();
-	}
-
-	internal void MarkAsExpired()
-	{
-		IsActive = false;
-	}
-
-	internal void InviteUser(Guid otherUser, Guid listCreatorId)
-	{
-		if (!IsActive)
-			throw new InvalidOperationException("Inviting other users to modyfing a list is not permitted anymore");
-		if(listCreatorId != CreatorId)
-			throw new InvalidOperationException("Only creator can invite other users");
-		if (_usersInvitedToModify.Contains(otherUser))
-			return;
-
-		_usersInvitedToModify.Add(otherUser);
-	}
-
-	internal void AcceptInviteToModify(Guid invitedUser)
-	{
-		if (!IsActive)
-			throw new InvalidOperationException("Resource has expired");
-
-		if (_usersAllowedToModify.Contains(invitedUser))
-			return;
-
-		if (!_usersInvitedToModify.Contains(invitedUser))
-			throw new InvalidOperationException($"User with guid: {invitedUser} is not invited to modify list");
-
-		_usersAllowedToModify.Add(invitedUser);
-		_usersInvitedToModify.Remove(invitedUser);
-	}
-
-	internal void Reject(Guid invitedUser)
-	{
-		if (_usersAllowedToModify.Contains(invitedUser))
-			_usersAllowedToModify.Remove(invitedUser);
-		if (_usersInvitedToModify.Contains(invitedUser))
-			_usersInvitedToModify.Remove(invitedUser);
 	}
 }

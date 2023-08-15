@@ -1,4 +1,4 @@
-﻿using PurchaseBuddy.src.purchases.domain;
+﻿using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.domain;
 
 namespace PurchaseBuddy.src.purchases.app;
 

@@ -1,7 +1,5 @@
-﻿using MediatR;
-using PurchaseBuddy.src.catalogue.App;
+﻿using PurchaseBuddy.src.catalogue.App;
 using PurchaseBuddy.src.catalogue.Persistance;
-using PurchaseBuddy.src.purchases.app;
 using PurchaseBuddy.src.purchases.persistance;
 using PurchaseBuddy.src.stores.app;
 using PurchaseBuddy.src.stores.persistance;
@@ -11,10 +9,9 @@ using PurchaseBuddyLibrary.src.catalogue.Commands.SharedProducts;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.InMemory;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Categories;
 using PurchaseBuddyLibrary.src.catalogue.Persistance.Postgre.Products;
-using PurchaseBuddyLibrary.src.purchases.app.contract;
+using PurchaseBuddyLibrary.src.crm;
 using PurchaseBuddyLibrary.src.purchases.app.eventHandlers;
 using PurchaseBuddyLibrary.src.purchases.CloningListsToOtherUsers;
-using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.events;
 using PurchaseBuddyLibrary.src.stores.app;
 using PurchaseBuddyLibrary.src.utils;
 
@@ -30,6 +27,7 @@ public static class PurchaseBuddyFixture
 		RegisterRepositories(serviceCollection, connectionString);
 		serviceCollection.AddTransient<IUserAuthorizationService, AuthorizationService>();
 		serviceCollection.AddTransient<UserShopService, UserShopService>();
+		serviceCollection.AddTransient<IUsersProvider, UsersProvider>();
 		serviceCollection.AddTransient<IUserShopService, UserShopService>();
 		serviceCollection.AddTransient<IUserProductCategoriesManagementService, UserProductCategoriesManagementService>();
 		serviceCollection.AddTransient<IShopCategoryListManagementService, ShopCategoryListManagementService>();
@@ -40,9 +38,7 @@ public static class PurchaseBuddyFixture
 		serviceCollection.AddTransient<ShoppingListSharingFacade>();
         serviceCollection.AddTransient<ITimeService, TimeService>();
 
-		PurchaseModule.RegisterModule(serviceCollection);
-		SharingModule.Register(serviceCollection, connectionString);
-
+		PurchaseModule.RegisterModule(serviceCollection, connectionString);
 	}
 
 	private static void RegisterRepositories(IServiceCollection serviceCollection, string connectionString)

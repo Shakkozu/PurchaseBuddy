@@ -4,7 +4,7 @@ using PurchaseBuddyLibrary.src.auth.model;
 namespace PurchaseBuddyLibrary.src.auth.app;
 public interface IUserAuthorizationService
 {
-    Guid Register(UserDto userDto);
+    Guid Register(RegisterUserRequest userDto);
     Guid Login(string login, string password);
 
     User GetUserFromSessionId(Guid sessionId);

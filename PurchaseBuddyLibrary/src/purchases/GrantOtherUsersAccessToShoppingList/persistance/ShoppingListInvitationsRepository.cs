@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Npgsql;
 using PurchaseBuddy.src.purchases.app;
-using PurchaseBuddy.src.purchases.domain;
+using PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.domain;
 using PurchaseBuddyLibrary.src.utils;
 
 namespace PurchaseBuddyLibrary.src.purchases.GrantOtherUsersAccessToShoppingList.persistance;
@@ -105,9 +105,9 @@ values
 		const string sqlQuery = @"
 update shopping_invitations
 set
-	(is_active = @IsActive,
-	invited_users = @UsersInvitedToModify
-	allowed_users = @UsersAllowedToModify)
+	is_active = @IsActive,
+	invited_users = @UsersInvitedToModify,
+	allowed_users = @UsersAllowedToModify
 where guid like @Guid";
 		using (var dbConnection = new NpgsqlConnection(connectionString))
 		{
