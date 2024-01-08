@@ -31,7 +31,7 @@ public class AuthorizationService : IUserAuthorizationService
         if (!ValidateIfEmailIsCorrect(userDto.Email))
             throw new ArgumentException("Email is incorrect");
 
-		if (!ValidateIfPasswordIsCorrect(userDto.Password))
+		if (!ValidateIfPasswordIsCorrect(userDto.Password, userDto.ConfirmPassword))
 			throw new ArgumentException("Password is incorrect");
 
 		var salt = GetHash(Guid.NewGuid().ToString("N"));
@@ -121,14 +121,15 @@ public class AuthorizationService : IUserAuthorizationService
             authProperties);
     }
 
-    private bool ValidateIfPasswordIsCorrect(string password)
+    private bool ValidateIfPasswordIsCorrect(string password, string confirmPassword)
     {
         return password != null
             && password.Length >= 6
             && password.Any(char.IsDigit)
             && password.Any(char.IsLetter)
             && password.Any(char.IsUpper)
-            && password.Any(char.IsLower);
+            && password.Any(char.IsLower)
+            && password == confirmPassword;
     }
 
     private bool ValidateIfEmailIsCorrect(string email)

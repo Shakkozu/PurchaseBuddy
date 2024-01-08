@@ -15,4 +15,9 @@ public class RegisterUserRequest
 	[MinLength(6)]
 	[PasswordPropertyText]
 	public string? Password { get; set; }
+
+	[Required]
+	[MinLength(6)]
+	[PasswordPropertyText]
+	public string? ConfirmPassword { get; set; }
 }
