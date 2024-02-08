@@ -22,7 +22,8 @@ internal abstract class AuthorizationTestsFixture
         {
             Email = "john.doe@example.com",
             Login = "johnDoe",
-            Password = "zaq1@WSX"
+            Password = "zaq1@WSX",
+            ConfirmPassword ="zaq1@WSX", 
         };
     }
 }

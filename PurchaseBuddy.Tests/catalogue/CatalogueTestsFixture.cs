@@ -59,7 +59,7 @@ internal class CatalogueTestsFixture
 		var userRepository = new UserRepository(TestConfigurationHelper.GetConnectionString());
 		var authService = new AuthorizationService(userRepository, null);
 
-		return authService.Register(new RegisterUserRequest { Password = "examplePassword123!", Login = login, Email = login + "@example.com"});
+		return authService.Register(new RegisterUserRequest { Password = "examplePassword123!", ConfirmPassword = "examplePassword123!",Login = login, Email = login + "@example.com"});
 	}
 	
 	protected Guid AdministratorCreated()
