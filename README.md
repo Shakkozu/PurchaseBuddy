@@ -2,13 +2,16 @@
 [![Build and deploy](https://github.com/Shakkozu/PurchaseBuddy/actions/workflows/PurchaseBuddy.yml/badge.svg?branch=master)](https://github.com/Shakkozu/PurchaseBuddy/actions/workflows/PurchaseBuddy.yml)
 
 Welcome to PurchaseBuddy, your go-to solution for efficiently managing your shopping lists.
+
 Project was developed with a focus on enhancing skills related to Continuous Integration/Continuous Deployment (CI/CD) and deployment practices.
+
 PurchaseBuddy aims to enhance the shopping experience while enable users to collaborate on shared shopping lists.
 
 ## General information
 
 PurchaseBuddy simplifies the task of creating and organizing shopping lists by categorizing items based on their location in the store.
 It also allows users to structure shopping lists items according to shop-placement categories, ensuring a smoother and more efficient shopping experience.
+
 Additionally, the project supports collaborative list management, allowing users to share their lists with others and work together on the same list.
 
 ### Authentication
@@ -49,7 +52,7 @@ src/purchases/app/ShoppingListWriteService.cs
 ## Gallery
 |Defining Products|Product categories list|Defining shop configuration | Working on shopping list|
 |-|-|-|-|
-![defining-new-product-image](/docs/defining-new-product.png)|![categories-list](image.png)|![shop-categories-organization](docs/shop-categories-organization.png)|![list-modification-image](docs/list-modification.png)
+![defining-new-product-image](/docs/defining-new-product.png)|![categories-list](docs/categories-list.png)|![shop-categories-organization](docs/shop-categories-organization.png)|![list-modification-image](docs/list-modification.png)
 
  
  
